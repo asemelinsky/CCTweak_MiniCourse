@@ -25,10 +25,11 @@ const AudioPlayer = (function() {
   // Каталог SFX-файлів. Шляхи відносні до кореня.
   // Якщо файлу немає — play() тихо ігнорує (не крешить).
   const SFX = {
-    step:    'public/audio/sfx/step.mp3',
-    success: 'public/audio/sfx/success.mp3',
-    failure: 'public/audio/sfx/failure.mp3',
-    click:   'public/audio/sfx/click.mp3',
+    step:      'public/audio/sfx/step.mp3',
+    success:   'public/audio/sfx/success.mp3',
+    failure:   'public/audio/sfx/failure.mp3',
+    click:     'public/audio/sfx/click.mp3',
+    'test-beep': 'public/audio/sfx/test-beep.mp3',
   };
 
   // Preloaded Audio-об'єкти для SFX (щоб не було затримки на першому відтворенні)
@@ -66,7 +67,7 @@ const AudioPlayer = (function() {
     for (const [name, url] of Object.entries(SFX)) {
       const audio = new Audio(url);
       audio.preload = 'auto';
-      audio.volume = name === 'step' ? 0.35 : 0.6;
+      audio.volume = name === 'step' ? 0.7 : 0.9;
       // Ловимо помилку 404 тихо — якщо файлу нема, sfx просто не грає
       audio.addEventListener('error', () => {
         console.warn(`[AudioPlayer] SFX не завантажився: ${url} (це ок, продовжуємо без нього)`);
@@ -76,16 +77,19 @@ const AudioPlayer = (function() {
   }
 
   function play(name) {
-    if (!isEnabled()) return;
+    if (!isEnabled()) { console.log('[Audio] skip (disabled):', name); return; }
     const audio = sfxCache[name];
-    if (!audio) return;
-    // Якщо файл помилково-не-завантажився — networkState=3, тоді пропускаємо
-    if (audio.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) return;
-    // Ресетимо позицію для швидких повторів (наприклад, кроки)
+    if (!audio) { console.warn('[Audio] no sfx:', name); return; }
+    if (audio.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
+      console.warn('[Audio] file not loaded:', name);
+      return;
+    }
     try {
       audio.currentTime = 0;
-      audio.play().catch(() => {/* autoplay policy — ігноруємо */});
-    } catch (e) { /* ігноруємо */ }
+      audio.play()
+        .then(() => console.log('[Audio] ▶', name))
+        .catch(err => console.warn('[Audio] blocked by browser:', name, err.message));
+    } catch (e) { console.warn('[Audio] error:', name, e); }
   }
 
   //////////////////////////////////////////////////////////////////////
@@ -132,8 +136,8 @@ const AudioPlayer = (function() {
     toggleBtn.title = 'Увімкнути / вимкнути звук';
     toggleBtn.addEventListener('click', () => {
       toggle();
-      // Клікнули = user gesture, тепер можемо ініціалізувати audio unlock
-      // (браузер більше не блокує подальші play())
+      // User gesture unlocks audio + одразу грає підтвердження
+      if (isEnabled()) play('test-beep');
     });
 
     // Вставляємо ПЕРЕД кнопкою «Скинути»
