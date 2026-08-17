@@ -409,6 +409,7 @@ function scheduleAnimation() {
 }
 
 function animateStep() {
+  if (window.AudioPlayer) AudioPlayer.play('step');
   if (animIndex >= log.length) {
     // Кінець анімації → показати підсумок
     _exposeState();
@@ -467,6 +468,12 @@ function animateStep() {
 
 function showFinalResult() {
   workspace.highlightBlock(null);
+
+  // Аудіо-фідбек за результатом
+  if (window.AudioPlayer) {
+    if (lastResult === Result.SUCCESS) AudioPlayer.play('success');
+    else AudioPlayer.play('failure');
+  }
 
   // Dispatch подій для LessonEngine (harmless якщо engine не активний)
   const resultName = {

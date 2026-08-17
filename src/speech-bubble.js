@@ -67,6 +67,14 @@ const SpeechBubble = (function() {
 
     // Плавна поява
     requestAnimationFrame(() => el.classList.add('lesson-speech-bubble--visible'));
+
+    // Voice-over: спробувати з переданого voice_url, або з auto-шляху
+    if (window.AudioPlayer) {
+      const voiceUrl = beat.voice_url || (beat.id && beat.lesson_id
+        ? `public/audio/${beat.lesson_id}/${beat.id}.mp3`
+        : null);
+      if (voiceUrl) AudioPlayer.playVoice(voiceUrl);
+    }
   }
 
   function positionBubble(el) {
@@ -80,6 +88,7 @@ const SpeechBubble = (function() {
   }
 
   function hide() {
+    if (window.AudioPlayer) AudioPlayer.stopVoice();
     if (!currentEl) return;
     const el = currentEl;
     currentEl = null;

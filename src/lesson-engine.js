@@ -68,7 +68,7 @@ const LessonEngine = (function() {
     // Виконати beat
     switch (beat.type) {
       case 'speech-bubble':
-        SpeechBubble.show(beat);
+        SpeechBubble.show({ ...beat, lesson_id: currentLesson.id });
         break;
       case 'coach-mark':
         CoachMark.show(beat);

@@ -192,3 +192,15 @@
   transition: background 0.15s ease;
 }
 .lesson-coach-callout__next:hover { background: #1976D2; }
+
+
+/* -----------------------------------------------------
+   Audio Toggle Button (у header)
+   ----------------------------------------------------- */
+
+#btn-audio-toggle {
+  transition: opacity 0.2s ease;
+}
+#btn-audio-toggle.audio-off {
+  opacity: 0.55;
+}
