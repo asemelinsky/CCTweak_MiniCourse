@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Кодомандри — Пригоди Черепашки Мо</title>
+  <link rel="stylesheet" href="src/style.css">
+  <link rel="stylesheet" href="src/style-lesson.css">
+  <!-- Blockly core (CDN) -->
+  <script src="https://unpkg.com/blockly@10.4.3/blockly.min.js"></script>
+  <script src="https://unpkg.com/blockly@10.4.3/msg/uk.js"></script>
+  <!-- JS-Interpreter for sandbox execution (Neil Fraser's original, via jsDelivr CDN) -->
+  <script src="https://cdn.jsdelivr.net/gh/NeilFraser/JS-Interpreter@master/interpreter.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/NeilFraser/JS-Interpreter@master/acorn.js"></script>
+</head>
+<body>
+
+<header id="app-header">
+  <h1>Кодомандри</h1>
+  <div id="level-info">
+    <span class="level-label">Рівень</span>
+    <span class="level-number">1</span>
+    <span class="level-title">Знайомство з Мо</span>
+  </div>
+  <div id="header-actions">
+    <button id="btn-reset" class="btn btn-secondary" title="Скинути позицію черепашки">↺ Скинути</button>
+    <button id="btn-run" class="btn btn-primary" title="Виконати програму">▶ Запустити</button>
+  </div>
+</header>
+
+<main id="app-main">
+  <!-- Ліва панель: Blockly workspace -->
+  <section id="workspace-panel">
+    <div id="blockly-div"></div>
+  </section>
+
+  <!-- Права панель: симулятор -->
+  <section id="simulator-panel">
+    <div id="scene-wrapper">
+      <svg id="scene"
+           xmlns="http://www.w3.org/2000/svg"
+           xmlns:xlink="http://www.w3.org/1999/xlink"
+           preserveAspectRatio="xMidYMid meet">
+        <!-- заповнюється у drawMap() -->
+      </svg>
+    </div>
+    <div id="scene-status">
+      <div id="status-text">Збери програму і натисни «Запустити»</div>
+    </div>
+  </section>
+</main>
+
+<!-- Toolbox для Blockly -->
+<xml id="toolbox" style="display:none">
+  <category name="Рух" colour="120">
+    <block type="turtle_forward"></block>
+    <block type="turtle_back"></block>
+    <block type="turtle_up"></block>
+    <block type="turtle_down"></block>
+  </category>
+  <category name="Цикли" colour="290">
+    <block type="controls_repeat_ext">
+      <value name="TIMES">
+        <shadow type="math_number">
+          <field name="NUM">3</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="controls_whileUntil">
+      <field name="MODE">WHILE</field>
+    </block>
+  </category>
+  <category name="Логіка" colour="210">
+    <block type="controls_if"></block>
+    <block type="logic_compare"></block>
+    <block type="logic_operation"></block>
+    <block type="logic_boolean"></block>
+  </category>
+  <category name="Числа" colour="230">
+    <block type="math_number"></block>
+  </category>
+</xml>
+
+<!-- Modal для success/failure -->
+<div id="modal-overlay" style="display:none">
+  <div id="modal-dialog">
+    <div id="modal-icon"></div>
+    <h2 id="modal-title"></h2>
+    <p id="modal-message"></p>
+    <button id="modal-close" class="btn btn-primary">OK</button>
+  </div>
+</div>
+
+<!-- Наш код (порядок важливий: спочатку blocks/generator, потім simulator, потім main) -->
+<script src="src/blocks.js"></script>
+<script src="src/generator.js"></script>
+<script src="src/simulator.js"></script>
+<script src="src/speech-bubble.js"></script>
+<script src="src/coach-mark.js"></script>
+<script src="src/lesson-engine.js"></script>
+<script src="src/main.js"></script>
+
+</body>
+</html>

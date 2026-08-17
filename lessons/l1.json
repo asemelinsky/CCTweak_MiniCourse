@@ -1,0 +1,76 @@
+{
+  "id": "l1",
+  "title": "Знайомство з Мо",
+  "beats": [
+    {
+      "id": "intro-1",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Привіт! Мене звати Мо 🐢 Я впала у покинуту шахту...",
+      "animation": "shake",
+      "advance": { "type": "click-next", "label": "Що трапилось?" }
+    },
+    {
+      "id": "intro-2",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Не можу вибратись сама! Але ти можеш мене вивести — просто скажи що робити крок за кроком. А там, унизу, є алмаз! Треба до нього дістатись.",
+      "animation": "wiggle",
+      "advance": { "type": "click-next", "label": "Готовий!" }
+    },
+    {
+      "id": "tour-toolbox",
+      "type": "coach-mark",
+      "target": ".blocklyToolboxDiv",
+      "position": "right",
+      "text": "Тут живуть блоки-команди. Натисни на «Рух», щоб побачити мої вміння.",
+      "advance": { "type": "click-next", "label": "Далі" }
+    },
+    {
+      "id": "tour-drag",
+      "type": "coach-mark",
+      "target": "#blockly-div",
+      "position": "left",
+      "text": "Візьми блок «рухатись уперед» з палітри ліворуч і перетягни сюди, на робочу зону.",
+      "advance": { "type": "block-added", "block_type": "turtle_forward" }
+    },
+    {
+      "id": "praise-first",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Ідеально! Це мій перший крок. Тепер додай ще декілька блоків — треба спуститися до алмаза. Використай «уперед» та «униз» (їх можеш перетягувати кілька).",
+      "animation": "jump",
+      "advance": { "type": "click-next", "label": "Спробую!" }
+    },
+    {
+      "id": "tour-run",
+      "type": "coach-mark",
+      "target": "#btn-run",
+      "position": "bottom",
+      "text": "Коли готово — натисни ▶ Запустити. Я почну виконувати твою програму!",
+      "advance": { "type": "run-clicked" }
+    },
+    {
+      "id": "task-main",
+      "type": "task",
+      "hint_on_failure": "Здається, я не дійшла до алмаза. Додай ще блоків — треба ще кроків уперед і вниз.",
+      "hint_on_crash": "Ой, я врізалась у стіну! Перевір послідовність — куди саме мені треба.",
+      "advance": { "type": "task-solved" }
+    },
+    {
+      "id": "celebration",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "УРА! 💎 Я знайшла алмаз! Дякую тобі! Ти справжній програміст. Побачимось у наступному уроці — там будуть довші коридори!",
+      "animation": "jump",
+      "advance": { "type": "click-next", "label": "Круто!" }
+    },
+    {
+      "id": "final",
+      "type": "final-modal",
+      "title": "Урок 1 пройдено!",
+      "message": "Ти навчився складати команди у послідовність. Це основа програмування. Молодець!",
+      "cta_label": "Дякую!"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+# Vercel
+.vercel/
+
+# Deps (немає, але про всяк)
+node_modules/
+
+# Локальне
+.DS_Store
+*.log

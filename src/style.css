@@ -1,0 +1,196 @@
+/* Reset + базова типографіка */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Ubuntu', sans-serif;
+  background: #2c2c2c;
+  color: #e8e8e8;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+#app-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #3a5a3a, #2c4c2c);
+  border-bottom: 2px solid #1a3a1a;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  z-index: 10;
+}
+#app-header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #f0f0f0;
+  margin-right: 20px;
+}
+#level-info {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex: 1;
+  color: #cfe0cf;
+}
+.level-label { font-size: 12px; text-transform: uppercase; opacity: 0.7; }
+.level-number { font-size: 18px; font-weight: 700; }
+.level-title { font-size: 14px; opacity: 0.85; }
+#header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Buttons */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.05s, box-shadow 0.15s;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+.btn:active { transform: translateY(0); }
+.btn-primary {
+  background: linear-gradient(180deg, #4a9d4a, #388738);
+  color: white;
+}
+.btn-primary:hover { background: linear-gradient(180deg, #55b055, #4a9a4a); }
+.btn-secondary {
+  background: #6a6a6a;
+  color: white;
+}
+.btn-secondary:hover { background: #7a7a7a; }
+
+/* Main layout */
+#app-main {
+  display: flex;
+  flex: 1;
+  min-height: 0;   /* важливо для flex-child з overflow */
+}
+
+#workspace-panel {
+  flex: 1;
+  min-width: 400px;
+  background: #f5f5f5;
+  border-right: 3px solid #1a3a1a;
+  position: relative;
+}
+#blockly-div {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+
+/* Blockly toolbox — override: dark text on light background,
+   білий текст лише на активній (highlighted) категорії. */
+.blocklyToolboxDiv {
+  background: #ececec !important;
+}
+.blocklyTreeRow {
+  padding: 8px 12px 8px 8px !important;
+  margin: 2px 0 !important;
+  border-radius: 0 4px 4px 0 !important;
+}
+.blocklyTreeLabel {
+  color: #2c2c2c !important;      /* темний текст на світлому фоні */
+  font-weight: 600 !important;
+  font-size: 14px !important;
+}
+/* Активна (обрана) категорія — Blockly сам ставить color з category.colour у style,
+   але міняє текст на білий. Робимо consistent і збільшуємо контраст. */
+.blocklyTreeSelected .blocklyTreeLabel {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+/* Hover — легка підсвітка */
+.blocklyTreeRow:not(.blocklyTreeSelected):hover {
+  background: #d8d8d8 !important;
+}
+
+#simulator-panel {
+  width: 520px;
+  min-width: 400px;
+  background: linear-gradient(180deg, #1a2a1a, #0a1a0a);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+#scene-wrapper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background: #1a2a1a;
+  border: 3px solid #444;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+  aspect-ratio: 12 / 9;   /* маппиться до COLS/ROWS у simulator.js */
+  width: 100%;
+}
+
+#scene {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+}
+
+#scene-status {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid #444;
+  border-radius: 4px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+#status-text {
+  color: #e0e0e0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Modal */
+#modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+#modal-dialog {
+  background: #f5f5f5;
+  color: #2c2c2c;
+  padding: 30px 40px;
+  border-radius: 8px;
+  min-width: 300px;
+  max-width: 500px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  border-top: 6px solid #4a9d4a;
+}
+#modal-overlay.modal-success #modal-dialog { border-top-color: #4a9d4a; }
+#modal-overlay.modal-failure #modal-dialog { border-top-color: #c94a4a; }
+#modal-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+#modal-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+#modal-message {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #555;
+}
+#modal-close {
+  padding: 10px 30px;
+}

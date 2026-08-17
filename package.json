@@ -1,0 +1,12 @@
+{
+  "name": "cctweak-minicourse",
+  "version": "0.1.0",
+  "description": "5-урочний мінікурс з блочного програмування — «Пригоди Черепашки Мо». Lead-magnet до основних курсів Кодомандри.",
+  "private": true,
+  "scripts": {
+    "dev": "python3 -m http.server 8080",
+    "build": "echo 'Static site — no build step'"
+  },
+  "author": "Oleksii Semelinsky <a.semelinsky@gmail.com>",
+  "license": "MIT"
+}

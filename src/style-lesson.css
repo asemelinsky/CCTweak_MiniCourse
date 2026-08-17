@@ -1,0 +1,194 @@
+/* =====================================================
+   Lesson Engine — стилі для speech bubble, coach mark,
+   final modal. Не чіпає базовий style.css.
+   ===================================================== */
+
+/* -----------------------------------------------------
+   Speech Bubble
+   ----------------------------------------------------- */
+
+.lesson-speech-bubble {
+  background: #ffffff;
+  border: 3px solid #4CAF50;
+  border-radius: 20px;
+  padding: 20px 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  max-width: 600px;
+  min-width: 320px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: auto;
+}
+
+.lesson-speech-bubble--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Хвостик знизу */
+.lesson-speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left:  14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top:   14px solid #4CAF50;
+}
+.lesson-speech-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left:  12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top:   12px solid #ffffff;
+  z-index: 1;
+}
+
+.lesson-speech-bubble__content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.lesson-speech-bubble__avatar {
+  font-size: 3rem;
+  flex-shrink: 0;
+  transform-origin: center bottom;
+}
+
+.lesson-speech-bubble__text {
+  font-size: 1.15rem;
+  line-height: 1.4;
+  color: #212121;
+  flex-grow: 1;
+}
+
+.lesson-speech-bubble__next {
+  display: block;
+  margin: 16px auto 0;
+  padding: 10px 32px;
+  background: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.lesson-speech-bubble__next:hover {
+  background: #43A047;
+}
+.lesson-speech-bubble__next:active {
+  transform: scale(0.97);
+}
+
+/* Анімації персонажа */
+
+.lesson-anim-wiggle {
+  animation: lesson-wiggle 1.6s ease-in-out infinite;
+}
+@keyframes lesson-wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50%      { transform: rotate(3deg); }
+}
+
+.lesson-anim-jump {
+  animation: lesson-jump 0.8s ease-in-out infinite;
+}
+@keyframes lesson-jump {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+
+.lesson-anim-shake {
+  animation: lesson-shake 0.4s ease-in-out;
+  animation-iteration-count: 3;
+}
+@keyframes lesson-shake {
+  0%, 100%     { transform: translateX(0); }
+  20%, 60%     { transform: translateX(-6px); }
+  40%, 80%     { transform: translateX(6px); }
+}
+
+/* -----------------------------------------------------
+   Coach Mark
+   ----------------------------------------------------- */
+
+.lesson-coach-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;   /* дозволяємо взаємодію з UI під overlay */
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.lesson-coach-overlay--visible { opacity: 1; }
+
+.lesson-coach-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.lesson-coach-callout {
+  background: #ffffff;
+  border: 2px solid #2196F3;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: auto;
+}
+.lesson-coach-callout--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.lesson-coach-callout--center {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  max-width: 400px;
+}
+
+.lesson-coach-callout__text {
+  font-size: 1.05rem;
+  line-height: 1.4;
+  color: #212121;
+  margin-bottom: 8px;
+}
+
+.lesson-coach-callout__hint {
+  font-size: 0.85rem;
+  color: #616161;
+  font-style: italic;
+  margin-top: 8px;
+}
+
+.lesson-coach-callout__next {
+  display: block;
+  margin: 10px auto 0;
+  padding: 8px 24px;
+  background: #2196F3;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.lesson-coach-callout__next:hover { background: #1976D2; }
