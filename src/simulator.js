@@ -482,6 +482,15 @@ function tryMove(dx, dy, id, actionName) {
   turtleX = nx;
   turtleY = ny;
   log.push([actionName, id]);
+
+  // Diamond reached — early exit з SUCCESS. Причина: learn може мати «зайві»
+  // блоки після досягнення алмаза (наприклад `repeat 8` де success на 7-й
+  // iteration — типовий випадок для L4). Без early-exit наступні команди
+  // виконуються, Мо крокує далі, врізається у bedrock → CRASH переписує SUCCESS.
+  // Post-pilot fix Olexii L4 2026-08-18.
+  if (t === TILE.DIAMOND) {
+    throw 'diamond_reached';
+  }
 }
 
 function turtleForward(id) { tryMove(+1, 0, id, 'forward'); }
@@ -553,8 +562,9 @@ function executeUserCode() {
     // Програма нормально завершилась
     lastResult = atFinish() ? Result.SUCCESS : Result.FAILURE;
   } catch (e) {
-    if (e === Infinity)   lastResult = Result.TIMEOUT;
-    else if (e === false) lastResult = Result.CRASH;
+    if (e === 'diamond_reached') lastResult = Result.SUCCESS;   // early exit
+    else if (e === Infinity)     lastResult = Result.TIMEOUT;
+    else if (e === false)        lastResult = Result.CRASH;
     else {
       lastResult = Result.CRASH;
       console.error('Interpreter error:', e);
