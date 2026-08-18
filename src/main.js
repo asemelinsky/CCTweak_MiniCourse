@@ -29,12 +29,20 @@ function initApp() {
     },
   });
 
-  // Init level
+  // URL param ?lesson=2 → завантажуємо L2. Default (без param) → L1.
+  // Розширюваний паттерн: додай новий case у switch щоб підключити L3+.
+  const urlParams = new URLSearchParams(window.location.search);
+  const lessonParam = urlParams.get('lesson');
+  const lessonId = (lessonParam === '2') ? 'l2' : 'l1';
+  window.currentLessonId = lessonId;   // читає simulator.initLevel()
+  console.log(`[main] Loading lesson: ${lessonId} (URL param: ${lessonParam || 'none'})`);
+
+  // Init level (map через getLevelMap(lessonId))
   initLevel();
 
   // Стартуємо мінікурс — тут це завжди lesson mode
   window._lessonMode = true;
-  LessonEngine.load('lessons/l1.json')
+  LessonEngine.load(`lessons/${lessonId}.json`)
     .then(engineResult => engineResult.start())
     .catch(err => {
       console.error('[main] Не вдалося завантажити урок:', err);

@@ -64,6 +64,37 @@ const LEVEL_1 = [
   'BBBBBBBBBBBB',  // 8 — bedrock floor
 ];
 
+// Level 2 map — S-shape тунель, 3 повороти, 8 блоків оптимальне рішення.
+// Ідея: дитина мусить планувати шлях (не просто «спам вперед»).
+// Path: down×2 (col 2) → forward (col 3) → down×2 → forward×2 → down = DIAMOND (5,7).
+// Дизайн: див. /root/projects/methodist/tasks/2026-08-17-puzzles-lesson-engine/l2-design.md
+const LEVEL_2 = [
+  '............',  // 0 — sky
+  '............',  // 1 — sky
+  '..►.........',  // 2 — turtle starts at (2, 2)
+  'GG.GGGGGGGGG',  // 3 — surface + tunnel entry col 2
+  'DD..DDDDDDDD',  // 4 — dirt: тунель col 2, поворот у col 3
+  'DDD.DDDDDDDD',  // 5 — тунель col 3 (вертикально вниз)
+  'DDD...DDDDDD',  // 6 — поворот, тунель col 3-5 (горизонталь)
+  'SSSSS◆SSSSSS',  // 7 — stone + DIAMOND at (5, 7)
+  'BBBBBBBBBBBB',  // 8 — bedrock
+];
+
+// Map registry — lookup by lesson id
+const LEVEL_MAPS = {
+  'l1': LEVEL_1,
+  'l2': LEVEL_2,
+};
+
+/**
+ * Повертає ASCII карту для конкретного lesson id.
+ * Використовується у initLevel(); default = 'l1'.
+ * Читає window.currentLessonId (виставляється у main.js з URL param).
+ */
+function getLevelMap(lessonId) {
+  return LEVEL_MAPS[lessonId] || LEVEL_1;
+}
+
 //////////////////////////////////////////////////////////////////////
 // Level state
 //////////////////////////////////////////////////////////////////////
@@ -566,7 +597,10 @@ function reset() {
 //////////////////////////////////////////////////////////////////////
 
 function initLevel() {
-  const parsed = parseLevel(LEVEL_1);
+  // Читаємо lesson id що виставив main.js з URL param (?lesson=2)
+  // Default: 'l1' — щоб старі закладки без param працювали як раніше.
+  const lessonId = (typeof window !== 'undefined' && window.currentLessonId) || 'l1';
+  const parsed = parseLevel(getLevelMap(lessonId));
   map = parsed.map;
   startPos = parsed.start;
   finishPos = parsed.finish;
