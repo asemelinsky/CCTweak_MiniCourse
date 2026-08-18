@@ -176,34 +176,70 @@ const LessonEngine = (function() {
   // Task-runner integration
   //////////////////////////////////////////////////////////////////////
 
+  // Стан для anti-repeat: останній показаний hint (щоб не переграти голос якщо той самий)
+  let lastHintText = null;
+  let lastHintTime = 0;
+
   function setupTask(beat) {
     // Якщо задача вимагає скинути workspace — очищаємо
     if (beat.reset_workspace && window.workspace) {
       window.workspace.clear();
     }
-    // Задача = дитина сама складає код і натискає ▶
-    // Simulator сам виконає код, поставить lastResult, і викличе подію 'lesson-task-solved'
-    // якщо success. Або 'lesson-task-failed' інакше — тоді показуємо hint.
+
+    // Скидаємо anti-repeat memory при новій task
+    lastHintText = null;
+    lastHintTime = 0;
 
     // Слухач невдач
+    // Логіка (див. docs/dev-logic.md §3):
+    //   1) Показуємо bubble з hint-текстом
+    //   2) Голос грає з auto-URL (public/audio/{lesson_id}/hint-{result}.mp3)
+    //   3) Якщо той самий текст щойно програвався (< 60 сек) — bubble так, голос ні
+    //   4) Bubble НЕ зникає по таймеру. Зникає коли:
+    //      - дитина клікнула ▶ (нова спроба)
+    //      - дитина торкнулась Blockly workspace (почала редагувати)
     const failListener = (e) => {
       const { result } = e.detail;
       let hint = null;
-      if (result === 'CRASH') hint = beat.hint_on_crash;
-      else if (result === 'FAILURE') hint = beat.hint_on_failure;
-      else if (result === 'TIMEOUT') hint = 'Ой, програма надто довго виконується. Може, зациклилась?';
+      let hintId = null;
+      if (result === 'CRASH')    { hint = beat.hint_on_crash;    hintId = 'hint-crash'; }
+      else if (result === 'FAILURE') { hint = beat.hint_on_failure; hintId = 'hint-failure'; }
+      else if (result === 'TIMEOUT') { hint = 'Ой, програма надто довго виконується. Може, зациклилась?'; hintId = 'hint-timeout'; }
 
-      if (hint) {
-        SpeechBubble.show({
-          character: 'mo',
-          text: hint,
-          animation: 'shake',
-        });
-        // Через 4 сек прибрати
-        setTimeout(() => SpeechBubble.hide(), 4000);
-      }
+      if (!hint) return;
+
+      const now = Date.now();
+      const isRepeat = (hint === lastHintText) && (now - lastHintTime < 60000);
+      lastHintText = hint;
+      lastHintTime = now;
+
+      // Показуємо bubble з можливістю голосу тільки якщо це не repeat
+      SpeechBubble.show({
+        id: isRepeat ? null : hintId,           // без id → не шукає voice-URL
+        lesson_id: currentLesson.id,
+        character: 'mo',
+        text: hint,
+        animation: 'shake',
+      });
+      // Bubble НЕ auto-hide. Скасовується сам при новому ▶ або редагуванні.
     };
     addListener(document, 'lesson-task-failed', failListener);
+
+    // Прибираємо hint bubble при новій спробі (▶) або редагуванні
+    const clearOnRun = () => SpeechBubble.hide();
+    addListener(document, 'lesson-run-clicked', clearOnRun);
+
+    if (window.workspace) {
+      const clearOnEdit = (event) => {
+        if (event.type === Blockly.Events.BLOCK_MOVE ||
+            event.type === Blockly.Events.BLOCK_CHANGE ||
+            event.type === Blockly.Events.BLOCK_CREATE) {
+          SpeechBubble.hide();
+        }
+      };
+      window.workspace.addChangeListener(clearOnEdit);
+      listeners.push({ type: 'blockly', listener: clearOnEdit });
+    }
 
     // Опційна інструкція
     if (beat.instruction) {
@@ -212,7 +248,6 @@ const LessonEngine = (function() {
         text: beat.instruction,
         animation: 'wiggle',
       });
-      // Не приховуємо — залишається як нагадування
     }
   }
 
