@@ -69,11 +69,27 @@ const SpeechBubble = (function() {
     requestAnimationFrame(() => el.classList.add('lesson-speech-bubble--visible'));
 
     // Voice-over: спробувати з переданого voice_url, або з auto-шляху
-    if (window.AudioPlayer) {
-      const voiceUrl = beat.voice_url || (beat.id && beat.lesson_id
-        ? `public/audio/${beat.lesson_id}/${beat.id}.mp3`
-        : null);
-      if (voiceUrl) AudioPlayer.playVoice(voiceUrl);
+    const voiceUrl = beat.voice_url || (beat.id && beat.lesson_id
+      ? `public/audio/${beat.lesson_id}/${beat.id}.mp3`
+      : null);
+    if (window.AudioPlayer && voiceUrl) {
+      AudioPlayer.playVoice(voiceUrl);
+    }
+
+    // Replay-button: показуємо тільки якщо є voice-URL (нема сенсу replay без voice).
+    // Post-pilot Olexii's feedback: діти забувають пояснення, треба «ще раз»
+    // послухати. Bubble не змінюється, тільки програє voice знов.
+    if (voiceUrl) {
+      const replayBtn = document.createElement('button');
+      replayBtn.className = 'lesson-speech-bubble__replay';
+      replayBtn.textContent = '🔁';
+      replayBtn.setAttribute('aria-label', 'Повторити пояснення');
+      replayBtn.setAttribute('title', 'Повторити пояснення');
+      replayBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (window.AudioPlayer) AudioPlayer.playVoice(voiceUrl);
+      });
+      el.appendChild(replayBtn);
     }
   }
 

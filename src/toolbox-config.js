@@ -62,6 +62,7 @@ const CATEGORIES = {
     </category>`,
 
   logic: `<category name="Логіка" colour="210">
+      <block type="condition_if_else"></block>
       <block type="controls_if"></block>
       <block type="logic_compare"></block>
       <block type="logic_operation"></block>

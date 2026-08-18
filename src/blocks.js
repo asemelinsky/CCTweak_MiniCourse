@@ -58,5 +58,41 @@ Blockly.defineBlocksWithJsonArray([
     "colour": 180,
     "tooltip": "Повертає ТАК якщо клітинка попереду — стіна. Інакше НІ.",
     "helpUrl": ""
+  },
+  {
+    // L4 atomic «якщо/то/інакше» — заміна для controls_if що потребує
+    // шестерні для else. Тут всі три слоти видно одразу.
+    // Причина: 7-9р дитина не може працювати з mutator UI. Плюс українська
+    // без англіцизмів «if/else» — дотримання voice ↔ visual sync.
+    // Post-pilot decision: docs/decisions.md §17 (Olexii's feedback L4).
+    "type": "condition_if_else",
+    "message0": "якщо %1 то",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "COND",
+        "check": "Boolean"
+      }
+    ],
+    "message1": "%1",
+    "args1": [
+      {
+        "type": "input_statement",
+        "name": "THEN"
+      }
+    ],
+    "message2": "інакше",
+    "message3": "%1",
+    "args3": [
+      {
+        "type": "input_statement",
+        "name": "ELSE"
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 210,
+    "tooltip": "Якщо умова ТАК — виконати перше. Якщо НІ — виконати друге.",
+    "helpUrl": ""
   }
 ]);

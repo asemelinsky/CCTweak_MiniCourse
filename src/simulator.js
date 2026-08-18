@@ -97,37 +97,130 @@ const LEVEL_3 = [
   'BBBBBBBBBBBB',  // 8 — bedrock
 ];
 
-// Level 4 map — «Мо у темряві». Sensor + if урок.
-// Ключова відмінність: row 2 після Мо одразу СТІНА (col 3+ = G).
-// Це змушує використати sensor+if — просто forward не спрацює.
-// Оптимальне рішення: repeat 8 [ if wall_ahead? [ down ] else [ forward ] ]
-// = 7 iterations, 3 основних блоки. Дизайн: methodist/tasks/.../l4-design.md
-const LEVEL_4 = [
-  '............',  // 0 — sky
-  '............',  // 1 — sky
-  '..►GGGGGGGGG',  // 2 — turtle (2,2) + СТІНА одразу праворуч
-  'GG.GGGGGGGGG',  // 3 — tunnel col 2 (grass entry вниз)
-  'DD.DDDDDDDDD',  // 4 — dirt tunnel col 2
-  'DD....DDDDDD',  // 5 — horizontal tunnel col 2-5
-  'SSSSS◆SSSSSS',  // 6 — stone + DIAMOND at (5, 6)
-  'BBBBBBBBBBBB',  // 7 — bedrock
-  'BBBBBBBBBBBB',  // 8 — bedrock backup
+// Level 4 — «Мо у темряві». 6 варіантів «зачарованого» тунеля.
+// Ender Dragon зачарував — кожен Reset карта міняється (random no-repeat).
+// Всі варіанти: старт Мо (2,2), стіна праворуч одразу, шлях через down+forward
+// у різних пропорціях. Sensor+if/інакше solution — universal для всіх 6.
+// Post-pilot decisions: methodist/tasks/.../decisions.md §16.
+
+const LEVEL_4_A = [
+  '............',  // 0
+  '............',  // 1
+  '..►GGGGGGGGG',  // 2 — turtle + стіна
+  'GG.GGGGGGGGG',  // 3 — down col 2
+  'DD.DDDDDDDDD',  // 4 — down col 2
+  'DD....DDDDDD',  // 5 — right col 2-5
+  'SSSSS◆SSSSSS',  // 6 — DIAMOND (5, 6)
+  'BBBBBBBBBBBB',  // 7
+  'BBBBBBBBBBBB',  // 8
 ];
+
+const LEVEL_4_B = [
+  '............',
+  '............',
+  '..►GGGGGGGGG',
+  'GG.GGGGGGGGG',
+  'DD..DDDDDDDD',  // right col 2-3
+  'DDDD.DDDDDDD',  // down col 3 (тільки один поворот!)
+  'DDDD.DDDDDDD',
+  'SSSS◆SSSSSSS',  // DIAMOND (4, 7)
+  'BBBBBBBBBBBB',
+];
+
+const LEVEL_4_C = [
+  '............',
+  '............',
+  '..►GGGGGGGGG',
+  'GG.GGGGGGGGG',
+  'DD.DDDDDDDDD',
+  'DD......DDDD',  // довший horizontal col 2-7
+  'SSSSSSS◆SSSS',  // DIAMOND (7, 6)
+  'BBBBBBBBBBBB',
+  'BBBBBBBBBBBB',
+];
+
+const LEVEL_4_D = [
+  '............',
+  '............',
+  '..►GGGGGGGGG',
+  'GG.GGGGGGGGG',
+  'DD.DDDDDDDDD',
+  'DD.DDDDDDDDD',  // ще одне down col 2 (глибший тунель)
+  'DD...DDDDDDD',  // right col 2-4
+  'SSSS◆SSSSSSS',  // DIAMOND (4, 7)
+  'BBBBBBBBBBBB',
+];
+
+const LEVEL_4_E = [
+  '............',
+  '............',
+  '..►GGGGGGGGG',
+  'GG.GGGGGGGGG',
+  'DD.DDDDDDDDD',
+  'DD.DDDDDDDDD',
+  'DD.DDDDDDDDD',  // глибокий тунель — тільки down
+  'DD◆DDDDDDDDD',  // DIAMOND одразу під тунелем (2, 7)
+  'BBBBBBBBBBBB',
+];
+
+const LEVEL_4_F = [
+  '............',
+  '............',
+  '..►GGGGGGGGG',
+  'GG.GGGGGGGGG',
+  'DD...DDDDDDD',  // right col 2-4 (ранній поворот)
+  'DDDD.DDDDDDD',  // down col 4
+  'DDDD.DDDDDDD',
+  'SSSS◆SSSSSSS',  // DIAMOND (4, 7)
+  'BBBBBBBBBBBB',
+];
+
+const LEVEL_4_VARIANTS = [LEVEL_4_A, LEVEL_4_B, LEVEL_4_C, LEVEL_4_D, LEVEL_4_E, LEVEL_4_F];
+
+// Стан для L4 random-no-repeat: індекс поточного варіанта.
+// При кожному reset() у L4 — вибираємо новий випадковий, ≠ поточному.
+let l4CurrentVariantIndex = 0;
+
+/**
+ * Обчислює наступний L4 варіант — випадково з набору, але НЕ той самий що
+ * поточний (щоб learn ніколи не побачив той самий тунель двічі підряд).
+ * Дає ілюзію магії «Ender Dragon зачарував» — кожен Reset = сюрприз.
+ */
+function pickNextL4Variant() {
+  const total = LEVEL_4_VARIANTS.length;
+  if (total <= 1) return 0;
+  let nextIdx;
+  do {
+    nextIdx = Math.floor(Math.random() * total);
+  } while (nextIdx === l4CurrentVariantIndex);
+  l4CurrentVariantIndex = nextIdx;
+  return nextIdx;
+}
 
 // Map registry — lookup by lesson id
 const LEVEL_MAPS = {
   'l1': LEVEL_1,
   'l2': LEVEL_2,
   'l3': LEVEL_3,
-  'l4': LEVEL_4,
+  // 'l4' — dynamic, див. getLevelMap()
 };
 
 /**
  * Повертає ASCII карту для конкретного lesson id.
  * Використовується у initLevel(); default = 'l1'.
  * Читає window.currentLessonId (виставляється у main.js з URL param).
+ *
+ * L4 special case: карта міняється при кожному Reset (Ender Dragon narrative).
+ * Викликач має явно передати {pickNew: true} щоб отримати новий варіант.
+ * Без цього — той самий варіант (для повторного Run без Reset).
  */
-function getLevelMap(lessonId) {
+function getLevelMap(lessonId, opts = {}) {
+  if (lessonId === 'l4') {
+    if (opts.pickNew) {
+      pickNextL4Variant();
+    }
+    return LEVEL_4_VARIANTS[l4CurrentVariantIndex];
+  }
   return LEVEL_MAPS[lessonId] || LEVEL_1;
 }
 
@@ -637,6 +730,21 @@ function showFinalResult() {
 
 function reset() {
   cancelAnimation();
+
+  // L4 special: Ender Dragon зачарував тунель — при кожному Reset нова карта
+  // (random no-repeat). Це створює «магічний» momento який змушує використати
+  // sensor+if/інакше замість direct-path shortcut'у.
+  const lessonId = (typeof window !== 'undefined' && window.currentLessonId) || 'l1';
+  if (lessonId === 'l4') {
+    const newMap = getLevelMap('l4', { pickNew: true });
+    const parsed = parseLevel(newMap);
+    map = parsed.map;
+    startPos = parsed.start;
+    finishPos = parsed.finish;
+    _exposeState();
+    drawMap();
+  }
+
   turtleX = startPos.x;
   turtleY = startPos.y;
   displayTurtle(turtleX, turtleY);

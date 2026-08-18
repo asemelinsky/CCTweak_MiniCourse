@@ -8,10 +8,11 @@
    ----------------------------------------------------- */
 
 .lesson-speech-bubble {
+  position: relative;   /* container for replay btn absolute positioning */
   background: #ffffff;
   border: 3px solid #4CAF50;
   border-radius: 20px;
-  padding: 20px 24px;
+  padding: 20px 24px 20px 24px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   max-width: 600px;
   min-width: 320px;
@@ -64,11 +65,41 @@
   transform-origin: center bottom;
 }
 
+/* Абзаци: \n\n у JSON тексті бабла стає порожнім рядком (розділ абзаців).
+   Post-pilot fix Olexii 2026-08-18: text рендерився суцільно бо textContent
+   ігнорує \n. Same fix як для #modal-message (див. style.css).
+   Не використовуємо innerHTML щоб уникнути XSS. */
 .lesson-speech-bubble__text {
+  white-space: pre-line;
   font-size: 1.15rem;
   line-height: 1.4;
   color: #212121;
   flex-grow: 1;
+}
+
+/* Replay-button у corner bubble. Post-pilot fix для «повторити пояснення». */
+.lesson-speech-bubble__replay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: rgba(76, 175, 80, 0.15);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: background 0.15s, transform 0.1s;
+  z-index: 2;
+}
+.lesson-speech-bubble__replay:hover {
+  background: rgba(76, 175, 80, 0.35);
+  transform: scale(1.1);
+}
+.lesson-speech-bubble__replay:active {
+  transform: scale(0.95);
 }
 
 .lesson-speech-bubble__next {
@@ -240,6 +271,22 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Fallback коли відео файл не існує (напр. ще не записаний Olexii) */
+.lesson-video-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #f0f0f0;
+  background: linear-gradient(135deg, #3a5a3a, #1a2a1a);
+  font-size: 16px;
+  line-height: 1.5;
+  text-align: center;
+  white-space: pre-line;
 }
 
 .lesson-video-playbtn {

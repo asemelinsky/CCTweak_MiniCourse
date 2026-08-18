@@ -33,5 +33,16 @@ Blockly.JavaScript.forBlock['sensor_wall_ahead'] = function(block) {
   return [`sensorWallAhead('${block.id}')`, Blockly.JavaScript.ORDER_FUNCTION_CALL];
 };
 
+// L4 atomic «якщо/то/інакше» — статичні 3 слоти (без mutator).
+// Генеруємо стандартний if-else JS блок.
+Blockly.JavaScript.forBlock['condition_if_else'] = function(block) {
+  const cond = Blockly.JavaScript.valueToCode(
+    block, 'COND', Blockly.JavaScript.ORDER_NONE
+  ) || 'false';
+  const thenCode = Blockly.JavaScript.statementToCode(block, 'THEN');
+  const elseCode = Blockly.JavaScript.statementToCode(block, 'ELSE');
+  return `if (${cond}) {\n${thenCode}} else {\n${elseCode}}\n`;
+};
+
 // Reserved words щоб Blockly не використав API-імена для user variables
 Blockly.JavaScript.addReservedWords('turtleForward,turtleBack,turtleUp,turtleDown,sensorWallAhead,highlightBlock');

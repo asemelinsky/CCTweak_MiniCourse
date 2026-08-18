@@ -79,6 +79,21 @@ const VideoOverlay = (function() {
     // Плавна поява
     requestAnimationFrame(() => backdrop.classList.add('lesson-video-backdrop--visible'));
 
+    // Error handler — коли файл відео не існує (напр. Olexii ще не записав).
+    // Замість чорного екрана показуємо fallback_text (з beat) або дефолт.
+    // Post-pilot design: beats з video-overlay готові до життя ДО того як
+    // reальний файл існує (щоб не блокувати testing lesson JSON).
+    video.addEventListener('error', () => {
+      container.innerHTML = '';
+      const fallback = document.createElement('div');
+      fallback.className = 'lesson-video-fallback';
+      fallback.textContent = beat.fallback_text ||
+        '🎬 Відео скоро буде тут. Натисни «Далі» щоб продовжити урок.';
+      container.appendChild(fallback);
+      nextBtn.style.display = 'block';   // одразу показати Next
+      playBtn.style.display = 'none';
+    });
+
     // Спробувати autoplay
     video.play().catch(() => {
       // Autoplay заблоковано — показуємо Play-кнопку
