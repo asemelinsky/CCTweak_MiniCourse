@@ -14,7 +14,7 @@
 Blockly.defineBlocksWithJsonArray([
   {
     "type": "turtle_forward",
-    "message0": "рухатись уперед",
+    "message0": "➡️ вперед",
     "previousStatement": null,
     "nextStatement": null,
     "colour": 120,
@@ -23,7 +23,7 @@ Blockly.defineBlocksWithJsonArray([
   },
   {
     "type": "turtle_back",
-    "message0": "рухатись назад",
+    "message0": "⬅️ назад",
     "previousStatement": null,
     "nextStatement": null,
     "colour": 120,
@@ -32,7 +32,7 @@ Blockly.defineBlocksWithJsonArray([
   },
   {
     "type": "turtle_up",
-    "message0": "рухатись угору",
+    "message0": "⬆️ вгору",
     "previousStatement": null,
     "nextStatement": null,
     "colour": 120,
@@ -41,7 +41,7 @@ Blockly.defineBlocksWithJsonArray([
   },
   {
     "type": "turtle_down",
-    "message0": "рухатись униз",
+    "message0": "⬇️ вниз",
     "previousStatement": null,
     "nextStatement": null,
     "colour": 120,
