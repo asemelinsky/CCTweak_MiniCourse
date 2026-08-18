@@ -83,30 +83,60 @@ body {
   position: absolute;
 }
 
-/* Blockly toolbox — override: dark text on light background,
-   білий текст лише на активній (highlighted) категорії. */
+/* ============================================================
+   Blockly Toolbox — чистий однорідний вигляд.
+   Стандарт Blockly підставляє category.colour як background для
+   активного tab'а, що дає нерівний highlight (кольор залежить від
+   категорії, а корені між tab'ами — не збігаються). Замість того —
+   свій ЄДИНИЙ вигляд для всіх tab'ів.
+   ============================================================ */
 .blocklyToolboxDiv {
   background: #ececec !important;
+  padding: 8px 0 !important;
 }
+
+/* Кожна категорія — однакова висота, padding, вирівнювання */
 .blocklyTreeRow {
-  padding: 8px 12px 8px 8px !important;
+  padding: 0 14px 0 8px !important;
   margin: 2px 0 !important;
-  border-radius: 0 4px 4px 0 !important;
+  min-height: 36px !important;
+  height: 36px !important;
+  line-height: 36px !important;
+  border-radius: 0 6px 6px 0 !important;
+  cursor: pointer !important;
+  transition: background 0.12s ease !important;
+  /* Прибираємо background який Blockly ставить із category.colour */
+  background: transparent !important;
 }
+
 .blocklyTreeLabel {
-  color: #2c2c2c !important;      /* темний текст на світлому фоні */
+  color: #2c2c2c !important;
   font-weight: 600 !important;
   font-size: 14px !important;
+  vertical-align: middle !important;
 }
-/* Активна (обрана) категорія — Blockly сам ставить color з category.colour у style,
-   але міняє текст на білий. Робимо consistent і збільшуємо контраст. */
+
+/* Кольорова смуга-icon категорії — фіксована ширина, зліва */
+.blocklyTreeIcon {
+  width: 4px !important;
+  min-width: 4px !important;
+  margin-right: 10px !important;
+  border-radius: 2px !important;
+}
+
+/* Hover — легка підсвітка (світло-сіра) */
+.blocklyTreeRow:not(.blocklyTreeSelected):hover {
+  background: #dcdcdc !important;
+}
+
+/* АКТИВНА категорія — тепер темно-сіра, з білим bold-текстом */
+.blocklyTreeRow.blocklyTreeSelected {
+  background: #4a9d4a !important;   /* фірмовий зелений (як primary button) */
+}
 .blocklyTreeSelected .blocklyTreeLabel {
   color: #ffffff !important;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-}
-/* Hover — легка підсвітка */
-.blocklyTreeRow:not(.blocklyTreeSelected):hover {
-  background: #d8d8d8 !important;
+  font-weight: 700 !important;
+  text-shadow: none !important;
 }
 
 #simulator-panel {
