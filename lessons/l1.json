@@ -39,7 +39,7 @@
       "id": "tour-drag",
       "type": "coach-mark",
       "target": "#blockly-div",
-      "position": "left",
+      "position": "bottom",
       "text": "Візьми блок «рухатись уперед» з палітри ліворуч і перетягни сюди, на робочу зону.",
       "advance": {
         "type": "block-added",

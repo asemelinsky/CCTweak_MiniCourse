@@ -162,31 +162,49 @@ const CoachMark = (function() {
   function positionCallout(callout, targetEl, position) {
     const rect = targetEl.getBoundingClientRect();
     const OFFSET = 20;
+    const W = 320;   // maxWidth
+    const H = 120;   // approx height
 
     callout.style.position = 'fixed';
     callout.style.zIndex   = '10001';
-    callout.style.maxWidth = '320px';
+    callout.style.maxWidth = W + 'px';
+    // Скинути раніш встановлені якщо resize/repositioning
+    callout.style.left = callout.style.right = callout.style.top = callout.style.bottom = '';
 
-    // Спершу треба щоб callout з'явився у DOM для вимірювання
-    // (перед першим появленням розмір ще 0, тож ставимо за наближенням)
     switch (position) {
       case 'right':
         callout.style.left = (rect.right + OFFSET) + 'px';
-        callout.style.top  = (rect.top + rect.height / 2 - 60) + 'px';
+        callout.style.top  = Math.max(10, rect.top + rect.height / 2 - H / 2) + 'px';
         break;
       case 'left':
-        callout.style.right = (window.innerWidth - rect.left + OFFSET) + 'px';
-        callout.style.top   = (rect.top + rect.height / 2 - 60) + 'px';
+        callout.style.left = Math.max(10, rect.left - W - OFFSET) + 'px';
+        callout.style.top  = Math.max(10, rect.top + rect.height / 2 - H / 2) + 'px';
         break;
       case 'top':
-        callout.style.left   = (rect.left + rect.width / 2 - 160) + 'px';
-        callout.style.bottom = (window.innerHeight - rect.top + OFFSET) + 'px';
+        callout.style.left = Math.max(10, rect.left + rect.width / 2 - W / 2) + 'px';
+        callout.style.top  = Math.max(10, rect.top - H - OFFSET) + 'px';
         break;
       case 'bottom':
       default:
-        callout.style.left = (rect.left + rect.width / 2 - 160) + 'px';
+        callout.style.left = Math.max(10, rect.left + rect.width / 2 - W / 2) + 'px';
         callout.style.top  = (rect.bottom + OFFSET) + 'px';
     }
+
+    // Safeguard: коли позиціонування виходить за viewport → fallback у центр
+    // Читаємо результуючі координати після applied styles
+    requestAnimationFrame(() => {
+      const cr = callout.getBoundingClientRect();
+      const outOfView = cr.right < 20 || cr.left > window.innerWidth - 20 ||
+                       cr.bottom < 20 || cr.top > window.innerHeight - 20;
+      if (outOfView) {
+        console.warn('[CoachMark] callout out of viewport, falling back to center');
+        callout.style.left   = '50%';
+        callout.style.top    = '50%';
+        callout.style.right  = '';
+        callout.style.bottom = '';
+        callout.style.transform = 'translate(-50%, -50%)';
+      }
+    });
   }
 
   function showCalloutOnly(beat) {
