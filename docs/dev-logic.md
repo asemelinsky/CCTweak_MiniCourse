@@ -577,6 +577,8 @@ def clean_for_tts(text):
 | 2026-08-18 | Autoplay unlock через first user gesture (§6.1) | Chrome/Safari блокують перший voice. Zberimo як pending, ретраїмо на першому кліку/keydown/touchstart |
 | 2026-08-18 | Coach marks тепер мають voice-over | Consistency: всі beats з текстом = з voice. Auto-URL той самий що у SpeechBubble. |
 | 2026-08-18 | Українські лапки `«»` додані у TTS-strip список (§9.1) | Piper їх озвучує літерально («лапка відкрита»). Виявлено при тестуванні `praise-first`. |
+| 2026-08-18 | Coach-mark viewport safeguard (§4) | Callout з `position: left` на елементі при лівому краю → off-screen. Додано auto-fallback у центр |
+| 2026-08-18 | Turtle blocks: прибрано «рухатись», додано emoji-стрілки | Дитячий UX: коротше + візуальний якір напрямку (плутають ліво/право). «вперед» замість «уперед» — форма з в- як стандарт для окремих слів на кнопках |
 
 ---
 
