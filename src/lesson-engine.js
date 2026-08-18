@@ -313,14 +313,54 @@ const LessonEngine = (function() {
 
     close.textContent = beat.cta_label || 'OK';
 
+    // Позначаємо завершення уроку у ProgressTracker (для free-tier L1 resume)
+    if (window.ProgressTracker) {
+      window.ProgressTracker.markLessonCompleted(currentLesson.id);
+    }
+
+    // Secondary CTA — з'являється якщо beat.secondary_cta_label є (для L1 "Ще подумати")
+    // Динамічно додаємо/видаляємо щоб не міняти HTML статично.
+    let secondaryBtn = document.getElementById('modal-close-secondary');
+    if (beat.secondary_cta_label) {
+      if (!secondaryBtn) {
+        secondaryBtn = document.createElement('button');
+        secondaryBtn.id = 'modal-close-secondary';
+        secondaryBtn.className = 'btn btn-secondary';
+        secondaryBtn.style.marginLeft = '12px';
+        close.parentNode.insertBefore(secondaryBtn, close.nextSibling);
+      }
+      secondaryBtn.textContent = beat.secondary_cta_label;
+      secondaryBtn.style.display = 'inline-block';
+    } else if (secondaryBtn) {
+      secondaryBtn.style.display = 'none';
+    }
+
     overlay.style.display = 'flex';
 
-    const handler = () => {
+    const closeModal = () => {
       overlay.style.display = 'none';
-      close.removeEventListener('click', handler);
-      // Урок закінчено, engine нічого більше не робить
+      close.removeEventListener('click', primaryHandler);
+      if (secondaryBtn) secondaryBtn.removeEventListener('click', closeModal);
     };
-    close.addEventListener('click', handler);
+
+    // Primary CTA — якщо beat.cta_url є, редіректить (для L1 → Telegram bot deep-link)
+    // Інакше просто закриває модалку.
+    const primaryHandler = () => {
+      if (beat.cta_url) {
+        // Позначаємо намір оплати перед редіректом (для аналітики)
+        if (window.ProgressTracker) {
+          window.ProgressTracker.markPaymentIntent(currentLesson.id);
+        }
+        window.location.href = beat.cta_url;
+      } else {
+        closeModal();
+      }
+    };
+
+    close.addEventListener('click', primaryHandler);
+    if (secondaryBtn) {
+      secondaryBtn.addEventListener('click', closeModal);
+    }
   }
 
   //////////////////////////////////////////////////////////////////////
