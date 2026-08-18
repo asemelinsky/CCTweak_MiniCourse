@@ -204,3 +204,80 @@
 #btn-audio-toggle.audio-off {
   opacity: 0.55;
 }
+
+
+/* -----------------------------------------------------
+   Video Overlay
+   ----------------------------------------------------- */
+
+.lesson-video-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10005;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.lesson-video-backdrop--visible { opacity: 1; }
+
+.lesson-video-container {
+  position: relative;
+  width: min(70vw, 480px);
+  height: min(70vw, 480px);
+  border-radius: 50%;
+  overflow: hidden;
+  border: 6px solid #4CAF50;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  background: #000;
+}
+
+.lesson-video-container video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lesson-video-playbtn {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: rgba(76, 175, 80, 0.9);
+  color: #fff;
+  border: none;
+  font-size: 3rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 8px;  /* оптичне центрування трикутника */
+}
+
+.lesson-video-nextbtn {
+  margin-top: 24px;
+  padding: 14px 40px;
+  background: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.lesson-video-nextbtn:hover { background: #43A047; }
+.lesson-video-nextbtn:active { transform: scale(0.97); }
+
+.lesson-video-nextbtn--pulse {
+  animation: lesson-nextpulse 1.2s ease-in-out infinite;
+}
+@keyframes lesson-nextpulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+  50%      { box-shadow: 0 0 0 20px rgba(76, 175, 80, 0); }
+}

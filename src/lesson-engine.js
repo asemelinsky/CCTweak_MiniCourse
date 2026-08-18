@@ -73,6 +73,9 @@ const LessonEngine = (function() {
       case 'coach-mark':
         CoachMark.show(beat);
         break;
+      case 'video-overlay':
+        VideoOverlay.show(beat);
+        break;
       case 'task':
         setupTask(beat);
         break;
@@ -95,6 +98,7 @@ const LessonEngine = (function() {
     if (beat) {
       if (beat.type === 'speech-bubble') SpeechBubble.hide();
       if (beat.type === 'coach-mark') CoachMark.hide();
+      if (beat.type === 'video-overlay') VideoOverlay.hide();
     }
     clearListeners();
     currentBeatIdx++;
