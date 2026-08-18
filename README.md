@@ -61,3 +61,9 @@ public/
 ## Ліцензія
 
 MIT
+
+
+## 📐 Документація розробки
+
+- [`docs/dev-logic.md`](docs/dev-logic.md) — архітектура логіки (beat sequencer, bubble/coach-mark/video/audio, simulator, JSON schema, extension points, педагогічні принципи, журнал рішень)
+- [`docs/tts-spec.md`](docs/tts-spec.md) — операційна специфікація TTS (Piper endpoint, voice model, pitch shift, pipeline, reproducibility)
