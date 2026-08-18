@@ -1,0 +1,267 @@
+/* ============================================================
+   MOBILE ADAPTIVE — ізольовано у @media queries.
+   Активується для екранів < 900px.
+   Desktop / landscape tablet CSS (style.css, style-lesson.css)
+   не торкається — тільки додаємо/переоприділяємо тут.
+
+   Стратегія:
+   • < 900px landscape → compact header + tight layout (main path для phone)
+   • < 900px portrait  → rotation gate (просимо повернути на landscape)
+   • rotation gate → кнопка "Все одно спробувати" → tabs fallback
+   ============================================================ */
+
+
+/* ============================================================
+   Rotation gate — full-screen overlay для portrait phone.
+   Показується автоматично коли orientation: portrait AND width < 900px.
+   Приховується коли user повертає phone на landscape.
+   ============================================================ */
+#rotation-gate {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #2c4c2c, #1a2a1a);
+  z-index: 20000;   /* over speech-bubbles (10005) і coach-marks (9999) */
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+#rotation-gate__inner {
+  text-align: center;
+  max-width: 340px;
+  color: #f0f0f0;
+}
+#rotation-gate__icon {
+  font-size: 72px;
+  margin-bottom: 24px;
+  display: inline-block;
+  animation: rotate-hint 2.2s ease-in-out infinite;
+  transform-origin: 50% 50%;
+}
+@keyframes rotate-hint {
+  0%, 100% { transform: rotate(0deg); }
+  40%      { transform: rotate(-90deg); }
+  60%      { transform: rotate(-90deg); }
+}
+#rotation-gate__text {
+  font-size: 18px;
+  line-height: 1.5;
+  margin-bottom: 28px;
+  color: #e0e0e0;
+}
+#rotation-gate__fallback {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.35);
+  color: #cfe0cf;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+#rotation-gate__fallback:hover,
+#rotation-gate__fallback:active {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.55);
+}
+
+/* Активація rotation gate тільки на малих portrait екранах */
+@media (max-width: 900px) and (orientation: portrait) {
+  #rotation-gate:not(.rotation-gate--dismissed) {
+    display: flex;
+  }
+}
+
+
+/* ============================================================
+   Compact header — для всіх екранів < 900px (portrait і landscape).
+   Ховаємо повний заголовок і назву рівня; кнопки icon-only.
+   ============================================================ */
+@media (max-width: 900px) {
+  #app-header {
+    padding: 6px 10px;
+  }
+  /* "Кодомандри" → 🐢 */
+  #app-header h1 {
+    font-size: 0;
+    margin-right: 8px;
+    line-height: 1;
+  }
+  #app-header h1::before {
+    content: '🐢';
+    font-size: 22px;
+  }
+  /* "Рівень 1 · Знайомство з Мо" → "L1" */
+  #level-info {
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
+  .level-label,
+  .level-title {
+    display: none;
+  }
+  .level-number {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .level-number::before {
+    content: 'L';
+    opacity: 0.7;
+    margin-right: 1px;
+  }
+  /* Кнопки — тільки іконки */
+  #header-actions { gap: 6px; }
+  .btn {
+    padding: 8px 10px;
+    font-size: 0;   /* приховати текст існуючий */
+    min-width: 40px;
+    min-height: 40px;   /* touch-friendly */
+  }
+  /* Icons через ::before щоб залишити функціонал */
+  #btn-reset { position: relative; }
+  #btn-reset::before {
+    content: '↺';
+    font-size: 20px;
+    line-height: 1;
+  }
+  #btn-run { position: relative; }
+  #btn-run::before {
+    content: '▶';
+    font-size: 16px;
+    line-height: 1;
+  }
+  /* Audio toggle керується .audio-off класом з JS */
+  #btn-audio-toggle::before {
+    font-size: 18px;
+    line-height: 1;
+  }
+  #btn-audio-toggle:not(.audio-off)::before { content: '🔊'; }
+  #btn-audio-toggle.audio-off::before       { content: '🔈'; }
+}
+
+
+/* ============================================================
+   Landscape phone (< 900px, orientation: landscape) — MAIN PATH.
+   Blockly + Scene одночасно, але у стисненому вигляді.
+   Simulator панель зменшена; padding компактніший;
+   speech bubble піднята вгору щоб не заслоняти ▶.
+   ============================================================ */
+@media (max-width: 900px) and (orientation: landscape) {
+  /* Simulator панель — фіксовану 520px замінюємо на 45% ширини */
+  #simulator-panel {
+    width: auto;
+    flex: 0 0 45%;
+    min-width: 280px;
+    padding: 8px;
+  }
+  #workspace-panel {
+    min-width: 0;   /* дозволяємо ужатись нижче 400px */
+  }
+  #scene-status {
+    margin-top: 6px;
+    padding: 6px 10px;
+    min-height: 28px;
+  }
+  #status-text {
+    font-size: 12px;
+    line-height: 1.3;
+  }
+  /* Blockly toolbox — категорії ще компактніше */
+  .blocklyTreeRow {
+    padding: 0 8px 0 4px !important;
+    min-height: 30px !important;
+    height: 30px !important;
+    line-height: 30px !important;
+  }
+  .blocklyTreeLabel {
+    font-size: 12px !important;
+  }
+  /* Speech bubble піднімаємо: на landscape phone тіло уроку низьке,
+     bubble bottom: 20px переверне поверх кнопки ▶ і сцени. */
+  .lesson-speech-bubble {
+    max-width: 92vw;
+    min-width: 200px;
+    padding: 12px 16px;
+    font-size: 13px;
+    /* Позиція керується inline JS'ом — не переоприділяю тут bottom
+       щоб уникнути !important-війни. Тільки розмір. */
+  }
+  .lesson-speech-bubble__text {
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+  }
+  .lesson-speech-bubble__avatar {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 20px !important;
+  }
+}
+
+
+/* ============================================================
+   Tabs fallback layout — активується коли user натиснув
+   "Все одно спробувати" у rotation gate. Body отримує клас
+   .mobile-tabs-mode від mobile-layout.js.
+   Показує 2 таби (Код / Сцена), тільки один активний.
+   ============================================================ */
+#mobile-tabs {
+  display: none;
+  background: #1a2a1a;
+  border-bottom: 2px solid #0a1a0a;
+}
+.mobile-tab {
+  flex: 1;
+  padding: 12px 8px;
+  background: transparent;
+  border: none;
+  color: #a0c0a0;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  border-bottom: 3px solid transparent;
+}
+.mobile-tab--active {
+  color: #ffffff;
+  background: rgba(74, 157, 74, 0.15);
+  border-bottom-color: #4a9d4a;
+}
+
+body.mobile-tabs-mode #mobile-tabs {
+  display: flex;
+}
+body.mobile-tabs-mode #app-main {
+  position: relative;
+  flex-direction: column;
+}
+body.mobile-tabs-mode #workspace-panel,
+body.mobile-tabs-mode #simulator-panel {
+  width: 100%;
+  min-width: 0;
+  flex: 1 1 auto;
+  border-right: none;
+}
+body.mobile-tabs-mode #simulator-panel {
+  border-top: 3px solid #1a3a1a;
+  padding: 10px;
+}
+/* Приховуємо неактивний таб */
+body.mobile-tabs-mode.tab-code    #simulator-panel { display: none; }
+body.mobile-tabs-mode.tab-scene   #workspace-panel { display: none; }
+
+/* У tabs-режимі не показуємо rotation gate */
+body.mobile-tabs-mode #rotation-gate { display: none !important; }
+
+
+/* ============================================================
+   Speech bubble на mobile — reposition-only styles.
+   Реальне positioning виконує speech-bubble.js через inline style;
+   тут тільки корекція розміру для tabs-режиму.
+   ============================================================ */
+body.mobile-tabs-mode .lesson-speech-bubble {
+  max-width: 92vw;
+  min-width: 200px;
+  padding: 14px 18px;
+  font-size: 14px;
+}
