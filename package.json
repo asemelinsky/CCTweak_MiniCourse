@@ -5,7 +5,11 @@
   "private": true,
   "scripts": {
     "dev": "python3 -m http.server 8080",
+    "dev:vercel": "vercel dev",
     "build": "echo 'Static site — no build step'"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "author": "Oleksii Semelinsky <a.semelinsky@gmail.com>",
   "license": "MIT"

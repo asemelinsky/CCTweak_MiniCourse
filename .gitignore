@@ -7,3 +7,8 @@ node_modules/
 # Локальне
 .DS_Store
 *.log
+
+# Local env (Vercel functions секрети — тільки у dashboard)
+.env
+.env.local
+.env.*.local

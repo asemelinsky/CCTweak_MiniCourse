@@ -14,5 +14,14 @@
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     }
+  ],
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 15
+    }
+  },
+  "crons": [
+    { "path": "/api/cron/daily-drip", "schedule": "0 15 * * *" },
+    { "path": "/api/cron/reactivation", "schedule": "0 16 * * *" }
   ]
 }
