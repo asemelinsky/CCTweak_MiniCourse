@@ -9,7 +9,7 @@ const {
   getLearnerByTelegramId,
   serializeLearner,
   requireBearer,
-} = require('../../../_lib');
+} = require('../../_lib');
 
 module.exports = async (req, res) => {
   if (handleOptions(req, res)) return;
