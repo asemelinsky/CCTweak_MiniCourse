@@ -5,13 +5,19 @@
   "cleanUrls": false,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/", "destination": "/index.html" }
+    {
+      "source": "/",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
       "source": "/public/textures/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     }
   ],
@@ -21,7 +27,17 @@
     }
   },
   "crons": [
-    { "path": "/api/cron/daily-drip", "schedule": "0 15 * * *" },
-    { "path": "/api/cron/reactivation", "schedule": "0 16 * * *" }
+    {
+      "path": "/api/cron/daily-drip",
+      "schedule": "0 15 * * *"
+    },
+    {
+      "path": "/api/cron/reactivation",
+      "schedule": "0 16 * * *"
+    },
+    {
+      "path": "/api/cron/upsell-followup",
+      "schedule": "0 17 * * *"
+    }
   ]
 }
