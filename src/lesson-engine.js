@@ -230,7 +230,15 @@ const LessonEngine = (function() {
     icon.textContent = '🎉';
     icon.style.fontSize = '4em';
     title.textContent = beat.title;
-    message.textContent = beat.message;
+
+    // Заміна плейсхолдерів у повідомленні
+    const attempts = (window._puzzles && window._puzzles.attemptCount) || 1;
+    const attemptsWord = attempts === 1 ? 'спробу' :
+                         (attempts >= 2 && attempts <= 4) ? 'спроби' : 'спроб';
+    message.textContent = (beat.message || '')
+      .replace('{ATTEMPTS}', attempts)
+      .replace('{ATTEMPTS_WORD}', attemptsWord);
+
     close.textContent = beat.cta_label || 'OK';
 
     overlay.style.display = 'flex';

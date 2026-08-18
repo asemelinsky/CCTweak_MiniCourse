@@ -352,6 +352,10 @@ function executeUserCode() {
   cancelAnimation();
   reset();
 
+  attemptCount++;
+  window._puzzles = window._puzzles || {};
+  window._puzzles.attemptCount = attemptCount;
+
   const code = Blockly.JavaScript.workspaceToCode(workspace);
   log = [];
 
@@ -391,6 +395,9 @@ const STEP_SPEED_OK   = 250;   // ms/крок при SUCCESS
 const STEP_SPEED_SLOW = 400;   // ms/крок при інших
 let stepSpeed;
 let animIndex;
+
+// Лічильник спроб дитини у поточному сесії (для outro-модалки, positioning §10.1)
+let attemptCount = 0;
 
 function cancelAnimation() {
   while (pidList.length) clearTimeout(pidList.shift());

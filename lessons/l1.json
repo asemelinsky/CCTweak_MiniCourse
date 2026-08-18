@@ -8,7 +8,10 @@
       "character": "mo",
       "text": "Привіт! Мене звати Мо 🐢 Я впала у покинуту шахту...",
       "animation": "shake",
-      "advance": { "type": "click-next", "label": "Що трапилось?" }
+      "advance": {
+        "type": "click-next",
+        "label": "Що трапилось?"
+      }
     },
     {
       "id": "intro-2",
@@ -16,7 +19,10 @@
       "character": "mo",
       "text": "Не можу вибратись сама! Але ти можеш мене вивести — просто скажи що робити крок за кроком. А там, унизу, є алмаз! Треба до нього дістатись.",
       "animation": "wiggle",
-      "advance": { "type": "click-next", "label": "Готовий!" }
+      "advance": {
+        "type": "click-next",
+        "label": "Готовий!"
+      }
     },
     {
       "id": "tour-toolbox",
@@ -24,7 +30,10 @@
       "target": ".blocklyToolboxDiv",
       "position": "right",
       "text": "Тут живуть блоки-команди. Натисни на «Рух», щоб побачити мої вміння.",
-      "advance": { "type": "click-next", "label": "Далі" }
+      "advance": {
+        "type": "click-next",
+        "label": "Далі"
+      }
     },
     {
       "id": "tour-drag",
@@ -32,7 +41,10 @@
       "target": "#blockly-div",
       "position": "left",
       "text": "Візьми блок «рухатись уперед» з палітри ліворуч і перетягни сюди, на робочу зону.",
-      "advance": { "type": "block-added", "block_type": "turtle_forward" }
+      "advance": {
+        "type": "block-added",
+        "block_type": "turtle_forward"
+      }
     },
     {
       "id": "praise-first",
@@ -40,7 +52,10 @@
       "character": "mo",
       "text": "Ідеально! Це мій перший крок. Тепер додай ще декілька блоків — треба спуститися до алмаза. Використай «уперед» та «униз» (їх можеш перетягувати кілька).",
       "animation": "jump",
-      "advance": { "type": "click-next", "label": "Спробую!" }
+      "advance": {
+        "type": "click-next",
+        "label": "Спробую!"
+      }
     },
     {
       "id": "tour-run",
@@ -48,14 +63,18 @@
       "target": "#btn-run",
       "position": "bottom",
       "text": "Коли готово — натисни ▶ Запустити. Я почну виконувати твою програму!",
-      "advance": { "type": "run-clicked" }
+      "advance": {
+        "type": "run-clicked"
+      }
     },
     {
       "id": "task-main",
       "type": "task",
       "hint_on_failure": "Здається, я не дійшла до алмаза. Додай ще блоків — треба ще кроків уперед і вниз.",
       "hint_on_crash": "Ой, я врізалась у стіну! Перевір послідовність — куди саме мені треба.",
-      "advance": { "type": "task-solved" }
+      "advance": {
+        "type": "task-solved"
+      }
     },
     {
       "id": "celebration",
@@ -63,14 +82,17 @@
       "character": "mo",
       "text": "УРА! 💎 Я знайшла алмаз! Дякую тобі! Ти справжній програміст. Побачимось у наступному уроці — там будуть довші коридори!",
       "animation": "jump",
-      "advance": { "type": "click-next", "label": "Круто!" }
+      "advance": {
+        "type": "click-next",
+        "label": "Круто!"
+      }
     },
     {
       "id": "final",
       "type": "final-modal",
-      "title": "Урок 1 пройдено!",
-      "message": "Ти навчився складати команди у послідовність. Це основа програмування. Молодець!",
-      "cta_label": "Дякую!"
+      "title": "Урок 1 пройдено! 🎉",
+      "message": "За цей урок ти зробив {ATTEMPTS} {ATTEMPTS_WORD} — і на останній Мо дійшла до алмаза 💎\n\nЦе і є як працює справжній програміст: спробував → зрозумів → виправив → знову спробував. Не з першого разу — це нормально. Це і є те, що ми навчаємо. Ти супер справився!",
+      "cta_label": "Дякую, Мо!"
     }
   ]
 }
