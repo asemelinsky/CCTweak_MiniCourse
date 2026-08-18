@@ -42,17 +42,41 @@
 
 ## Text preprocessing (обов'язково)
 
-Прибрати перед подачею у Piper:
+**Canonical `clean_for_tts()` функція** — застосувати ДО кожного запиту у Piper:
 
-1. **Emoji** — Piper проговорює як «емодзі-череп-ашка». Regex:
-   ```python
-   import re
-   text = re.sub(r'[\U0001F300-\U0001FAFF\U00002600-\U000027BF]', '', text)
-   ```
-2. **Множинні пробіли/переноси** → одинарний пробіл: `re.sub(r'\s+', ' ', text).strip()`
-3. **Спеціальний markup** (наприклад Markdown `**bold**`) — прибирати вручну для each beat.
+```python
+import re
 
-**Тире (—)** залишати як є — Piper коректно робить паузу.
+def clean_for_tts(text: str) -> str:
+    # 1. Multi-char sequences → крапка (Piper читає '...' як «три-крапки»)
+    text = text.replace('...', '.').replace('…', '.')
+    # 2. Emoji + Mahjong tiles (U+1F000-U+1FAFF)
+    text = re.sub(r'[\U0001F000-\U0001FAFF]', '', text)
+    # 3. Broad symbols U+2190-U+27BF — Arrows, Math, Misc Tech,
+    #    Enclosed Alphanum, Box Drawing, Block Elements, Geometric Shapes,
+    #    Misc Symbols, Dingbats. Включає: ▶ ◀ ▲ ▼ ← → ↑ ↓ ⚠ ⚡ ✓ ✗ ⓘ ★
+    text = re.sub(r'[←-➿]', '', text)
+    # 4. Курсивні лапки — українські «» + curly EN “ ” ‘ ’ „ ‟
+    text = re.sub(r'[«»“”‘’„‟]', '', text)
+    # 5. Markdown emphasis — прибрати обгортку, залишити text
+    text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
+    text = re.sub(r'\*([^*]+)\*', r'\1', text)
+    # 6. Whitespace normalize
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
+```
+
+**Що ЗАЛИШАЄМО** (Piper корректно читає):
+- Тире `—` (робить паузу)
+- Дужки `()` `[]` — читаються як пауза
+- Цифри — читаються словами
+- Знаки пунктуації (`.` `,` `!` `?` `:` `;`) — інтонація/пауза
+
+**Rationale** (чому broad ranges):
+- Не варто робити whitelist специфічних символів для кожного beat'у
+- Range U+2190-U+27BF blackistит все підозріле одним regex'ом
+- У наших текстах символи з цих діапазонів не мають lexical смислу — тільки UI-метафора («натисни ▶», «увага ⚠»)
+- Якщо колись треба буде використати наприклад математичне ≠ у тексті — доведеться уточнювати regex, але це corner case
 
 ---
 
