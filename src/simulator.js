@@ -197,12 +197,95 @@ function pickNextL4Variant() {
   return nextIdx;
 }
 
+// Level 5 map — «Мо-детектив». Debug workflow урок.
+// Карта та сама структура що L2 (S-shape), але фокус не на планування а
+// на дебаг готового broken коду (см. l5.json initial_workspace_xml).
+// Оптимальне рішення: down×2 + forward×2 + down×2 + forward + down = 8 блоків.
+// Broken код у workspace має 3 послідовні bugs (see design).
+const LEVEL_5 = [
+  '............',  // 0
+  '............',  // 1
+  '..►.........',  // 2
+  'GG.GGGGGGGGG',  // 3
+  'DD..DDDDDDDD',  // 4
+  'DDD.DDDDDDDD',  // 5
+  'DDD...DDDDDD',  // 6
+  'SSSSS◆SSSSSS',  // 7 — DIAMOND (5, 7)
+  'BBBBBBBBBBBB',  // 8
+];
+
+// Level 6 — «Мо у безодні». While урок з невідомою глибиною тунеля.
+// Wither зробив шахти безкінечно глибокими — кожен Reset нова глибина
+// (random no-repeat, 5 варіантів). Прямий вертикальний тунель від (2,2).
+// Оптимальне: loop_while_not_diamond { вниз } = 1 блок вкладеного.
+// Post-pilot design.
+
+const LEVEL_6_D3 = [
+  '............', '............', '..►.........',
+  'GG.GGGGGGGGG', 'DD.DDDDDDDDD', 'DD◆DDDDDDDDD',
+  'BBBBBBBBBBBB', 'BBBBBBBBBBBB', 'BBBBBBBBBBBB',
+];
+const LEVEL_6_D4 = [
+  '............', '............', '..►.........',
+  'GG.GGGGGGGGG', 'DD.DDDDDDDDD', 'DD.DDDDDDDDD',
+  'DD◆DDDDDDDDD', 'BBBBBBBBBBBB', 'BBBBBBBBBBBB',
+];
+const LEVEL_6_D5 = [
+  '............', '............', '..►.........',
+  'GG.GGGGGGGGG', 'DD.DDDDDDDDD', 'DD.DDDDDDDDD',
+  'DD.DDDDDDDDD', 'DD◆DDDDDDDDD', 'BBBBBBBBBBBB',
+];
+const LEVEL_6_D6 = [
+  '............', '............', '..►.........',
+  'GG.GGGGGGGGG', 'DD.DDDDDDDDD', 'DD.DDDDDDDDD',
+  'DD.DDDDDDDDD', 'DD.DDDDDDDDD', 'DD◆DDDDDDDDD',
+];
+const LEVEL_6_D2 = [
+  '............', '............', '..►.........',
+  'GG.GGGGGGGGG', 'DD◆DDDDDDDDD', 'BBBBBBBBBBBB',
+  'BBBBBBBBBBBB', 'BBBBBBBBBBBB', 'BBBBBBBBBBBB',
+];
+
+const LEVEL_6_VARIANTS = [LEVEL_6_D2, LEVEL_6_D3, LEVEL_6_D4, LEVEL_6_D5, LEVEL_6_D6];
+let l6CurrentVariantIndex = 0;
+
+function pickNextL6Variant() {
+  const total = LEVEL_6_VARIANTS.length;
+  if (total <= 1) return 0;
+  let nextIdx;
+  do {
+    nextIdx = Math.floor(Math.random() * total);
+  } while (nextIdx === l6CurrentVariantIndex);
+  l6CurrentVariantIndex = nextIdx;
+  return nextIdx;
+}
+
+// Level 7 map — «Фінальна битва». Composite: while + якщо/то/інакше + repeat.
+// Ender Dragon повернувся з ultimate challenge. Складна печера з поворотами.
+// Оптимальне рішення: loop_while_not_diamond { if wall_ahead [ down ] else [ forward ] }
+// = 2 блоки (while + if_else всередині), універсально працює.
+// Ще складніше ніж L4/L6 бо has multiple horizontal + vertical segments.
+const LEVEL_7 = [
+  '............',  // 0
+  '............',  // 1
+  '..►GGGGGGGGG',  // 2 — turtle + стіна одразу (як L4)
+  'GG.GGGGGGGGG',  // 3 — down col 2
+  'DD..DDDDDDDD',  // 4 — right col 2-3
+  'DDD.DDDDDDDD',  // 5 — down col 3
+  'DDD.....DDDD',  // 6 — right col 3-7 (довгий)
+  'DDDDDDD.DDDD',  // 7 — down col 7
+  'SSSSSSS◆SSSS',  // 8 — DIAMOND (7, 8)
+];
+
 // Map registry — lookup by lesson id
 const LEVEL_MAPS = {
   'l1': LEVEL_1,
   'l2': LEVEL_2,
   'l3': LEVEL_3,
   // 'l4' — dynamic, див. getLevelMap()
+  'l5': LEVEL_5,
+  // 'l6' — dynamic
+  'l7': LEVEL_7,
 };
 
 /**
@@ -220,6 +303,12 @@ function getLevelMap(lessonId, opts = {}) {
       pickNextL4Variant();
     }
     return LEVEL_4_VARIANTS[l4CurrentVariantIndex];
+  }
+  if (lessonId === 'l6') {
+    if (opts.pickNew) {
+      pickNextL6Variant();
+    }
+    return LEVEL_6_VARIANTS[l6CurrentVariantIndex];
   }
   return LEVEL_MAPS[lessonId] || LEVEL_1;
 }
@@ -499,6 +588,16 @@ function turtleUp(id)      { tryMove(0, -1, id, 'up');      }
 function turtleDown(id)    { tryMove(0, +1, id, 'down');    }
 
 /**
+ * L6 helper — «на алмазі?». Використовується у loop_while_not_diamond
+ * (учень не бачить це як окремий блок, воно вбудовано у while конструкцію).
+ * Повертає true якщо поточна клітинка Мо це diamond tile.
+ */
+function sensorOnDiamond() {
+  if (turtleY < 0 || turtleY >= ROWS || turtleX < 0 || turtleX >= COLS) return false;
+  return map[turtleY][turtleX] === TILE.DIAMOND;
+}
+
+/**
  * L4 sensor — «стіна попереду?». Повертає boolean.
  * Читає карту у напрямку forward (turtleX+1, turtleY).
  * Правило: не air і не diamond = стіна. Кордон карти теж рахується як стіна.
@@ -534,6 +633,8 @@ function initInterpreter(interp, globalObj) {
   // L4 sensor — value function, returns boolean.
   // JS-Interpreter автоматично конвертує JS bool ↔ pseudo-bool.
   wrap('sensorWallAhead', sensorWallAhead);
+  // L6 sensor — вбудований у loop_while_not_diamond (учень не бачить).
+  wrap('sensorOnDiamond', sensorOnDiamond);
   // highlightBlock — noop у sandbox (використовується Blockly generator при
   // Blockly.JavaScript.STATEMENT_PREFIX; ми не встановлюємо префікс, тому
   // ця функція не викликається, але резервую на майбутнє).
@@ -741,12 +842,12 @@ function showFinalResult() {
 function reset() {
   cancelAnimation();
 
-  // L4 special: Ender Dragon зачарував тунель — при кожному Reset нова карта
-  // (random no-repeat). Це створює «магічний» momento який змушує використати
-  // sensor+if/інакше замість direct-path shortcut'у.
+  // L4/L6 special: карта міняється при кожному Reset (random no-repeat).
+  // L4 — Ender Dragon narrative, L6 — Wither. Обидва змушують sensor-based
+  // solution замість hard-coded direct path.
   const lessonId = (typeof window !== 'undefined' && window.currentLessonId) || 'l1';
-  if (lessonId === 'l4') {
-    const newMap = getLevelMap('l4', { pickNew: true });
+  if (lessonId === 'l4' || lessonId === 'l6') {
+    const newMap = getLevelMap(lessonId, { pickNew: true });
     const parsed = parseLevel(newMap);
     map = parsed.map;
     startPos = parsed.start;

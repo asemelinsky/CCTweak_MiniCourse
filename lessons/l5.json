@@ -1,0 +1,87 @@
+{
+  "id": "l5",
+  "title": "Мо-детектив: код Стіва",
+  "initial_workspace_xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"turtle_down\" x=\"20\" y=\"20\"><next><block type=\"turtle_down\"><next><block type=\"turtle_down\"><next><block type=\"turtle_forward\"><next><block type=\"turtle_down\"><next><block type=\"turtle_forward\"><next><block type=\"turtle_down\"><next><block type=\"turtle_down\"/></next></block></next></block></next></block></next></block></next></block></next></block></next></block></xml>",
+  "beats": [
+    {
+      "id": "intro-1",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Гей! Дивись — у workspace вже є код 🐢\n\nЙого написав Стів — хлопець у синій сорочці з Minecraft. Він хотів мені допомогти пройти шахту.",
+      "animation": "wiggle",
+      "advance": {
+        "type": "click-next",
+        "label": "Круто!"
+      }
+    },
+    {
+      "id": "intro-2",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Але вночі на нього напав Creeper 💥 і код зіпсувався. Тепер у ньому 3 помилки — я не дійду до алмаза.\n\nДопоможи мені знайти і виправити всі 3 помилки. Ти справжній детектив!",
+      "animation": "shake",
+      "advance": {
+        "type": "click-next",
+        "label": "Розберусь!"
+      }
+    },
+    {
+      "id": "instruct-run",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Натисни ▶ Запустити. Побачимо де саме я зупинюсь — це буде перша підказка де помилка.",
+      "animation": "jump",
+      "advance": {
+        "type": "run-clicked"
+      }
+    },
+    {
+      "id": "first-crash-hint",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Ось де я застрягла! 🔍\n\nДивись який блок був останній перед стіною — саме він неправильний. Спробуй здогадатися що треба замість нього.\n\nПідказка: якщо я впертялась у стіну знизу — можливо треба було НЕ вниз, а щось інше.",
+      "animation": "shake",
+      "advance": {
+        "type": "run-clicked"
+      }
+    },
+    {
+      "id": "second-fix-progress",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Молодець, детектив! 🎯 Я тепер пішла далі — і застрягла у наступному місці.\n\nЩе один блок треба виправити. Дивись де я зупинилась — це підказка.",
+      "animation": "wiggle",
+      "advance": {
+        "type": "run-clicked"
+      }
+    },
+    {
+      "id": "third-fix-progress",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Дві помилки знайшов — залишилась остання! 🕵️\n\nЯ близько до алмаза але знов застрягла. Уважно подивись який блок був останній.",
+      "animation": "wiggle",
+      "advance": {
+        "type": "task-solved"
+      }
+    },
+    {
+      "id": "celebration",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Ти знайшов усі 3 помилки! 🎉🕵️\n\nСтів був би пишний тобою. Ти справжній програміст-детектив.\n\nЗнаєш що найкраще? Помилки — це нормально. Дорослі програмісти щодня їх шукають і виправляють. Це ЧАСТИНА роботи, не провал.",
+      "animation": "jump",
+      "advance": {
+        "type": "click-next",
+        "label": "Далі"
+      }
+    },
+    {
+      "id": "final",
+      "type": "final-modal",
+      "title": "Урок 5 пройдено! 🕵️",
+      "message": "Ти знайшов усі 3 помилки за {ATTEMPTS} {ATTEMPTS_WORD} — і врятував код Стіва від Creeper'а 💚\n\nЦе саме те, що роблять справжні програмісти щодня — код рідко пишеться правильно з першого разу. Помилки шукають, виправляють, і йдуть далі.\n\nНа наступному уроці Мо потрапить у безодню — тунель НЕЗ ВІДОМОЇ глибини. Wither зробив шахти такими глибокими що навіть Ender Dragon боїться туди сунутися. Готовий?",
+      "cta_label": "Далі до Уроку 6 →"
+    }
+  ]
+}

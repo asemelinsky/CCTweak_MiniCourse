@@ -1,0 +1,141 @@
+{
+  "id": "l6",
+  "title": "Мо у безодні: Wither та безкінечні шахти",
+  "beats": [
+    {
+      "id": "intro-1",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Гей! 🐢 Тепер у мене нова проблема. Wither зруйнував старі шахти і зробив нові — БЕЗКІНЕЧНО глибокі.",
+      "animation": "shake",
+      "advance": {
+        "type": "click-next",
+        "label": "Що таке Wither?"
+      }
+    },
+    {
+      "id": "intro-2",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Це грізний бос з Minecraft — навіть Ender Dragon його боїться!\n\nШахти тепер такі, що я не знаю скільки треба йти. Може 3 кроки, може 5, може 7. Кожного разу — по-іншому.",
+      "animation": "wiggle",
+      "advance": {
+        "type": "click-next",
+        "label": "Як пройти?"
+      }
+    },
+    {
+      "id": "try-repeat",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Спробуй як раніше — постав «повторити 5 разів [вниз]». Може пощастить?",
+      "animation": "jump",
+      "advance": {
+        "type": "run-clicked"
+      }
+    },
+    {
+      "id": "reset-and-see",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Тепер натисни ↺ Скинути. Wither перекопав шахту!\n\nІ спробуй запустити той самий код.",
+      "animation": "wiggle",
+      "advance": {
+        "type": "run-clicked"
+      }
+    },
+    {
+      "id": "hook-repeat-fails",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Бачиш? Шахта інша — «повторити 5» тепер не працює. Може занадто мало, може занадто багато.\n\nПотрібен трюк: код, який не рахує КРОКИ, а йде ДОКИ не досягне алмаза.",
+      "animation": "shake",
+      "advance": {
+        "type": "click-next",
+        "label": "Такий є?"
+      }
+    },
+    {
+      "id": "metaphor-shop",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Уяви що ти йдеш до магазину 🏪\n\nТи ж не рахуєш «зроблю 87 кроків». Ти просто йдеш ДОКИ не побачиш магазин. Так само і код!",
+      "animation": "jump",
+      "advance": {
+        "type": "click-next",
+        "label": "Крутo!"
+      }
+    },
+    {
+      "id": "tour-while",
+      "type": "coach-mark",
+      "target": ".blocklyToolboxDiv",
+      "position": "right",
+      "text": "У палітрі з'явилась нова категорія «Умовні цикли». Клікни на неї — там особливий блок для цього трюку.",
+      "advance": {
+        "type": "click-next",
+        "label": "Клікнув"
+      }
+    },
+    {
+      "id": "demo-while",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Ось блок 🔁 «поки я ще не на алмазі, роби:»\n\nЦе універсальний цикл — він працює ДОКИ Мо не досягне алмаза. Не важливо скільки кроків.",
+      "animation": "wiggle",
+      "advance": {
+        "type": "click-next",
+        "label": "Показуй!"
+      }
+    },
+    {
+      "id": "guided-build",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Твоя черга! Сотри всі блоки. Постав:\n\n🔁 поки я ще не на алмазі, роби:\n  ↳ ⬇️ вниз\n\nВсього 2 блоки! Один \"поки\" + один \"вниз\" всередині.",
+      "animation": "jump",
+      "advance": {
+        "type": "click-next",
+        "label": "Роблю"
+      }
+    },
+    {
+      "id": "task-run",
+      "type": "task",
+      "hint_on_failure": "Не спрацювало. Перевір — блок «вниз» має бути ВСЕРЕДИНІ «поки», не після нього.",
+      "hint_on_crash": "Ой, вилетіла за межі. Мабуть у циклі не «вниз» а інше — перевір напрямок.",
+      "hint_on_timeout": "Здається я ходжу нескінченно — блок всередині циклу може порожній? Або не той напрямок.",
+      "advance": {
+        "type": "task-solved"
+      }
+    },
+    {
+      "id": "reset-again",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "🎉 Ура! Тепер натисни ↺ Скинути ще раз.\n\nWither знов перекопає шахту. А ти просто ▶ — той самий код спрацює для БУДЬ-ЯКОЇ глибини!",
+      "animation": "wiggle",
+      "advance": {
+        "type": "run-clicked"
+      }
+    },
+    {
+      "id": "celebration",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "🎉 ОДИН КОД — УСІ ГЛИБИНИ!\n\nWither програв. Твій код УНІВЕРСАЛЬНИЙ — він не рахує кроки, а реагує на ситуацію.\n\nЦе один з найпотужніших інструментів програміста — цикл з умовою. Ти щойно освоїв його!",
+      "animation": "jump",
+      "advance": {
+        "type": "click-next",
+        "label": "Так!"
+      }
+    },
+    {
+      "id": "final",
+      "type": "final-modal",
+      "title": "Урок 6 пройдено! 🎉",
+      "message": "Ти пройшов за {ATTEMPTS} {ATTEMPTS_WORD} — і переміг Wither'а 💪\n\nТвій код тепер УНІВЕРСАЛЬНИЙ:\n• Не залежить від конкретних чисел\n• Працює для будь-якої карти\n• Реагує на ситуацію сам\n\nЦе найпотужніший інструмент програміста — цикл з умовою.\n\nА тепер — фінальна битва. Ender Dragon повернувся! Він створив нову печеру де є ВСЕ: повороти, глибини, стіни. Треба використати ВСЕ що ти навчився. Готовий?",
+      "cta_label": "До фінальної битви →"
+    }
+  ]
+}

@@ -46,6 +46,21 @@ const LessonEngine = (function() {
     console.log(`[LessonEngine] Старт уроку: ${lesson.id} — «${lesson.title}»`);
     currentLesson = lesson;
     currentBeatIdx = 0;
+
+    // Preload workspace якщо lesson має initial_workspace_xml (для L5 debug —
+    // learn бачить broken code на старті і мусить його виправити).
+    // Формат: standard Blockly XML string з блоками для injection.
+    if (lesson.initial_workspace_xml && window.workspace && window.Blockly) {
+      try {
+        const dom = Blockly.utils.xml.textToDom(lesson.initial_workspace_xml);
+        window.workspace.clear();
+        Blockly.Xml.domToWorkspace(dom, window.workspace);
+        console.log(`[LessonEngine] Preloaded initial workspace для ${lesson.id}`);
+      } catch (err) {
+        console.error(`[LessonEngine] Failed to preload workspace:`, err);
+      }
+    }
+
     runCurrentBeat();
   }
 

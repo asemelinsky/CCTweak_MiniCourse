@@ -52,9 +52,7 @@ const CATEGORIES = {
     </category>`,
 
   'loops-while': `<category name="Умовні цикли" colour="290">
-      <block type="controls_whileUntil">
-        <field name="MODE">WHILE</field>
-      </block>
+      <block type="loop_while_not_diamond"></block>
     </category>`,
 
   sensors: `<category name="Сенсори" colour="180">

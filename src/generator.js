@@ -44,5 +44,12 @@ Blockly.JavaScript.forBlock['condition_if_else'] = function(block) {
   return `if (${cond}) {\n${thenCode}} else {\n${elseCode}}\n`;
 };
 
+// L6 «поки не на алмазі — робити». Semantics вбудована — sensor автоматично.
+// Захист від нескінченного циклу — safety timeout у simulator (10000 steps).
+Blockly.JavaScript.forBlock['loop_while_not_diamond'] = function(block) {
+  const body = Blockly.JavaScript.statementToCode(block, 'DO');
+  return `while (!sensorOnDiamond()) {\n${body}}\n`;
+};
+
 // Reserved words щоб Blockly не використав API-імена для user variables
-Blockly.JavaScript.addReservedWords('turtleForward,turtleBack,turtleUp,turtleDown,sensorWallAhead,highlightBlock');
+Blockly.JavaScript.addReservedWords('turtleForward,turtleBack,turtleUp,turtleDown,sensorWallAhead,sensorOnDiamond,highlightBlock');

@@ -94,5 +94,25 @@ Blockly.defineBlocksWithJsonArray([
     "colour": 210,
     "tooltip": "Якщо умова ТАК — виконати перше. Якщо НІ — виконати друге.",
     "helpUrl": ""
+  },
+  {
+    // L6 atomic «поки не на алмазі — робити». Спрощений while без mutator,
+    // без окремого sensor (semantics вбудована). Аналог condition_if_else
+    // для L4. Дизайн: teaching-patterns § "Патерн 4: while" — фіксована
+    // конструкція для 7-9р, general while залишаємо на просунутий курс.
+    "type": "loop_while_not_diamond",
+    "message0": "поки я ще не на алмазі, роби:",
+    "message1": "%1",
+    "args1": [
+      {
+        "type": "input_statement",
+        "name": "DO"
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 290,
+    "tooltip": "Повторює команди всередині, доки Мо не досягне алмаза. Універсально — працює для будь-якої довжини шляху.",
+    "helpUrl": ""
   }
 ]);
