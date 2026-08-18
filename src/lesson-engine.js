@@ -71,7 +71,7 @@ const LessonEngine = (function() {
         SpeechBubble.show({ ...beat, lesson_id: currentLesson.id });
         break;
       case 'coach-mark':
-        CoachMark.show(beat);
+        CoachMark.show({ ...beat, lesson_id: currentLesson.id });
         break;
       case 'video-overlay':
         VideoOverlay.show(beat);

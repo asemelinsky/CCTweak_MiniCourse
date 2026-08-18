@@ -57,6 +57,14 @@ const CoachMark = (function() {
       overlay.classList.add('lesson-coach-overlay--visible');
       callout.classList.add('lesson-coach-callout--visible');
     });
+
+    // Voice-over (той самий auto-URL patterns що у SpeechBubble §2)
+    if (window.AudioPlayer) {
+      const voiceUrl = beat.voice_url || (beat.id && beat.lesson_id
+        ? `public/audio/${beat.lesson_id}/${beat.id}.mp3`
+        : null);
+      if (voiceUrl) AudioPlayer.playVoice(voiceUrl);
+    }
   }
 
   function createOverlayWithSpotlight(targetEl) {
@@ -200,9 +208,17 @@ const CoachMark = (function() {
     document.body.appendChild(callout);
     currentCallout = callout;
     requestAnimationFrame(() => callout.classList.add('lesson-coach-callout--visible'));
+
+    if (window.AudioPlayer) {
+      const voiceUrl = beat.voice_url || (beat.id && beat.lesson_id
+        ? `public/audio/${beat.lesson_id}/${beat.id}.mp3`
+        : null);
+      if (voiceUrl) AudioPlayer.playVoice(voiceUrl);
+    }
   }
 
   function hide() {
+    if (window.AudioPlayer) AudioPlayer.stopVoice();
     if (currentOverlay) {
       currentOverlay.classList.remove('lesson-coach-overlay--visible');
       const o = currentOverlay;

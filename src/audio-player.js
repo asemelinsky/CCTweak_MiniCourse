@@ -96,6 +96,10 @@ const AudioPlayer = (function() {
   // Voice-over (довші, для bubbles)
   //////////////////////////////////////////////////////////////////////
 
+  // Черга «pending» — якщо autoplay заблокував, чекаємо першої взаємодії
+  let pendingVoiceAudio = null;
+  let unlockListenerRegistered = false;
+
   function playVoice(url) {
     if (!isEnabled()) return;
     if (!url) return;
@@ -103,13 +107,35 @@ const AudioPlayer = (function() {
     const audio = new Audio(url);
     audio.volume = 0.85;
     audio.addEventListener('error', () => {
-      console.warn(`[AudioPlayer] Voice не завантажився: ${url} (це ок, продовжуємо без нього)`);
+      console.warn(`[AudioPlayer] Voice не завантажився: ${url} (це ок)`);
     });
     currentVoice = audio;
     audio.play().catch((err) => {
-      // Autoplay policy може заблокувати — не крешимо
-      console.log(`[AudioPlayer] Voice відхилений autoplay policy — потрібна перша взаємодія користувача. ${err.message}`);
+      // Autoplay policy заблокував. Зберігаємо як pending, при першому кліку граємо.
+      console.log(`[AudioPlayer] Voice заблокований autoplay — чекаємо першого кліку. ${err.message}`);
+      pendingVoiceAudio = audio;
+      registerAutoplayUnlock();
     });
+  }
+
+  function registerAutoplayUnlock() {
+    if (unlockListenerRegistered) return;
+    unlockListenerRegistered = true;
+    // Слухаємо БУДЬ-ЯКИЙ клік у документі — one-shot
+    const unlock = () => {
+      document.removeEventListener('click', unlock, true);
+      document.removeEventListener('keydown', unlock, true);
+      document.removeEventListener('touchstart', unlock, true);
+      unlockListenerRegistered = false;
+      if (pendingVoiceAudio && currentVoice === pendingVoiceAudio) {
+        console.log('[AudioPlayer] User gesture отримано → граю pending voice');
+        pendingVoiceAudio.play().catch(e => console.warn('[AudioPlayer] retry не пройшов:', e));
+      }
+      pendingVoiceAudio = null;
+    };
+    document.addEventListener('click',      unlock, true);
+    document.addEventListener('keydown',    unlock, true);
+    document.addEventListener('touchstart', unlock, true);
   }
 
   function stopVoice() {

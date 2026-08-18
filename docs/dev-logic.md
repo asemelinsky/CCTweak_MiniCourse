@@ -177,6 +177,17 @@ Overlay — SVG що покриває viewport. Всередині: `<mask>` з 
 
 Стандартний — `click-next` (кнопка у callout), або `block-added` / `run-clicked` (з engine слухає окремо).
 
+### Voice-over (додано 2026-08-18)
+
+Той самий auto-URL pattern що у SpeechBubble (див. §2). При `CoachMark.show()`:
+- Шукає файл `public/audio/{lesson_id}/{beat_id}.mp3`
+- Грає через `AudioPlayer.playVoice()`
+- `hide()` викликає `AudioPlayer.stopVoice()`
+
+**Правило для дизайну:** усі beats з текстом мають voice — і speech-bubbles, і coach-marks. Не буває «інструкції без озвучки» — для 7-9-річок з повільним читанням voice підсилює текст, а не заміщує.
+
+**Coach-mark bubbles з `click-next`:** voice грає **до того як з'являється кнопка** (не блокується dismissible_after_ms як у video-overlay), тому дитина мусить хоч секунду послухати перш ніж клікнути.
+
 ---
 
 ## §5. Video Overlay (video-overlay.js) — Phase 2
@@ -235,6 +246,25 @@ Overlay — SVG що покриває viewport. Всередині: `<mask>` з 
 | Bubble Мо з ID | грає voice mp3 | тиша |
 | Bubble Мо без ID (dynamic) | без voice | без voice (те саме) |
 | Клік на toggle | грає `test-beep` (unlock + confirm) | зупиняє поточний voice |
+
+### §6.1. Autoplay policy — pending voice unlock
+
+**Проблема (browser policy 2018+):** Chrome, Safari, Firefox блокують `audio.play()` **до першого user gesture** на сторінці. Це антиреклама-міра.
+
+**Симптом у нас:** дитина заходить → перший bubble Мо з'являється → voice.play() відхиляється browser'ом → воно не грає → дитина клікає «Далі» → з другого beat вже все ок.
+
+**Рішення (audio-player.js `playVoice()`):**
+
+1. При `audio.play()` catch — зберігаємо аудіо як `pendingVoiceAudio`
+2. Реєструємо ONE-SHOT listener на **будь-який** user gesture (`click` / `keydown` / `touchstart`) в document capture-phase
+3. При першому такому gesture — retry `pendingVoiceAudio.play()`, якщо ще актуальний (currentVoice === pendingVoiceAudio)
+4. Знімаємо listener, обнуляємо pending
+
+**Наслідок:** перший voice грає **із затримкою** — тільки після того як дитина щось клікне. У нашому потоці це триває доти, доки дитина не клікне «Далі» / «Що трапилось?» на першому bubble. Тобто voice другого bubble грає одразу.
+
+**Альтернатива відкинута:** splash-screen «Клікни щоб почати» — додає ще один крок, гальмує onboarding.
+
+**Реалізація одноразова:** flag `unlockListenerRegistered` — якщо вже слухаємо, повторно не додаємо. Це страхує від пам'яті-leak при множинних заблокованих play'ах.
 
 ---
 
@@ -382,6 +412,9 @@ public/audio/
 | `...` (три крапки ASCII) | каже «три крапки» | → `.` (одна крапка = пауза) |
 | `…` (Unicode ellipsis) | те саме | → `.` |
 | 🐢 🎉 💎 (emoji) | каже назву («черепаха», «святкування»…) | → видалити |
+| **`«»` українські лапки** | каже «лапка відкрита» / «закрита» | → **видалити** (інцидент 2026-08-18) |
+| `""` `''` curly quotes | те саме | → видалити |
+| `„"` німецькі лапки | те саме | → видалити |
 | `**bold**` (markdown) | може озвучити зірочки | → залишити тільки текст без `*` |
 | `*italic*` | те саме | → залишити тільки текст |
 | Множинні пробіли | залишає паузи | → один пробіл |
@@ -401,6 +434,7 @@ import re
 def clean_for_tts(text):
     text = text.replace('...', '.').replace('…', '.')
     text = re.sub(r'[\U0001F300-\U0001FAFF\U00002600-\U000027BF\U0001F000-\U0001F2FF]', '', text)
+    text = re.sub(r'[«»""''„"]', '', text)   # видалити всі лапки — Piper їх озвучує
     text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
     text = re.sub(r'\*([^*]+)\*', r'\1', text)
     text = re.sub(r'\s+', ' ', text).strip()
@@ -517,6 +551,9 @@ def clean_for_tts(text):
 | 2026-08-18 | Dev-logic doc створений | Явна документація логіки, не лише в коді |
 | 2026-08-18 | TTS preprocessing rules (§9.1) | Piper буквально озвучує emoji і `...` — треба чистити перед генерацією. Інцидент з `intro-1` («три крапки» у голосі) |
 | 2026-08-18 | `docs/tts-spec.md` створено програмістом | Повна операційна spec TTS (Piper endpoint, voice, pipeline, reproducibility) — окремо від дизайнових правил у dev-logic §9.1 |
+| 2026-08-18 | Autoplay unlock через first user gesture (§6.1) | Chrome/Safari блокують перший voice. Zberimo як pending, ретраїмо на першому кліку/keydown/touchstart |
+| 2026-08-18 | Coach marks тепер мають voice-over | Consistency: всі beats з текстом = з voice. Auto-URL той самий що у SpeechBubble. |
+| 2026-08-18 | Українські лапки `«»` додані у TTS-strip список (§9.1) | Piper їх озвучує літерально («лапка відкрита»). Виявлено при тестуванні `praise-first`. |
 
 ---
 
