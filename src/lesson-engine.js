@@ -124,6 +124,14 @@ const LessonEngine = (function() {
         listenForBlockAdded(adv.block_type);
         break;
 
+      case 'block-count-reached':
+        // Frustration hook: чекаємо доки user не поставить N+ блоків типу X.
+        // Використовуємо для L3 «Мо стомилась» — коли дитина поставила 5+
+        // однакових forward блоків, Мо перебиває з demo repeat.
+        // Приклад: { type: 'block-count-reached', block_type: 'turtle_forward', count: 5 }
+        listenForBlockCount(adv.block_type, adv.count || 5);
+        break;
+
       case 'run-clicked':
         addListener(document, 'lesson-run-clicked', () => advance());
         break;
@@ -152,6 +160,35 @@ const LessonEngine = (function() {
         }
       }
     };
+    window.workspace.addChangeListener(listener);
+    listeners.push({ type: 'blockly', listener });
+  }
+
+  /**
+   * Frustration-hook listener: чекає доки у workspace не з'явиться N+ блоків
+   * певного типу. Рахує ВСІ existing блоки після кожного BLOCK_CREATE event,
+   * не тільки нові. Це важливо на випадок якщо beat активується посеред
+   * існуючого workspace (learn ставить блоки, engine ловить threshold пізніше).
+   */
+  function listenForBlockCount(blockType, count) {
+    if (!window.workspace) return;
+    const check = () => {
+      const all = window.workspace.getAllBlocks(false);
+      const matching = all.filter(b => b.type === blockType).length;
+      if (matching >= count) {
+        window.workspace.removeChangeListener(listener);
+        advance();
+        return true;
+      }
+      return false;
+    };
+    const listener = (event) => {
+      if (event.type === Blockly.Events.BLOCK_CREATE) {
+        check();
+      }
+    };
+    // Одразу перевіряємо (може threshold уже досягнутий)
+    if (check()) return;
     window.workspace.addChangeListener(listener);
     listeners.push({ type: 'blockly', listener });
   }

@@ -80,10 +80,28 @@ const LEVEL_2 = [
   'BBBBBBBBBBBB',  // 8 — bedrock
 ];
 
+// Level 3 map — довгий тунель для введення `repeat N`.
+// Ідея: наївне рішення = 12 блоків (3 вниз + 7 вперед + 2 вниз).
+// Оптимальне з repeat = 3 блоки (repeat 3 [вниз] + repeat 7 [вперед] + repeat 2 [вниз]).
+// Frustration hook: після 5+ однакових forward блоків Мо перебиває з demo.
+// Дизайн: див. courses/cctweak-minicourse/teaching-patterns.md § "Patтерн 1"
+const LEVEL_3 = [
+  '............',  // 0 — sky
+  '............',  // 1 — sky
+  '..►.........',  // 2 — turtle starts at (2, 2)
+  'GG.GGGGGGGGG',  // 3 — surface + tunnel entry col 2
+  'DD.DDDDDDDDD',  // 4 — vertical tunnel col 2 (down)
+  'DD........DD',  // 5 — LONG horizontal tunnel col 2-9 (frustration!)
+  'DDDDDDDDD.DD',  // 6 — turn down at col 9
+  'SSSSSSSSS◆SS',  // 7 — DIAMOND at (9, 7)
+  'BBBBBBBBBBBB',  // 8 — bedrock
+];
+
 // Map registry — lookup by lesson id
 const LEVEL_MAPS = {
   'l1': LEVEL_1,
   'l2': LEVEL_2,
+  'l3': LEVEL_3,
 };
 
 /**
