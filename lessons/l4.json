@@ -1,0 +1,154 @@
+{
+  "id": "l4",
+  "title": "Мо у темряві",
+  "beats": [
+    {
+      "id": "intro-1",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Гей! Знайшла шахту з поворотами 🐢 Але цього разу — проблема.",
+      "animation": "shake",
+      "advance": {
+        "type": "click-next",
+        "label": "Що не так?"
+      }
+    },
+    {
+      "id": "intro-2",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Я не знаю ТОЧНО де саме повороти. Треба щоб я САМА розуміла коли повертати, а коли йти прямо.",
+      "animation": "wiggle",
+      "advance": {
+        "type": "click-next",
+        "label": "Як?"
+      }
+    },
+    {
+      "id": "hook-try-forward",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Давай спробуємо як завжди — постав 2-3 блоки «вперед» і натисни ▶. Побачимо що станеться.",
+      "animation": "jump",
+      "advance": {
+        "type": "run-clicked"
+      }
+    },
+    {
+      "id": "acknowledge-fail",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Ось бачиш! 💥 Я натрапила на стіну одразу — праворуч від мене одразу стіна. Просто «вперед» тут не спрацює.",
+      "animation": "shake",
+      "advance": {
+        "type": "click-next",
+        "label": "Що робити?"
+      }
+    },
+    {
+      "id": "question-see",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Треба щоб я знала — стіна попереду чи ні. Тобто щоб я могла ДИВИТИСЯ вперед. Так можна?",
+      "animation": "wiggle",
+      "advance": {
+        "type": "click-next",
+        "label": "Так!"
+      }
+    },
+    {
+      "id": "tour-sensor-category",
+      "type": "coach-mark",
+      "target": ".blocklyToolboxDiv",
+      "position": "right",
+      "text": "Дивись — у палітрі з'явилась нова категорія «Сенсори». Клікни на неї.",
+      "advance": {
+        "type": "click-next",
+        "label": "Клікнув"
+      }
+    },
+    {
+      "id": "demo-sensor-alone",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Ось sensor «стіна попереду?» 🔍\n\nЦе ПРОСТО питання. Він тобі каже: ✅ ТАК стіна, або ❌ НІ немає.\n\nВін ще НЕ дію робить — тільки повідомляє.",
+      "animation": "wiggle",
+      "advance": {
+        "type": "click-next",
+        "label": "Зрозуміло"
+      }
+    },
+    {
+      "id": "question-what-do",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Але сам сенсор — це тільки відповідь. Треба щоб хтось прийняв РІШЕННЯ на основі цієї відповіді.",
+      "animation": "jump",
+      "advance": {
+        "type": "click-next",
+        "label": "Хто?"
+      }
+    },
+    {
+      "id": "tour-if-category",
+      "type": "coach-mark",
+      "target": ".blocklyToolboxDiv",
+      "position": "right",
+      "text": "Дивись — категорія «Логіка». Всередині є блок «if». Це і є «якщо-то».",
+      "advance": {
+        "type": "click-next",
+        "label": "Знайшов"
+      }
+    },
+    {
+      "id": "demo-if",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Тепер разом:\n\n🔍 стіна попереду? → якщо ТАК → ⬇️ вниз\n🔍 стіна попереду? → якщо НІ → ➡️ вперед\n\nЦе називається «if else». Sensor запитує, if вирішує. Разом — я приймаю рішення сама!",
+      "animation": "jump",
+      "advance": {
+        "type": "click-next",
+        "label": "Хочу спробувати!"
+      }
+    },
+    {
+      "id": "guided-build",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Твоя черга! Сотри блоки. Постав:\n\n🔁 repeat 8\n  ↳ if 🔍 стіна_попереду\n     ↳ ⬇️ вниз\n  ↳ else\n     ↳ ➡️ вперед\n\nSensor іде у ПЕРШИЙ роз'єм if — там де питання.",
+      "animation": "wiggle",
+      "advance": {
+        "type": "click-next",
+        "label": "Роблю"
+      }
+    },
+    {
+      "id": "task-run",
+      "type": "task",
+      "hint_on_failure": "Не зовсім. Пам'ятай — sensor вставляється у ПЕРШИЙ роз'єм if (де умова). А у «else» треба «вперед», у «if» — «вниз».",
+      "hint_on_crash": "Ой, вийшла за межі. Мабуть у «else» треба «вперед», а не «вгору». Або repeat завелике.",
+      "hint_on_timeout": "Здається, ми зациклились. Перевір — може у if і else однакові дії?",
+      "advance": {
+        "type": "task-solved"
+      }
+    },
+    {
+      "id": "celebration",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Ти впорався! 🎉\n\nУяви що ти йдеш темною кімнатою. Простягаєш руку — намацуєш стіну. Якщо стіна — треба повернути. Якщо ні — крок далі.\n\n🔍 Sensor — це рука Мо.\n✅ If — це «якщо-то» рішення.\n\nРазом вони роблять код «розумним». Це називається УМОВНА ЛОГІКА — те що роблять справжні AI-програми.",
+      "animation": "jump",
+      "advance": {
+        "type": "click-next",
+        "label": "Класно!"
+      }
+    },
+    {
+      "id": "final",
+      "type": "final-modal",
+      "title": "Урок 4 пройдено! 🎉",
+      "message": "Ти пройшов за {ATTEMPTS} {ATTEMPTS_WORD} — і навчив Мо ДУМАТИ САМІЙ 🧠\n\nТепер код може приймати рішення на основі того що бачить. Це велике діло — саме так працюють справжні AI-програми.\n\nНа наступному уроці Мо написала свій код сама. Але щось пішло не так — Мо не доходить до алмаза. Треба буде знайти і виправити помилки.\n\nГотовий стати ПРОГРАМІСТОМ-ДЕТЕКТИВОМ?",
+      "cta_label": "Далі до Уроку 5 →"
+    }
+  ]
+}

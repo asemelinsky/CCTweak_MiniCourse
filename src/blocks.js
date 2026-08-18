@@ -47,5 +47,16 @@ Blockly.defineBlocksWithJsonArray([
     "colour": 120,
     "tooltip": "Крок униз",
     "helpUrl": ""
+  },
+  {
+    // L4 sensor. Value block (output: Boolean) — вставляється у boolean-slot
+    // блоку `controls_if` як умова. Педагогічний meaning: «питання що
+    // повертає ТАК/НІ». Дизайн: методист/tasks/.../l4-design.md
+    "type": "sensor_wall_ahead",
+    "message0": "🔍 стіна попереду?",
+    "output": "Boolean",
+    "colour": 180,
+    "tooltip": "Повертає ТАК якщо клітинка попереду — стіна. Інакше НІ.",
+    "helpUrl": ""
   }
 ]);

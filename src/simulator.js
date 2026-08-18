@@ -97,11 +97,29 @@ const LEVEL_3 = [
   'BBBBBBBBBBBB',  // 8 — bedrock
 ];
 
+// Level 4 map — «Мо у темряві». Sensor + if урок.
+// Ключова відмінність: row 2 після Мо одразу СТІНА (col 3+ = G).
+// Це змушує використати sensor+if — просто forward не спрацює.
+// Оптимальне рішення: repeat 8 [ if wall_ahead? [ down ] else [ forward ] ]
+// = 7 iterations, 3 основних блоки. Дизайн: methodist/tasks/.../l4-design.md
+const LEVEL_4 = [
+  '............',  // 0 — sky
+  '............',  // 1 — sky
+  '..►GGGGGGGGG',  // 2 — turtle (2,2) + СТІНА одразу праворуч
+  'GG.GGGGGGGGG',  // 3 — tunnel col 2 (grass entry вниз)
+  'DD.DDDDDDDDD',  // 4 — dirt tunnel col 2
+  'DD....DDDDDD',  // 5 — horizontal tunnel col 2-5
+  'SSSSS◆SSSSSS',  // 6 — stone + DIAMOND at (5, 6)
+  'BBBBBBBBBBBB',  // 7 — bedrock
+  'BBBBBBBBBBBB',  // 8 — bedrock backup
+];
+
 // Map registry — lookup by lesson id
 const LEVEL_MAPS = {
   'l1': LEVEL_1,
   'l2': LEVEL_2,
   'l3': LEVEL_3,
+  'l4': LEVEL_4,
 };
 
 /**
@@ -378,6 +396,26 @@ function turtleBack(id)    { tryMove(-1, 0, id, 'back');    }
 function turtleUp(id)      { tryMove(0, -1, id, 'up');      }
 function turtleDown(id)    { tryMove(0, +1, id, 'down');    }
 
+/**
+ * L4 sensor — «стіна попереду?». Повертає boolean.
+ * Читає карту у напрямку forward (turtleX+1, turtleY).
+ * Правило: не air і не diamond = стіна. Кордон карти теж рахується як стіна.
+ * Логуємо у log щоб animation міг показати momentum (якщо треба HUD у V2).
+ */
+function sensorWallAhead(id) {
+  const nx = turtleX + 1;
+  const ny = turtleY;
+  let isWall;
+  if (nx < 0 || nx >= COLS || ny < 0 || ny >= ROWS) {
+    isWall = true;   // за кордоном карти теж «стіна»
+  } else {
+    const t = map[ny][nx];
+    isWall = (t !== TILE.AIR && t !== TILE.DIAMOND);
+  }
+  log.push(['sensor_check', id, isWall]);
+  return isWall;
+}
+
 //////////////////////////////////////////////////////////////////////
 // Execute — sandbox через JS-Interpreter
 //////////////////////////////////////////////////////////////////////
@@ -391,6 +429,9 @@ function initInterpreter(interp, globalObj) {
   wrap('turtleBack',    turtleBack);
   wrap('turtleUp',      turtleUp);
   wrap('turtleDown',    turtleDown);
+  // L4 sensor — value function, returns boolean.
+  // JS-Interpreter автоматично конвертує JS bool ↔ pseudo-bool.
+  wrap('sensorWallAhead', sensorWallAhead);
   // highlightBlock — noop у sandbox (використовується Blockly generator при
   // Blockly.JavaScript.STATEMENT_PREFIX; ми не встановлюємо префікс, тому
   // ця функція не викликається, але резервую на майбутнє).

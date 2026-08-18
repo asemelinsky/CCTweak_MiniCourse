@@ -27,5 +27,11 @@ Blockly.JavaScript.forBlock['turtle_down'] = function(block) {
   return `turtleDown('${block.id}');\n`;
 };
 
+// L4 sensor — value block (Boolean). Повертає [expr, precedence] tuple —
+// Blockly convention для value blocks (не statement).
+Blockly.JavaScript.forBlock['sensor_wall_ahead'] = function(block) {
+  return [`sensorWallAhead('${block.id}')`, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+};
+
 // Reserved words щоб Blockly не використав API-імена для user variables
-Blockly.JavaScript.addReservedWords('turtleForward,turtleBack,turtleUp,turtleDown,highlightBlock');
+Blockly.JavaScript.addReservedWords('turtleForward,turtleBack,turtleUp,turtleDown,sensorWallAhead,highlightBlock');
