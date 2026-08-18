@@ -110,9 +110,13 @@
     opacity: 0.7;
     margin-right: 1px;
   }
-  /* Кнопки — тільки іконки */
+  /* Кнопки у header — тільки іконки.
+     Selector навмисно scope'нутий до #header-actions щоб НЕ зачепити
+     інші .btn (#modal-close «Дякую, Мо!» і кнопки у майбутніх модалках).
+     Це був баг у першій ітерації: font-size:0 на глобальному .btn
+     ховав текст усіх кнопок на mobile. */
   #header-actions { gap: 6px; }
-  .btn {
+  #header-actions .btn {
     padding: 8px 10px;
     font-size: 0;   /* приховати текст існуючий */
     min-width: 40px;
@@ -138,6 +142,14 @@
   }
   #btn-audio-toggle:not(.audio-off)::before { content: '🔊'; }
   #btn-audio-toggle.audio-off::before       { content: '🔈'; }
+
+  /* Modal-close і будь-які інші .btn — трохи більший touch-target,
+     але текст ПОКАЗУЄМО (font-size лишається як base 14px). */
+  #modal-close {
+    min-height: 44px;
+    padding: 10px 24px;
+    font-size: 15px;   /* явно виставляю щоб гарантувати переоприділення */
+  }
 }
 
 
