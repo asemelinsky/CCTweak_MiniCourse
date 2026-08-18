@@ -398,7 +398,12 @@ public/audio/
 
 ### 🚨 Правила preprocessing тексту перед подачею у Piper
 
-> **📄 SOURCE OF TRUTH для TTS:** [`docs/tts-spec.md`](tts-spec.md) — повна операційна специфікація (Piper endpoint, voice model, pitch, pipeline, reproducibility).
+> **📄 SOURCE OF TRUTH для TTS:**
+> - [`docs/tts-spec.md`](tts-spec.md) — повна операційна специфікація (Piper endpoint, voice model, pitch, pipeline, reproducibility)
+> - Пряме посилання на preprocessor (виключення) — anchor:
+>   - GitHub: [`#text-preprocessing-обовязково`](https://github.com/asemelinsky/CCTweak_MiniCourse/blob/main/docs/tts-spec.md#text-preprocessing-обовязково)
+>   - Web view (bajka): [`#text-preprocessing-обовязково`](https://bajka.pp.ua/notes/infra/cctweak-minicourse-tts-spec/#text-preprocessing-обовязково)
+>
 > Ця секція (§9.1) — **design rule** з точки зору методології. Для generation-роботи дивись spec.
 
 **Це критично.** Наш TTS (Piper) — базового рівня, він **буквально озвучує будь-які символи**, які «схожі на слова». Тому текст ДЛЯ ГОЛОСУ ≠ текст ДЛЯ БАББЛА.
