@@ -200,10 +200,16 @@ body {
   padding: 30px 40px;
   border-radius: 8px;
   min-width: 300px;
-  max-width: 500px;
+  max-width: 560px;
   text-align: center;
   box-shadow: 0 10px 40px rgba(0,0,0,0.5);
   border-top: 6px solid #4a9d4a;
+  /* При довгому final-modal (attempts + метафора + teaser) не тримаємо все
+     на одному екрані — обмежуємо висоту і додаємо прокрутку. */
+  max-height: 85vh;
+  overflow-y: auto;
+  /* Плавна прокрутка scroll-into-view на кінець при open */
+  scroll-behavior: smooth;
 }
 #modal-overlay.modal-success #modal-dialog { border-top-color: #4a9d4a; }
 #modal-overlay.modal-failure #modal-dialog { border-top-color: #c94a4a; }
@@ -214,12 +220,18 @@ body {
 #modal-title {
   font-size: 24px;
   font-weight: 700;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
 }
 #modal-message {
   font-size: 16px;
-  margin-bottom: 20px;
-  color: #555;
+  line-height: 1.55;
+  margin-bottom: 24px;
+  color: #444;
+  /* pre-line зберігає \n у JSON message як реальні переноси рядка
+     (замість того щоб textContent їх ігнорував). Порожній рядок (\n\n)
+     природно створює візуальний відступ між абзацами. */
+  white-space: pre-line;
+  text-align: left;   /* абзаци легше читати flush-left, не center */
 }
 #modal-close {
   padding: 10px 30px;
