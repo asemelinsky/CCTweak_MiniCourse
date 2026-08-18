@@ -186,6 +186,24 @@ Overlay — SVG що покриває viewport. Всередині: `<mask>` з 
 
 **Правило для дизайну:** усі beats з текстом мають voice — і speech-bubbles, і coach-marks. Не буває «інструкції без озвучки» — для 7-9-річок з повільним читанням voice підсилює текст, а не заміщує.
 
+### 🚨 Viewport safeguard (додано 2026-08-18)
+
+Coach mark = spotlight на UI-елементі + callout з текстом. Callout **завжди мусить бути видимий** — інакше є голос, а візуальної підказки нема (реальний баг, 2026-08-18).
+
+**Правило:** callout має бути **у viewport разом з voice**. Voice без hint = порушення consistency.
+
+**Реалізація (`coach-mark.js` `positionCallout()`):**
+1. Розраховуємо координати за `position` (right/left/top/bottom від target)
+2. Кожна координата обмежена `Math.max(10, ...)` — не менше 10px від краю
+3. Після applied styles — `requestAnimationFrame` читає `getBoundingClientRect()`
+4. Якщо callout виходить за viewport → **fallback у центр екрану** (`transform: translate(-50%, -50%)`) + `console.warn`
+
+**Наслідок для дизайну lesson JSON:** можна безпечно ставити будь-який `position`, engine захистить. Але **краще усвідомлено** обирати:
+- Target на лівому краю → `position: bottom` або `top`, не `left`
+- Target на верхньому краю → `bottom`, не `top`
+- Малий target (кнопка) → будь-який
+- Великий target (workspace) → тільки `bottom` або `top` (сторони будуть кривими)
+
 **Coach-mark bubbles з `click-next`:** voice грає **до того як з'являється кнопка** (не блокується dismissible_after_ms як у video-overlay), тому дитина мусить хоч секунду послухати перш ніж клікнути.
 
 ---
