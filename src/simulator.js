@@ -120,11 +120,15 @@ const LEVEL_4_B = [
   '............',
   '..►GGGGGGGGG',
   'GG.GGGGGGGGG',
-  'DD..DDDDDDDD',  // right col 2-3
-  'DDDD.DDDDDDD',  // down col 3 (тільки один поворот!)
-  'DDDD.DDDDDDD',
-  'SSSS◆SSSSSSS',  // DIAMOND (4, 7)
+  'DD..DDDDDDDD',  // right col 3 (1 крок горизонтально)
+  'DDD.DDDDDDDD',  // down col 3 (тільки один поворот!)
+  'DDD.DDDDDDDD',
+  'SSS◆SSSSSSSS',  // DIAMOND (3, 7)
   'BBBBBBBBBBBB',
+  // LB-002 fix (2026-08-19): раніше прохід був col 4 (rows 5-7) з diamond (4,7),
+  // але canonical algorithm застрявав у (3,4) → (3,5) crash. Зсунуто прохід
+  // на col 3, diamond теж на col 3. Тепер canonical проходить: down до (2,4),
+  // forward до (3,4), down до (3,7)=diamond. Verify: methodist scratchpad/l4-sim.py
 ];
 
 const LEVEL_4_C = [
