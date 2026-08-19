@@ -30,7 +30,7 @@ const TILE = {
   STONE: 3,        // stone
   COBBLESTONE: 4,  // cobblestone
   BEDROCK: 5,      // bedrock (край world, для декору)
-  DIAMOND: 6,      // diamond_ore (finish marker)
+  DIAMOND: 6,      // diamond gem (finish marker) — animated via .tile-diamond CSS
   START: 7,        // start marker (візуально air, але помічає стартову позицію)
 };
 
@@ -40,7 +40,7 @@ const TEXTURE_URL = {
   [TILE.STONE]:       'public/textures/stone.png',
   [TILE.COBBLESTONE]: 'public/textures/cobblestone.png',
   [TILE.BEDROCK]:     'public/textures/bedrock.png',
-  [TILE.DIAMOND]:     'public/textures/diamond_ore.png',
+  [TILE.DIAMOND]:     'public/textures/diamond.svg',   // LB-004: gem, не ore. Animated via CSS (class="tile-diamond")
 };
 
 // Level 1 map — 12 колонок × 9 рядків.
@@ -451,14 +451,17 @@ function drawMap() {
       if (t === TILE.AIR) continue;
       const url = TEXTURE_URL[t];
       if (!url) continue;
-      svg('image', {
+      const attrs = {
         x: x * TILE_SIZE,
         y: y * TILE_SIZE,
         width: TILE_SIZE,
         height: TILE_SIZE,
         href: url,
         'image-rendering': 'pixelated',
-      }, scene);
+      };
+      // LB-004: diamond отримує клас для CSS анімації (bob + subtle pulse)
+      if (t === TILE.DIAMOND) attrs.class = 'tile-diamond';
+      svg('image', attrs, scene);
     }
   }
 

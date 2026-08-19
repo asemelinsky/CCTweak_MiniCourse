@@ -165,6 +165,23 @@
   40%, 80%     { transform: translateX(6px); }
 }
 
+/* LB-004: Алмаз-gem у сцені — «дихає світлом».
+   Approach: тільки filter animation (brightness + glow pulse), НЕ transform.
+   Причина: CSS transform на SVG <use> має transform-origin quirks (scale
+   експанзує від viewport 0,0 замість gem center, gem «їде вправо-вниз»).
+   filter-based анімація не має цих проблем — pulse рівномірний і симетричний.
+   Reduced-motion respected. */
+.tile-diamond {
+  animation: diamond-shine 1.5s ease-in-out infinite;
+}
+@keyframes diamond-shine {
+  0%, 100% { filter: drop-shadow(0 0 3px rgba(126, 199, 232, 0.7)) brightness(1);   }
+  50%      { filter: drop-shadow(0 0 8px rgba(126, 199, 232, 1))   brightness(1.6); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile-diamond { animation: none; filter: drop-shadow(0 0 3px rgba(126, 199, 232, 0.7)); }
+}
+
 /* -----------------------------------------------------
    Coach Mark
    ----------------------------------------------------- */
