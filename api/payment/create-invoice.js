@@ -1,21 +1,28 @@
 // POST /api/payment/create-invoice
-// Sprint-1 manual-test endpoint (без bot). Creates a payment invoice via the
-// currently active provider (ACTIVE_PAYMENT_PROVIDER=monobank|wayforpay).
+// Bot-facing endpoint. Creates a payment invoice via the currently active
+// provider (ACTIVE_PAYMENT_PROVIDER=monobank|wayforpay) AND upserts the learner
+// row with person-data supplied by the bot.
+//
+// Why upsert here: this is the ONLY code path that ever sees the child's name
+// and age — the webhook only knows telegram_id (extracted from `reference`),
+// and cannot fill these fields. See BUG-002 in bot-bugs.md.
 //
 // Body:
 //   {
-//     telegram_id: number,          required
-//     amount_uah: number,           required (default 1 for smoke tests)
-//     child_name?: string,          used in `destination` text
-//     reference?: string,           override auto-generated reference
+//     telegram_id: number,               required
+//     amount_uah: number,                required (default 1 for smoke tests)
+//     child_name?: string,               used in invoice destination + saved to learner
+//     child_age?: number,                saved to learner (for template personalization)
+//     telegram_first_name?: string,      saved to learner (used in reminders)
+//     telegram_username?: string,        saved to learner (support/debug)
+//     reference?: string,                override auto-generated reference
 //     provider?: 'monobank'|'wayforpay'  override active for A/B smoke tests
 //   }
 //
 // Response:
 //   { invoice_id, pageUrl, provider, reference, active_provider }
 //
-// Auth: Bearer BOT_SECRET (same as other bot endpoints — this is a test/back-office
-// caller, not a public form). Set the header or hit from a curl with the secret.
+// Auth: Bearer BOT_SECRET (same as other bot endpoints).
 
 const {
   handleOptions,
@@ -24,6 +31,10 @@ const {
   readBody,
   requireBearer,
   generateUuid,
+  getLearnerByTelegramId,
+  insertLearner,
+  updateLearner,
+  nowIso,
 } = require('../_lib');
 const { getActiveProviderName, getProvider } = require('./_router');
 
@@ -45,6 +56,9 @@ module.exports = async (req, res) => {
     telegram_id,
     amount_uah = 1,
     child_name = null,
+    child_age = null,
+    telegram_first_name = null,
+    telegram_username = null,
     reference: refOverride = null,
     provider: providerOverride = null,
   } = body || {};
@@ -54,6 +68,40 @@ module.exports = async (req, res) => {
   }
   if (!Number.isFinite(+amount_uah) || +amount_uah <= 0) {
     return fail(res, 400, 'amount_uah must be > 0');
+  }
+
+  // Upsert learner with person-data BEFORE creating the invoice.
+  // Payment > personalization: any failure here is logged and swallowed so
+  // the checkout link is still generated. The webhook later finds the learner
+  // already exists → its (!learner) branch skips → these fields survive.
+  try {
+    const learner = await getLearnerByTelegramId(+telegram_id);
+    if (!learner) {
+      await insertLearner({
+        uuid: generateUuid(),
+        telegram_id: +telegram_id,
+        telegram_username,
+        telegram_first_name: telegram_first_name || `TG:${telegram_id}`,
+        child_name,
+        child_age: child_age === null ? null : (+child_age || null),
+        created_at: nowIso(),
+      });
+    } else {
+      // Fill only empty fields — never overwrite what the user already provided.
+      // The one exception: telegram_first_name that starts with `TG:` is a webhook
+      // placeholder and gets replaced by the real name when the bot supplies it.
+      const patch = {};
+      if (!learner.child_name && child_name) patch.child_name = child_name;
+      if (!learner.child_age && child_age) patch.child_age = +child_age;
+      if (telegram_first_name && String(learner.telegram_first_name || '').startsWith('TG:')) {
+        patch.telegram_first_name = telegram_first_name;
+      }
+      if (!learner.telegram_username && telegram_username) patch.telegram_username = telegram_username;
+      if (Object.keys(patch).length) await updateLearner(learner.Id, patch);
+    }
+  } catch (e) {
+    console.error(`create-invoice: learner upsert failed (tg=${telegram_id}):`, e);
+    // fall through — invoice creation must still proceed
   }
 
   let providerName;
