@@ -1,0 +1,562 @@
+[
+  {
+    "lesson": "l1",
+    "beat_id": "intro-1",
+    "audio": "l1/intro-1.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l1/intro-1.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Привіт! Мене звати Мо 🐢 Я впала у покинуту шахту...",
+    "text_tts": "Привіт! Мене звати Мо Я впала у покинуту шахту."
+  },
+  {
+    "lesson": "l1",
+    "beat_id": "intro-2",
+    "audio": "l1/intro-2.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l1/intro-2.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Не можу вибратись сама! Але ти можеш мене вивести — просто скажи що робити крок за кроком. А там, унизу, є алмаз! Треба до нього дістатись.",
+    "text_tts": "Не можу вибратись сама! Але ти можеш мене вивести — просто скажи що робити крок за кроком. А там, унизу, є алмаз! Треба до нього дістатись."
+  },
+  {
+    "lesson": "l1",
+    "beat_id": "tour-toolbox",
+    "audio": "l1/tour-toolbox.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l1/tour-toolbox.mp3",
+    "type": "coach-mark",
+    "character": "-",
+    "text_original": "Тут живуть блоки-команди. Натисни на «Рух», щоб побачити мої вміння.",
+    "text_tts": "Тут живуть блоки-команди. Натисни на Рух, щоб побачити мої вміння."
+  },
+  {
+    "lesson": "l1",
+    "beat_id": "tour-drag",
+    "audio": "l1/tour-drag.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l1/tour-drag.mp3",
+    "type": "coach-mark",
+    "character": "-",
+    "text_original": "Візьми блок «вперед» з палітри ліворуч і перетягни сюди, на робочу зону.",
+    "text_tts": "Візьми блок вперед з палітри ліворуч і перетягни сюди, на робочу зону."
+  },
+  {
+    "lesson": "l1",
+    "beat_id": "praise-first",
+    "audio": "l1/praise-first.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l1/praise-first.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Ідеально! Це мій перший крок. Тепер додай ще декілька блоків — треба спуститися до алмаза. Використай «вперед» та «вниз» (їх можеш перетягувати кілька).",
+    "text_tts": "Ідеально! Це мій перший крок. Тепер додай ще декілька блоків — треба спуститися до алмаза. Використай вперед та вниз (їх можеш перетягувати кілька)."
+  },
+  {
+    "lesson": "l1",
+    "beat_id": "tour-run",
+    "audio": "l1/tour-run.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l1/tour-run.mp3",
+    "type": "coach-mark",
+    "character": "-",
+    "text_original": "Коли готово — натисни ▶ Запустити. Я почну виконувати твою програму!",
+    "text_tts": "Коли готово — натисни Запустити. Я почну виконувати твою програму!"
+  },
+  {
+    "lesson": "l1",
+    "beat_id": "celebration",
+    "audio": "l1/celebration.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l1/celebration.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "УРА! 💎 Я знайшла алмаз! Дякую тобі! Ти справжній програміст. Побачимось у наступному уроці — там будуть довші коридори!",
+    "text_tts": "УРА! Я знайшла алмаз! Дякую тобі! Ти справжній програміст. Побачимось у наступному уроці — там будуть довші коридори!"
+  },
+  {
+    "lesson": "l2",
+    "beat_id": "intro-1",
+    "audio": "l2/intro-1.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l2/intro-1.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Гей! Знову я 🐢 Але цього разу тунель непростий — він робить повороти. Подивись, як він виглядає.",
+    "text_tts": "Гей! Знову я Але цього разу тунель непростий — він робить повороти. Подивись, як він виглядає."
+  },
+  {
+    "lesson": "l2",
+    "beat_id": "intro-2",
+    "audio": "l2/intro-2.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l2/intro-2.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Спочатку треба вниз. Потім праворуч. Потім знову вниз. І ще праворуч. Уяви шлях у голові, а потім склади програму.",
+    "text_tts": "Спочатку треба вниз. Потім праворуч. Потім знову вниз. І ще праворуч. Уяви шлях у голові, а потім склади програму."
+  },
+  {
+    "lesson": "l2",
+    "beat_id": "tour-plan",
+    "audio": "l2/tour-plan.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l2/tour-plan.mp3",
+    "type": "coach-mark",
+    "character": "-",
+    "text_original": "Оце я, а оце алмаз 💎 Спробуй очима знайти шлях: де тунель веде вниз, а де вправо.",
+    "text_tts": "Оце я, а оце алмаз Спробуй очима знайти шлях: де тунель веде вниз, а де вправо."
+  },
+  {
+    "lesson": "l2",
+    "beat_id": "task-plan",
+    "audio": "l2/task-plan.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l2/task-plan.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Готовий? Починай складати команди. Порада — додавай по одному блоку і дивись на карту після кожного кроку.",
+    "text_tts": "Готовий? Починай складати команди. Порада — додавай по одному блоку і дивись на карту після кожного кроку."
+  },
+  {
+    "lesson": "l2",
+    "beat_id": "celebration",
+    "audio": "l2/celebration.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l2/celebration.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Ти впорався! 🎉 Це був справжній лабіринт. Ти вже вмієш ЧИТАТИ КАРТУ — це навичка планування, вона знадобиться у наступних уроках.",
+    "text_tts": "Ти впорався! Це був справжній лабіринт. Ти вже вмієш ЧИТАТИ КАРТУ — це навичка планування, вона знадобиться у наступних уроках."
+  },
+  {
+    "lesson": "l3",
+    "beat_id": "intro-1",
+    "audio": "l3/intro-1.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l3/intro-1.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Ох! Знайшла ще одну шахту 🐢 Але ця довга — цілих 12 кроків до алмаза. Ти впораєшся?",
+    "text_tts": "Ох! Знайшла ще одну шахту Але ця довга — цілих 12 кроків до алмаза. Ти впораєшся?"
+  },
+  {
+    "lesson": "l3",
+    "beat_id": "intro-2",
+    "audio": "l3/intro-2.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l3/intro-2.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Дивись куди веде тунель: спочатку кілька разів вниз, потім довго вправо, і в кінці ще трохи вниз до алмаза. Починай складати команди — я стежу.",
+    "text_tts": "Дивись куди веде тунель: спочатку кілька разів вниз, потім довго вправо, і в кінці ще трохи вниз до алмаза. Починай складати команди — я стежу."
+  },
+  {
+    "lesson": "l3",
+    "beat_id": "wait-for-hook",
+    "audio": "l3/wait-for-hook.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l3/wait-for-hook.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Я тут дивлюсь. Постав перші кілька блоків «вниз» — тунель починається саме туди.",
+    "text_tts": "Я тут дивлюсь. Постав перші кілька блоків вниз — тунель починається саме туди."
+  },
+  {
+    "lesson": "l3",
+    "beat_id": "hook-many-blocks",
+    "audio": "l3/hook-many-blocks.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l3/hook-many-blocks.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Стій! Ти щойно поставив 3 однакових блоки «вниз». І я знаю: далі буде ще 7 однакових «вперед», а потім ще 2 однакових «вниз». Це вже 12 блоків! Хочу тобі показати трюк.",
+    "text_tts": "Стій! Ти щойно поставив 3 однакових блоки вниз. І я знаю: далі буде ще 7 однакових вперед, а потім ще 2 однакових вниз. Це вже 12 блоків! Хочу тобі показати трюк."
+  },
+  {
+    "lesson": "l3",
+    "beat_id": "question-repeat",
+    "audio": "l3/question-repeat.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l3/question-repeat.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "А що якщо замість трьох однакових блоків «вниз» — ОДИН блок, який каже «повторити 3 рази»?",
+    "text_tts": "А що якщо замість трьох однакових блоків вниз — ОДИН блок, який каже повторити 3 рази?"
+  },
+  {
+    "lesson": "l3",
+    "beat_id": "tour-loops-category",
+    "audio": "l3/tour-loops-category.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l3/tour-loops-category.mp3",
+    "type": "coach-mark",
+    "character": "-",
+    "text_original": "Дивись — у палітрі з'явилась нова категорія «Цикли». Клікни на неї.",
+    "text_tts": "Дивись — у палітрі з'явилась нова категорія Цикли. Клікни на неї."
+  },
+  {
+    "lesson": "l3",
+    "beat_id": "tour-repeat-block",
+    "audio": "l3/tour-repeat-block.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l3/tour-repeat-block.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Ось блок «повторити N разів». Це і є той трюк — він каже «повтори те що всередині N разів». Число можна міняти.",
+    "text_tts": "Ось блок повторити N разів. Це і є той трюк — він каже повтори те що всередині N разів. Число можна міняти."
+  },
+  {
+    "lesson": "l3",
+    "beat_id": "demo-visual",
+    "audio": "l3/demo-visual.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l3/demo-visual.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Було: 🟩🟩🟩 (3 однакових блоки «вниз»)\n\nСтало: 🔁3 [🟩] (один блок «повторити 3 рази», всередині «вниз»)\n\nТой самий результат — АЛЕ у 3 рази менше блоків!",
+    "text_tts": "Було: (3 однакових блоки вниз) Стало: 3 [] (один блок повторити 3 рази, всередині вниз) Той самий результат — АЛЕ у 3 рази менше блоків!"
+  },
+  {
+    "lesson": "l3",
+    "beat_id": "guided-clear",
+    "audio": "l3/guided-clear.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l3/guided-clear.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Тепер твоя черга! Сотри блоки що є (перетягни їх на смітник ліворуч). Постав «повторити», всередину — «вниз», число 3. Потім «повторити», всередину — «вперед», число 7. І в кінці ще «повторити» з «вниз», число 2.",
+    "text_tts": "Тепер твоя черга! Сотри блоки що є (перетягни їх на смітник ліворуч). Постав повторити, всередину — вниз, число 3. Потім повторити, всередину — вперед, число 7. І в кінці ще повторити з вниз, число 2."
+  },
+  {
+    "lesson": "l3",
+    "beat_id": "celebration",
+    "audio": "l3/celebration.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l3/celebration.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Ти впорався! 🎉 Дивись який твій код чистий — усього 3 блоки замість 12.\n\nЦе як малювати зірочки у зошиті. Треба 10 однакових зірочок — ти ж не пишеш «намалюй зірочку» 10 разів, ти просто малюєш 10 однакових. Ось «повторити» — це те саме.\n\nЦе називається ЦИКЛ. І це найважливіший трюк програміста.",
+    "text_tts": "Ти впорався! Дивись який твій код чистий — усього 3 блоки замість 12. Це як малювати зірочки у зошиті. Треба 10 однакових зірочок — ти ж не пишеш намалюй зірочку 10 разів, ти просто малюєш 10 однакових. Ось повторити — це те саме. Це називається ЦИКЛ. І це найважливіший трюк програміста."
+  },
+  {
+    "lesson": "l4",
+    "beat_id": "try-direct",
+    "audio": "l4/try-direct.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l4/try-direct.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Спробуй скласти код як раніше — прямими блоками. Постав 2-3 «вниз» + «вперед» і натисни ▶.\n\nПобачимо чи спрацює.",
+    "text_tts": "Спробуй скласти код як раніше — прямими блоками. Постав 2-3 вниз + вперед і натисни . Побачимо чи спрацює."
+  },
+  {
+    "lesson": "l4",
+    "beat_id": "reset-magic-invite",
+    "audio": "l4/reset-magic-invite.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l4/reset-magic-invite.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Тепер натисни ↺ Скинути.\n\nДивись що зробить Ender Dragon...",
+    "text_tts": "Тепер натисни Скинути. Дивись що зробить Ender Dragon."
+  },
+  {
+    "lesson": "l4",
+    "beat_id": "proof-of-magic",
+    "audio": "l4/proof-of-magic.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l4/proof-of-magic.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Бачиш? 🐉 Тунель ЗМІНИВСЯ!\n\nМої попередні команди тепер не працюють. Ender Dragon переграв нас.\n\nТреба інший підхід — не жорсткі команди, а код що САМ дивиться і вирішує.",
+    "text_tts": "Бачиш? Тунель ЗМІНИВСЯ! Мої попередні команди тепер не працюють. Ender Dragon переграв нас. Треба інший підхід — не жорсткі команди, а код що САМ дивиться і вирішує."
+  },
+  {
+    "lesson": "l4",
+    "beat_id": "tour-sensor",
+    "audio": "l4/tour-sensor.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l4/tour-sensor.mp3",
+    "type": "coach-mark",
+    "character": "-",
+    "text_original": "У палітрі з'явилась нова категорія «Сенсори». Клікни на неї.",
+    "text_tts": "У палітрі з'явилась нова категорія Сенсори. Клікни на неї."
+  },
+  {
+    "lesson": "l4",
+    "beat_id": "demo-sensor-alone",
+    "audio": "l4/demo-sensor-alone.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l4/demo-sensor-alone.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Ось sensor «стіна попереду?» 🔍\n\nЦе ПРОСТО питання. Він каже: ✅ ТАК стіна, або ❌ НІ немає.\n\nВін ще НЕ дію робить — тільки повідомляє.",
+    "text_tts": "Ось sensor стіна попереду? Це ПРОСТО питання. Він каже: ТАК стіна, або НІ немає. Він ще НЕ дію робить — тільки повідомляє."
+  },
+  {
+    "lesson": "l4",
+    "beat_id": "tour-if-else",
+    "audio": "l4/tour-if-else.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l4/tour-if-else.mp3",
+    "type": "coach-mark",
+    "character": "-",
+    "text_original": "Тепер клікни на категорію «Логіка». Там знайди новий блок «якщо/то/інакше» — у ньому три роз'єми одразу.",
+    "text_tts": "Тепер клікни на категорію Логіка. Там знайди новий блок якщо/то/інакше — у ньому три роз'єми одразу."
+  },
+  {
+    "lesson": "l4",
+    "beat_id": "demo-if-else",
+    "audio": "l4/demo-if-else.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l4/demo-if-else.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Блок «якщо/то/інакше» — це моє рішення 🧠\n\n🔍 стіна попереду?\n  ✅ ТАК → ⬇️ вниз\n  ❌ НІ → ➡️ вперед\n\nSensor запитує, «якщо/то/інакше» вирішує. Разом — я приймаю рішення сама!",
+    "text_tts": "Блок якщо/то/інакше — це моє рішення стіна попереду? ТАК ⬇️ вниз НІ ️ вперед Sensor запитує, якщо/то/інакше вирішує. Разом — я приймаю рішення сама!"
+  },
+  {
+    "lesson": "l4",
+    "beat_id": "guided-build",
+    "audio": "l4/guided-build.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l4/guided-build.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Твоя черга! Сотри всі блоки. Постав:\n\n🔁 повторити 8 разів\n  ↳ якщо 🔍 стіна_попереду то\n     ↳ ⬇️ вниз\n  ↳ інакше\n     ↳ ➡️ вперед\n\nSensor вставляй у ПЕРШИЙ роз'єм «якщо» — там де умова.",
+    "text_tts": "Твоя черга! Сотри всі блоки. Постав: повторити 8 разів якщо стіна_попереду то ⬇️ вниз інакше ️ вперед Sensor вставляй у ПЕРШИЙ роз'єм якщо — там де умова."
+  },
+  {
+    "lesson": "l4",
+    "beat_id": "reset-and-try-again",
+    "audio": "l4/reset-and-try-again.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l4/reset-and-try-again.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Тепер найцікавіше — натисни ↺ Скинути ще раз.\n\nEnder Dragon знов зачарує тунель. А ти просто натисни ▶ — той самий код, без жодних змін!",
+    "text_tts": "Тепер найцікавіше — натисни Скинути ще раз. Ender Dragon знов зачарує тунель. А ти просто натисни — той самий код, без жодних змін!"
+  },
+  {
+    "lesson": "l4",
+    "beat_id": "celebration",
+    "audio": "l4/celebration.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l4/celebration.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "🎉 ОДИН КОД — УСІ ТУНЕЛІ!\n\nEnder Dragon більше не має шансів. Твій код працює завжди — бо він САМ дивиться і вирішує.\n\nЦе називається УМОВНА ЛОГІКА — те що роблять справжні AI-програми.",
+    "text_tts": "ОДИН КОД — УСІ ТУНЕЛІ! Ender Dragon більше не має шансів. Твій код працює завжди — бо він САМ дивиться і вирішує. Це називається УМОВНА ЛОГІКА — те що роблять справжні AI-програми."
+  },
+  {
+    "lesson": "l5",
+    "beat_id": "intro-1",
+    "audio": "l5/intro-1.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l5/intro-1.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Гей! Дивись — у workspace вже є код 🐢\n\nЙого написав Стів — хлопець у синій сорочці з Minecraft. Він хотів мені допомогти пройти шахту.",
+    "text_tts": "Гей! Дивись — у workspace вже є код Його написав Стів — хлопець у синій сорочці з Minecraft. Він хотів мені допомогти пройти шахту."
+  },
+  {
+    "lesson": "l5",
+    "beat_id": "intro-2",
+    "audio": "l5/intro-2.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l5/intro-2.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Але вночі на нього напав Creeper 💥 і код зіпсувався. Тепер у ньому 3 помилки — я не дійду до алмаза.\n\nДопоможи мені знайти і виправити всі 3 помилки. Ти справжній детектив!",
+    "text_tts": "Але вночі на нього напав Creeper і код зіпсувався. Тепер у ньому 3 помилки — я не дійду до алмаза. Допоможи мені знайти і виправити всі 3 помилки. Ти справжній детектив!"
+  },
+  {
+    "lesson": "l5",
+    "beat_id": "instruct-run",
+    "audio": "l5/instruct-run.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l5/instruct-run.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Натисни ▶ Запустити. Побачимо де саме я зупинюсь — це буде перша підказка де помилка.",
+    "text_tts": "Натисни Запустити. Побачимо де саме я зупинюсь — це буде перша підказка де помилка."
+  },
+  {
+    "lesson": "l5",
+    "beat_id": "first-crash-hint",
+    "audio": "l5/first-crash-hint.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l5/first-crash-hint.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Ось де я застрягла! 🔍\n\nДивись який блок був останній перед стіною — саме він неправильний. Спробуй здогадатися що треба замість нього.\n\nПідказка: якщо я впертялась у стіну знизу — можливо треба було НЕ вниз, а щось інше.",
+    "text_tts": "Ось де я застрягла! Дивись який блок був останній перед стіною — саме він неправильний. Спробуй здогадатися що треба замість нього. Підказка: якщо я впертялась у стіну знизу — можливо треба було НЕ вниз, а щось інше."
+  },
+  {
+    "lesson": "l5",
+    "beat_id": "second-fix-progress",
+    "audio": "l5/second-fix-progress.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l5/second-fix-progress.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Молодець, детектив! 🎯 Я тепер пішла далі — і застрягла у наступному місці.\n\nЩе один блок треба виправити. Дивись де я зупинилась — це підказка.",
+    "text_tts": "Молодець, детектив! Я тепер пішла далі — і застрягла у наступному місці. Ще один блок треба виправити. Дивись де я зупинилась — це підказка."
+  },
+  {
+    "lesson": "l5",
+    "beat_id": "third-fix-progress",
+    "audio": "l5/third-fix-progress.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l5/third-fix-progress.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Дві помилки знайшов — залишилась остання! 🕵️\n\nЯ близько до алмаза але знов застрягла. Уважно подивись який блок був останній.",
+    "text_tts": "Дві помилки знайшов — залишилась остання! ️ Я близько до алмаза але знов застрягла. Уважно подивись який блок був останній."
+  },
+  {
+    "lesson": "l5",
+    "beat_id": "celebration",
+    "audio": "l5/celebration.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l5/celebration.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Ти знайшов усі 3 помилки! 🎉🕵️\n\nСтів був би пишний тобою. Ти справжній програміст-детектив.\n\nЗнаєш що найкраще? Помилки — це нормально. Дорослі програмісти щодня їх шукають і виправляють. Це ЧАСТИНА роботи, не провал.",
+    "text_tts": "Ти знайшов усі 3 помилки! ️ Стів був би пишний тобою. Ти справжній програміст-детектив. Знаєш що найкраще? Помилки — це нормально. Дорослі програмісти щодня їх шукають і виправляють. Це ЧАСТИНА роботи, не провал."
+  },
+  {
+    "lesson": "l6",
+    "beat_id": "intro-1",
+    "audio": "l6/intro-1.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l6/intro-1.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Гей! 🐢 Тепер у мене нова проблема. Wither зруйнував старі шахти і зробив нові — БЕЗКІНЕЧНО глибокі.",
+    "text_tts": "Гей! Тепер у мене нова проблема. Wither зруйнував старі шахти і зробив нові — БЕЗКІНЕЧНО глибокі."
+  },
+  {
+    "lesson": "l6",
+    "beat_id": "intro-2",
+    "audio": "l6/intro-2.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l6/intro-2.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Це грізний бос з Minecraft — навіть Ender Dragon його боїться!\n\nШахти тепер такі, що я не знаю скільки треба йти. Може 3 кроки, може 5, може 7. Кожного разу — по-іншому.",
+    "text_tts": "Це грізний бос з Minecraft — навіть Ender Dragon його боїться! Шахти тепер такі, що я не знаю скільки треба йти. Може 3 кроки, може 5, може 7. Кожного разу — по-іншому."
+  },
+  {
+    "lesson": "l6",
+    "beat_id": "try-repeat",
+    "audio": "l6/try-repeat.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l6/try-repeat.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Спробуй як раніше — постав «повторити 5 разів [вниз]». Може пощастить?",
+    "text_tts": "Спробуй як раніше — постав повторити 5 разів [вниз]. Може пощастить?"
+  },
+  {
+    "lesson": "l6",
+    "beat_id": "reset-and-see",
+    "audio": "l6/reset-and-see.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l6/reset-and-see.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Тепер натисни ↺ Скинути. Wither перекопав шахту!\n\nІ спробуй запустити той самий код.",
+    "text_tts": "Тепер натисни Скинути. Wither перекопав шахту! І спробуй запустити той самий код."
+  },
+  {
+    "lesson": "l6",
+    "beat_id": "hook-repeat-fails",
+    "audio": "l6/hook-repeat-fails.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l6/hook-repeat-fails.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Бачиш? Шахта інша — «повторити 5» тепер не працює. Може занадто мало, може занадто багато.\n\nПотрібен трюк: код, який не рахує КРОКИ, а йде ДОКИ не досягне алмаза.",
+    "text_tts": "Бачиш? Шахта інша — повторити 5 тепер не працює. Може занадто мало, може занадто багато. Потрібен трюк: код, який не рахує КРОКИ, а йде ДОКИ не досягне алмаза."
+  },
+  {
+    "lesson": "l6",
+    "beat_id": "metaphor-shop",
+    "audio": "l6/metaphor-shop.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l6/metaphor-shop.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Уяви що ти йдеш до магазину 🏪\n\nТи ж не рахуєш «зроблю 87 кроків». Ти просто йдеш ДОКИ не побачиш магазин. Так само і код!",
+    "text_tts": "Уяви що ти йдеш до магазину Ти ж не рахуєш зроблю 87 кроків. Ти просто йдеш ДОКИ не побачиш магазин. Так само і код!"
+  },
+  {
+    "lesson": "l6",
+    "beat_id": "tour-while",
+    "audio": "l6/tour-while.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l6/tour-while.mp3",
+    "type": "coach-mark",
+    "character": "-",
+    "text_original": "У палітрі з'явилась нова категорія «Умовні цикли». Клікни на неї — там особливий блок для цього трюку.",
+    "text_tts": "У палітрі з'явилась нова категорія Умовні цикли. Клікни на неї — там особливий блок для цього трюку."
+  },
+  {
+    "lesson": "l6",
+    "beat_id": "demo-while",
+    "audio": "l6/demo-while.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l6/demo-while.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Ось блок 🔁 «поки я ще не на алмазі, роби:»\n\nЦе універсальний цикл — він працює ДОКИ Мо не досягне алмаза. Не важливо скільки кроків.",
+    "text_tts": "Ось блок поки я ще не на алмазі, роби: Це універсальний цикл — він працює ДОКИ Мо не досягне алмаза. Не важливо скільки кроків."
+  },
+  {
+    "lesson": "l6",
+    "beat_id": "guided-build",
+    "audio": "l6/guided-build.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l6/guided-build.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Твоя черга! Сотри всі блоки. Постав:\n\n🔁 поки я ще не на алмазі, роби:\n  ↳ ⬇️ вниз\n\nВсього 2 блоки! Один \"поки\" + один \"вниз\" всередині.",
+    "text_tts": "Твоя черга! Сотри всі блоки. Постав: поки я ще не на алмазі, роби: ⬇️ вниз Всього 2 блоки! Один поки + один вниз всередині."
+  },
+  {
+    "lesson": "l6",
+    "beat_id": "reset-again",
+    "audio": "l6/reset-again.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l6/reset-again.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "🎉 Ура! Тепер натисни ↺ Скинути ще раз.\n\nWither знов перекопає шахту. А ти просто ▶ — той самий код спрацює для БУДЬ-ЯКОЇ глибини!",
+    "text_tts": "Ура! Тепер натисни Скинути ще раз. Wither знов перекопає шахту. А ти просто — той самий код спрацює для БУДЬ-ЯКОЇ глибини!"
+  },
+  {
+    "lesson": "l6",
+    "beat_id": "celebration",
+    "audio": "l6/celebration.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l6/celebration.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "🎉 ОДИН КОД — УСІ ГЛИБИНИ!\n\nWither програв. Твій код УНІВЕРСАЛЬНИЙ — він не рахує кроки, а реагує на ситуацію.\n\nЦе один з найпотужніших інструментів програміста — цикл з умовою. Ти щойно освоїв його!",
+    "text_tts": "ОДИН КОД — УСІ ГЛИБИНИ! Wither програв. Твій код УНІВЕРСАЛЬНИЙ — він не рахує кроки, а реагує на ситуацію. Це один з найпотужніших інструментів програміста — цикл з умовою. Ти щойно освоїв його!"
+  },
+  {
+    "lesson": "l7",
+    "beat_id": "intro-1",
+    "audio": "l7/intro-1.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l7/intro-1.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "🐉 Гей... Ender Dragon повернувся. Він створив ФІНАЛЬНУ печеру.\n\nТут є все: повороти, стіни, глибокі шахти. Це найскладніший рівень.",
+    "text_tts": "Гей. Ender Dragon повернувся. Він створив ФІНАЛЬНУ печеру. Тут є все: повороти, стіни, глибокі шахти. Це найскладніший рівень."
+  },
+  {
+    "lesson": "l7",
+    "beat_id": "intro-2",
+    "audio": "l7/intro-2.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l7/intro-2.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Але ти вже знаєш ВСЕ що треба:\n\n🔁 повторити (L3)\n🔍 сенсор (L4)\n✅ якщо/то/інакше (L4)\n🐛 debug (L5)\n♾ поки не на алмазі (L6)\n\nЗібери свій найпотужніший код!",
+    "text_tts": "Але ти вже знаєш ВСЕ що треба: повторити (L3) сенсор (L4) якщо/то/інакше (L4) debug (L5) поки не на алмазі (L6) Зібери свій найпотужніший код!"
+  },
+  {
+    "lesson": "l7",
+    "beat_id": "hint-approach",
+    "audio": "l7/hint-approach.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l7/hint-approach.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Порада:\n\n🔁 «поки я ще не на алмазі, роби»\n  ↳ якщо стіна попереду — вниз\n  ↳ інакше — вперед\n\nВсього 2 блоки. Універсально. Красиво.",
+    "text_tts": "Порада: поки я ще не на алмазі, роби якщо стіна попереду — вниз інакше — вперед Всього 2 блоки. Універсально. Красиво."
+  },
+  {
+    "lesson": "l7",
+    "beat_id": "reflection-1",
+    "audio": "l7/reflection-1.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l7/reflection-1.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "🎉 Ти переміг Ender Dragon-а!\n\nА тепер важливе питання. Подумай:\n\nЩо ти зараз УМІЄШ, чого не міг(-ла) на початку курсу?",
+    "text_tts": "Ти переміг Ender Dragon-а! А тепер важливе питання. Подумай: Що ти зараз УМІЄШ, чого не міг(-ла) на початку курсу?"
+  },
+  {
+    "lesson": "l7",
+    "beat_id": "reflection-2",
+    "audio": "l7/reflection-2.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l7/reflection-2.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "Ще одне питання: який урок був НАЙСКЛАДНІШИЙ?\n\n1️⃣ Знайомство\n2️⃣ Лабіринт\n3️⃣ Стомилась\n4️⃣ Темрява\n5️⃣ Детектив\n6️⃣ Безодня\n7️⃣ Фінал\n\nЗапам'ятай собі відповідь — це важливо для розуміння як ти вчишся.",
+    "text_tts": "Ще одне питання: який урок був НАЙСКЛАДНІШИЙ? 1️⃣ Знайомство 2️⃣ Лабіринт 3️⃣ Стомилась 4️⃣ Темрява 5️⃣ Детектив 6️⃣ Безодня 7️⃣ Фінал Запам'ятай собі відповідь — це важливо для розуміння як ти вчишся."
+  },
+  {
+    "lesson": "l7",
+    "beat_id": "celebration-course",
+    "audio": "l7/celebration-course.mp3",
+    "audio_path_abs": "/root/projects/CCTweak_MiniCourse/public/audio/l7/celebration-course.mp3",
+    "type": "speech-bubble",
+    "character": "mo",
+    "text_original": "🏆 Ти пройшов увесь курс!\n\nЗа 7 уроків ти навчився ОСНОВ програмування — тих самих речей що використовують дорослі програмісти щодня.\n\nЯ пишаюся тобою 🐢💚",
+    "text_tts": "Ти пройшов увесь курс! За 7 уроків ти навчився ОСНОВ програмування — тих самих речей що використовують дорослі програмісти щодня. Я пишаюся тобою"
+  }
+]

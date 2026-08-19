@@ -13,3 +13,6 @@ node_modules/
 .env.local
 .env.*.local
 .secrets/
+
+# Audio archives — kept на диску, не у repo (bloat)
+public/audio/_archive-*/

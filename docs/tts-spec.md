@@ -1,3 +1,13 @@
+> ⚠️ **SUPERSEDED 2026-08-19** — цей документ описує **Piper**-стек, який замінено на **ElevenLabs**.
+>
+> Актуальна spec: [`mo-voice.md`](mo-voice.md).
+>
+> Piper mp3 файли архівовані у `public/audio/_archive-piper-2026-08-19/` (не в Git).
+>
+> Цей документ збережений для reference (rollback recipe, historical context).
+
+---
+
 # TTS Voice-Over Specification — CCTweak_MiniCourse Lesson 1
 
 **Stack:** Piper TTS (self-hosted) → ffmpeg (pitch shift + encoding) → mp3
