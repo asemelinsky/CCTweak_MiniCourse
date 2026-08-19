@@ -28,18 +28,18 @@
       "id": "intro-2",
       "type": "speech-bubble",
       "character": "mo",
-      "text": "Але ти вже знаєш ВСЕ що треба:\n\n🔁 повторити (L3)\n🔍 сенсор (L4)\n✅ якщо/то/інакше (L4)\n🐛 debug (L5)\n♾ поки не на алмазі (L6)\n\nЗібери свій найпотужніший код!",
+      "text": "Але ти вже знаєш ВСЕ що треба.\n\nТи вмієш повторювати команди. Ти вмієш робити код що САМ дивиться і вирішує. Ти вмієш ходити поки не дійдеш до алмаза. І ти вмієш знаходити помилки у чужому коді.\n\nТи справжній програміст! Зараз зберемо все разом.",
       "animation": "jump",
       "advance": {
         "type": "click-next",
-        "label": "Показуй!"
+        "label": "Готовий!"
       }
     },
     {
-      "id": "hint-approach",
+      "id": "intro-ask-strategy",
       "type": "speech-bubble",
       "character": "mo",
-      "text": "Порада:\n\n🔁 «поки я ще не на алмазі, роби»\n  ↳ якщо стіна попереду — вниз\n  ↳ інакше — вперед\n\nВсього 2 блоки. Універсально. Красиво.",
+      "text": "Ну добре. Ти дивишся на цю печеру. А ти як думаєш — як би ти її пройшов?\n\nПостав ті блоки, які здаються тобі правильними, і натисни ▶. Подивимось разом що вийде.",
       "animation": "wiggle",
       "advance": {
         "type": "click-next",
@@ -47,14 +47,106 @@
       }
     },
     {
-      "id": "task-run",
-      "type": "task",
-      "hint_on_failure": "Не спрацювало. Перевір — блок «якщо/то/інакше» має бути ВСЕРЕДИНІ «поки», а сенсор у першому роз'ємі якщо.",
-      "hint_on_crash": "Ой, врізалась. Мабуть у «інакше» треба «вперед» а не інше.",
-      "hint_on_timeout": "Здається зациклилась. Може блок всередині циклу не рухає мене?",
+      "id": "task-main",
+      "type": "task-with-constraints",
+      "constraints": [
+        {
+          "block_type": "turtle_down",
+          "max_count": 1,
+          "scope": "top-level",
+          "on_exceed": {
+            "animation": "dragon-swoop",
+            "sound": "crunch",
+            "delete_newest": true,
+            "route_to_beat": "dragon-ate-down-1",
+            "escalation_beats": [
+              "dragon-ate-down-2",
+              "dragon-ate-down-3"
+            ]
+          }
+        },
+        {
+          "block_type": "controls_repeat_ext",
+          "max_count": 0,
+          "scope": "any",
+          "on_exceed": {
+            "animation": "dragon-swoop",
+            "sound": "crunch",
+            "delete_newest": true,
+            "route_to_beat": "dragon-ate-repeat-1",
+            "escalation_beats": [
+              "dragon-ate-repeat-2"
+            ]
+          }
+        }
+      ],
+      "hint_on_failure": "Не спрацювало. Перевір — блок «якщо/то/інакше» має бути ВСЕРЕДИНІ циклу «поки не на алмазі», а сенсор — у першому роз'ємі «якщо».",
+      "hint_on_crash": "Ой, врізалась. Мабуть у «інакше» треба «вперед», а не інша дія.",
+      "hint_on_timeout": "Здається, я зациклилась. Може блок всередині циклу не рухає мене?",
       "advance": {
         "type": "task-solved"
-      }
+      },
+      "after_advance_route_to": "reflection-1"
+    },
+    {
+      "id": "dragon-ate-down-1",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Ой! Ти бачив? 🐉 Ender Dragon пролетів і зжер один з моїх блоків!\n\nАга, ось у чому справа — він не дає нам ставити ОДНАКОВІ блоки поспіль. Ох який він потужний!\n\nОкей, дякую що ти думаєш — спробуй інший підхід.",
+      "animation": "shake",
+      "advance": {
+        "type": "click-next",
+        "label": "Спробую ще"
+      },
+      "after_advance_route_to": "task-main"
+    },
+    {
+      "id": "dragon-ate-down-2",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Знову зжер! 🐉\n\nДавай згадаємо разом. Пам'ятаєш той урок про «Мо у темряві»? Там Ender Dragon зачарував тунель — і ми поставили один розумний блок «якщо/то/інакше» з сенсором. Черепашка САМА вирішувала куди йти.\n\nМожливо, тут теж спрацює? Спробуй.",
+      "animation": "wiggle",
+      "advance": {
+        "type": "click-next",
+        "label": "Пам'ятаю"
+      },
+      "after_advance_route_to": "task-main"
+    },
+    {
+      "id": "dragon-ate-down-3",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Слухай, підкажу конкретніше 🐢\n\nПостав блок «якщо/то/інакше». У перший роз'єм — сенсор «стіна попереду?». У «то» → ⬇️ вниз. У «інакше» → ➡️ вперед.\n\nПотім натисни ▶ і подивимось разом як я піду.",
+      "animation": "jump",
+      "advance": {
+        "type": "click-next",
+        "label": "Зроблю"
+      },
+      "after_advance_route_to": "task-main"
+    },
+    {
+      "id": "dragon-ate-repeat-1",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "О-о-о! А на цей блок Ender Dragon розізлився! 🐉\n\nЧим же ж він так йому не догодив, цікаво?\n\nОкей, чудово що ти думаєш. Спробуй інший цикл.",
+      "animation": "shake",
+      "advance": {
+        "type": "click-next",
+        "label": "Спробую"
+      },
+      "after_advance_route_to": "task-main"
+    },
+    {
+      "id": "dragon-ate-repeat-2",
+      "type": "speech-bubble",
+      "character": "mo",
+      "text": "Знову зжер! 🐉\n\nДобре, а які ще цикли ми з тобою вчили? Пам'ятаєш урок «Мо у безодні»? Там був цикл «поки не на алмазі, роби» — і він працював для БУДЬ-ЯКОЇ довжини шахти. Дракон його не чіпав.\n\nДавай спробуємо його!",
+      "animation": "wiggle",
+      "advance": {
+        "type": "click-next",
+        "label": "Точно!"
+      },
+      "after_advance_route_to": "task-main"
     },
     {
       "id": "reflection-1",
@@ -71,7 +163,7 @@
       "id": "reflection-2",
       "type": "speech-bubble",
       "character": "mo",
-      "text": "Ще одне питання: який урок був НАЙСКЛАДНІШИЙ?\n\n1️⃣ Знайомство\n2️⃣ Лабіринт\n3️⃣ Стомилась\n4️⃣ Темрява\n5️⃣ Детектив\n6️⃣ Безодня\n7️⃣ Фінал\n\nЗапам'ятай собі відповідь — це важливо для розуміння як ти вчишся.",
+      "text": "Ще одне питання: який урок був НАЙСКЛАДНІШИЙ?\n\nЗгадай наші пригоди: Знайомство з Мо, Лабіринт Мо, Мо стомилась, Мо у темряві, Мо-детектив, Мо у безодні, і цей — Фінальна битва.\n\nЗапам'ятай собі відповідь — це важливо для розуміння як ти вчишся.",
       "animation": "wiggle",
       "advance": {
         "type": "click-next",

@@ -8,6 +8,11 @@
  *  - speech-bubble  → малює SVG bubble біля черепашки з текстом
  *  - coach-mark     → dark overlay + spotlight на target-елементі + callout
  *  - task           → передає керування у Blockly workspace, чекає task-solved
+ *  - task-with-constraints → task + block constraints layer (LB-011, L7):
+ *                            beat.constraints[] — масив правил {block_type, max_count,
+ *                            scope, on_exceed:{route_to_beat, escalation_beats[]}}.
+ *                            При exceed: dragon анімація → dispose блока → route до beat.
+ *                            Потребує window.ConstraintEngine + опційно window.DragonOverlay.
  *  - final-modal    → показує modal після проходження уроку
  *
  * Підтримувані advance-типи:
@@ -25,6 +30,15 @@
  *                           явним target'ом для випадків «дитина має дійти хоча б
  *                           до col N щоб я вважав це прогресом»).
  *
+ * Beat-level optional fields (LB-011, Adaptive Narrative Engine):
+ *  - skip_if: {workspace_contains|workspace_contains_any|beat_visited}
+ *      → якщо умова true (AND semantics при multiple keys) — beat пропускається
+ *        одразу після track visitedBeats, без setup UI.
+ *  - after_advance_route_to: '<beat_id>'
+ *      → замість «наступного beat у sequence» після advance() — jump до конкретного
+ *        beat.id. Використовується для reactive beats (dragon-ate-*) щоб повернути
+ *        учня назад у task-main після click-next.
+ *
  * Використання:
  *   LessonEngine.load('lessons/l1.json').then(engine => engine.start());
  */
@@ -36,6 +50,12 @@ const LessonEngine = (function() {
   let currentLesson = null;
   let currentBeatIdx = 0;
   let listeners = [];  // активні event listeners для поточного beat
+
+  // LB-011: track показаних beat'ів (для `skip_if.beat_visited` predicate + cycle guard).
+  // Скидається у start(lesson). Додається у runCurrentBeat() до skip_if check —
+  // тому beat_visited: 'this-beat-id' у поточному beat завжди true (self-visit
+  // одразу гартує проти повторних заходів через route_to_beat).
+  let visitedBeats = new Set();
 
   // LB-003: state для sim-forward-progress advance type.
   // Тримає manhattan distance від startPos для попереднього завершеного
@@ -63,6 +83,7 @@ const LessonEngine = (function() {
     currentLesson = lesson;
     currentBeatIdx = 0;
     lastRunProgressDist = null;  // LB-003: скидаємо cross-beat progress state
+    visitedBeats.clear();        // LB-011: скидаємо історію відвіданих beat'ів
 
     // Preload workspace якщо lesson має initial_workspace_xml (для L5 debug —
     // learn бачить broken code на старті і мусить його виправити).
@@ -97,6 +118,17 @@ const LessonEngine = (function() {
     const beat = currentLesson.beats[currentBeatIdx];
     console.log(`[LessonEngine] Beat ${currentBeatIdx + 1}/${currentLesson.beats.length}: ${beat.id} (${beat.type})`);
 
+    // LB-011: track visited ПЕРЕД skip_if check — щоб beat_visited: '<self>' спрацював
+    // як cycle guard (якщо цей же beat був route_to цілю, наступний захід буде skip).
+    visitedBeats.add(beat.id);
+
+    // LB-011: skip_if — якщо умова true, пропускаємо beat.
+    if (beat.skip_if && evaluateSkipCondition(beat.skip_if, window.workspace)) {
+      console.log(`[LessonEngine] skip beat ${beat.id} — skip_if matched`);
+      advance();
+      return;
+    }
+
     // Виконати beat
     switch (beat.type) {
       case 'speech-bubble':
@@ -111,6 +143,9 @@ const LessonEngine = (function() {
       case 'task':
         setupTask(beat);
         break;
+      case 'task-with-constraints':
+        setupTaskWithConstraints(beat);
+        break;
       case 'final-modal':
         showFinalModal(beat);
         break;
@@ -124,9 +159,98 @@ const LessonEngine = (function() {
     setupAdvanceListener(beat);
   }
 
+  //////////////////////////////////////////////////////////////////////
+  // LB-011: skip_if predicate evaluator
+  //////////////////////////////////////////////////////////////////////
+
+  /**
+   * Evaluate skip_if condition. Returns true → beat should be skipped.
+   * Supported predicates (AND semantics — усі keys мають бути true):
+   *   - workspace_contains: '<block_type>'      → true якщо workspace has any of that type
+   *   - workspace_contains_any: ['<t1>', '<t2>'] → true якщо workspace has any of these
+   *   - beat_visited: '<beat_id>'                → true якщо beat уже було показано
+   */
+  function evaluateSkipCondition(cond, workspace) {
+    if (!cond) return false;
+
+    const keys = Object.keys(cond);
+    if (keys.length === 0) return false;
+
+    for (const key of keys) {
+      const val = cond[key];
+      let match = false;
+
+      if (key === 'workspace_contains') {
+        if (!workspace) return false;
+        const blocks = workspace.getAllBlocks(false);
+        match = blocks.some(b => b.type === val);
+      } else if (key === 'workspace_contains_any') {
+        if (!workspace) return false;
+        if (!Array.isArray(val)) {
+          console.warn(`[LessonEngine] skip_if.workspace_contains_any must be array`);
+          return false;
+        }
+        const blocks = workspace.getAllBlocks(false);
+        const typeSet = new Set(val);
+        match = blocks.some(b => typeSet.has(b.type));
+      } else if (key === 'beat_visited') {
+        match = visitedBeats.has(val);
+      } else {
+        console.warn(`[LessonEngine] Unknown skip_if predicate: ${key}`);
+        return false;
+      }
+
+      if (!match) return false;  // AND — один false → cond false
+    }
+    return true;
+  }
+
+  //////////////////////////////////////////////////////////////////////
+  // LB-011: routeToBeat — jump до beat by id (не sequence)
+  //////////////////////////////////////////////////////////////////////
+
+  /**
+   * Jump до beat з заданим id. Очищає поточні listeners + UI, ставить index,
+   * запускає runCurrentBeat. Якщо beat не знайдено — warn і stay put.
+   */
+  function routeToBeat(beatId) {
+    if (!currentLesson) {
+      console.warn(`[LessonEngine] routeToBeat(${beatId}): no lesson loaded`);
+      return;
+    }
+    const idx = currentLesson.beats.findIndex(b => b.id === beatId);
+    if (idx < 0) {
+      console.warn(`[LessonEngine] routeToBeat: beat '${beatId}' not found — staying`);
+      return;
+    }
+    console.log(`[LessonEngine] routeToBeat: '${beatId}' (idx ${idx})`);
+
+    // Cleanup поточного beat (UI + listeners) — analog до першої частини advance()
+    const currentBeat = currentLesson.beats[currentBeatIdx];
+    if (currentBeat) {
+      if (currentBeat.type === 'speech-bubble') SpeechBubble.hide();
+      if (currentBeat.type === 'coach-mark') CoachMark.hide();
+      if (currentBeat.type === 'video-overlay') VideoOverlay.hide();
+    }
+    clearListeners();
+
+    currentBeatIdx = idx;
+    runCurrentBeat();
+  }
+
   function advance() {
     // Прибрати UI поточного beat
     const beat = currentLesson.beats[currentBeatIdx];
+
+    // LB-011: якщо beat має after_advance_route_to — не інкрементимо currentBeatIdx,
+    // а jump'аємо через routeToBeat. Використовується для reactive beats
+    // (dragon-ate-*) щоб повернути учня назад до task-main після click-next.
+    // routeToBeat сам зробить UI cleanup — не робимо тут щоб не dublicate.
+    if (beat && beat.after_advance_route_to) {
+      routeToBeat(beat.after_advance_route_to);
+      return;
+    }
+
     if (beat) {
       if (beat.type === 'speech-bubble') SpeechBubble.hide();
       if (beat.type === 'coach-mark') CoachMark.hide();
@@ -300,6 +424,11 @@ const LessonEngine = (function() {
         l.target.removeEventListener(l.event, l.handler);
       } else if (l.type === 'blockly' && window.workspace) {
         window.workspace.removeChangeListener(l.listener);
+      } else if (l.type === 'teardown' && typeof l.fn === 'function') {
+        // LB-011: task-with-constraints — виклик teardown fn від ConstraintEngine
+        try { l.fn(); } catch (err) {
+          console.warn('[LessonEngine] teardown error:', err);
+        }
       }
     }
     listeners = [];
@@ -381,6 +510,109 @@ const LessonEngine = (function() {
         text: beat.instruction,
         animation: 'wiggle',
       });
+    }
+  }
+
+  //////////////////////////////////////////////////////////////////////
+  // LB-011: task-with-constraints — task + block constraint layer
+  //////////////////////////////////////////////////////////////////////
+
+  /**
+   * Standard task setup + attach ConstraintEngine listener для beat.constraints[].
+   * При exceed: dragon animation → dispose блока → routeToBeat до відповідного
+   * escalation-beat (hitCount визначає який).
+   *
+   * Escalation semantics (per constraint):
+   *   hit 1 → constraint.on_exceed.route_to_beat
+   *   hit 2 → constraint.on_exceed.escalation_beats[0]
+   *   hit 3 → constraint.on_exceed.escalation_beats[1]
+   *   ...
+   *   hit N+ (out of range) → last escalation_beats item (stays на last hint)
+   */
+  function setupTaskWithConstraints(beat) {
+    // Спочатку normal task setup — hint bubbles, run/edit listeners, etc.
+    setupTask(beat);
+
+    // Attach constraints layer тільки якщо ConstraintEngine доступний і є constraints
+    if (!beat.constraints || !Array.isArray(beat.constraints) || beat.constraints.length === 0) {
+      return;
+    }
+    if (!window.ConstraintEngine || typeof window.ConstraintEngine.setupConstraints !== 'function') {
+      console.warn('[LessonEngine] task-with-constraints: window.ConstraintEngine not available — constraints ignored');
+      return;
+    }
+    if (!window.workspace) {
+      console.warn('[LessonEngine] task-with-constraints: window.workspace not available — constraints ignored');
+      return;
+    }
+
+    const handleConstraintExceeded = (constraint, blockId, hitCount) => {
+      console.log(`[LessonEngine] constraint hit: ${constraint.block_type} count=${hitCount}`);
+
+      // Визначити route beat id за hitCount
+      let routeBeatId = null;
+      const onExceed = constraint.on_exceed || {};
+      if (hitCount === 1) {
+        routeBeatId = onExceed.route_to_beat;
+      } else {
+        const escIdx = hitCount - 2;
+        const esc = onExceed.escalation_beats;
+        if (Array.isArray(esc) && esc.length > 0) {
+          routeBeatId = esc[Math.min(escIdx, esc.length - 1)];  // fallback до last
+        } else {
+          routeBeatId = onExceed.route_to_beat;  // немає escalation → залишаємось на first
+        }
+      }
+
+      if (!routeBeatId) {
+        console.warn(`[LessonEngine] constraint exceeded but no route_to_beat defined`);
+        return;
+      }
+
+      // Отримати DOM element блоку для dragon animation target
+      const block = window.workspace.getBlockById(blockId);
+      const blockEl = block && typeof block.getSvgRoot === 'function' ? block.getSvgRoot() : null;
+
+      const disposeAndRoute = () => {
+        if (block) {
+          // CRITICAL: notify ConstraintEngine BEFORE dispose. Інакше BLOCK_DELETE
+          // event від dispose() декрементить escalation counter → 2-й hit покаже
+          // dragon-ate-down-1 знову замість -2. Track A's contract (2026-08-19).
+          if (window.ConstraintEngine && typeof window.ConstraintEngine.notifyManagedDispose === 'function') {
+            try { window.ConstraintEngine.notifyManagedDispose(blockId); } catch (err) {
+              console.warn('[LessonEngine] notifyManagedDispose error:', err);
+            }
+          }
+          try { block.dispose(); } catch (err) {
+            console.warn('[LessonEngine] block.dispose error:', err);
+          }
+        }
+        routeToBeat(routeBeatId);
+      };
+
+      // Dragon animation якщо overlay доступний, інакше — миттєве dispose+route
+      if (window.DragonOverlay && typeof window.DragonOverlay.swoopAndCrunch === 'function' && blockEl) {
+        try {
+          window.DragonOverlay.swoopAndCrunch(blockEl, disposeAndRoute);
+        } catch (err) {
+          console.warn('[LessonEngine] DragonOverlay error, fallback to direct dispose:', err);
+          disposeAndRoute();
+        }
+      } else {
+        disposeAndRoute();
+      }
+    };
+
+    // Setup constraints — очікуємо teardown function повернути
+    try {
+      const teardown = window.ConstraintEngine.setupConstraints(beat, window.workspace, {
+        onExceed: handleConstraintExceeded,
+      });
+      if (typeof teardown === 'function') {
+        listeners.push({ type: 'teardown', fn: teardown });
+      }
+    } catch (err) {
+      console.error('[LessonEngine] ConstraintEngine.setupConstraints failed:', err);
     }
   }
 

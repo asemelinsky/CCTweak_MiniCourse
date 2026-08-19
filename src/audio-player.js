@@ -30,7 +30,20 @@ const AudioPlayer = (function() {
     failure:   'public/audio/sfx/failure.mp3',
     click:     'public/audio/sfx/click.mp3',
     'test-beep': 'public/audio/sfx/test-beep.mp3',
+    // LB-011: TODO regen crunch.mp3 via ElevenLabs or use CC0 sample.
+    // Falls back to failure.mp3 if file 404 (див. SFX_FALLBACKS нижче).
+    crunch:    'public/audio/sfx/crunch.mp3',
   };
+
+  // Якщо SFX не завантажився (404 / network), програвати fallback замість тиші.
+  // Використовується для L7 constraint-engine — «хрум» через dragon має завжди
+  // мати аудіо-feedback, навіть якщо crunch.mp3 ще не згенерований.
+  const SFX_FALLBACKS = {
+    crunch: 'failure',
+  };
+
+  // Set назв SFX, у яких load завершився помилкою — використовуємо для fallback routing.
+  const sfxFailed = new Set();
 
   // Preloaded Audio-об'єкти для SFX (щоб не було затримки на першому відтворенні)
   const sfxCache = {};
@@ -70,7 +83,13 @@ const AudioPlayer = (function() {
       audio.volume = name === 'step' ? 0.7 : 0.9;
       // Ловимо помилку 404 тихо — якщо файлу нема, sfx просто не грає
       audio.addEventListener('error', () => {
-        console.warn(`[AudioPlayer] SFX не завантажився: ${url} (це ок, продовжуємо без нього)`);
+        sfxFailed.add(name);
+        const fb = SFX_FALLBACKS[name];
+        if (fb) {
+          console.warn(`[AudioPlayer] SFX не завантажився: ${url} → fallback на '${fb}'`);
+        } else {
+          console.warn(`[AudioPlayer] SFX не завантажився: ${url} (це ок, продовжуємо без нього)`);
+        }
       });
       sfxCache[name] = audio;
     }
@@ -78,10 +97,17 @@ const AudioPlayer = (function() {
 
   function play(name) {
     if (!isEnabled()) { console.log('[Audio] skip (disabled):', name); return; }
+    // Fallback routing: якщо основний SFX не завантажився і для нього є fallback → play fallback.
+    if (sfxFailed.has(name) && SFX_FALLBACKS[name]) {
+      const fb = SFX_FALLBACKS[name];
+      console.log('[Audio] fallback:', name, '→', fb);
+      return play(fb);
+    }
     const audio = sfxCache[name];
     if (!audio) { console.warn('[Audio] no sfx:', name); return; }
     if (audio.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) {
       console.warn('[Audio] file not loaded:', name);
+      if (SFX_FALLBACKS[name]) return play(SFX_FALLBACKS[name]);
       return;
     }
     try {

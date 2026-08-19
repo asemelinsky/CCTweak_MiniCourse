@@ -360,3 +360,98 @@
   0%, 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
   50%      { box-shadow: 0 0 0 20px rgba(76, 175, 80, 0); }
 }
+
+/* -----------------------------------------------------
+   LB-011: Ender Dragon overlay (L7 constraint-engine)
+
+   Dragon залітає з правого краю viewport'а до позиції над блоком-жертвою,
+   зависає, «кусає» блок (block-being-eaten class), потім плавно щезає.
+
+   Позиціонування контейнера робить dragon-overlay.js через top/left
+   з getBoundingClientRect() targetBlockElement.
+   ----------------------------------------------------- */
+
+.dragon-swoop-container {
+  position: fixed;
+  width: 180px;
+  z-index: 1000;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transition: opacity 0.3s ease-out;
+}
+
+.dragon-swoop-container img,
+.dragon-swoop-container picture {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
+}
+
+/* Fly-in: заходить з-за правого краю viewport'а до фінальної позиції
+   (transform: 0,0) з невеликою вертикальною осциляцією і поворотом,
+   ніби живий рух крил. Тримає позицію після 1.5s (forwards). */
+.dragon-swoop img {
+  animation: dragon-fly 1.5s cubic-bezier(0.32, 0.72, 0.35, 1) forwards;
+}
+@keyframes dragon-fly {
+  0% {
+    transform: translateX(110vw) translateY(-40px) rotate(-10deg);
+    opacity: 0;
+  }
+  15% { opacity: 1; }
+  55% {
+    transform: translateX(30px) translateY(-30px) rotate(-4deg);
+  }
+  80% {
+    transform: translateX(-6px) translateY(-8px) rotate(4deg);
+  }
+  100% {
+    transform: translateX(0) translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Cleanup phase — швидко fade out перед .remove() */
+.dragon-swoop--leaving {
+  opacity: 0;
+}
+
+/* Block-being-eaten: shake horizontally + fade + scale down.
+   Застосовується на targetBlockElement (Blockly SVG group).
+   forwards щоб блок лишався прозорим до фактичного dispose(). */
+.block-being-eaten {
+  animation: shake-fade 0.8s ease-out forwards;
+  transform-origin: center center;
+}
+@keyframes shake-fade {
+  0%   { transform: translateX(0)    scale(1);   opacity: 1;   }
+  10%  { transform: translateX(-5px) scale(1);   opacity: 1;   }
+  20%  { transform: translateX(5px)  scale(1);   opacity: 0.9; }
+  30%  { transform: translateX(-5px) scale(0.98); opacity: 0.8; }
+  45%  { transform: translateX(4px)  scale(0.95); opacity: 0.65; }
+  60%  { transform: translateX(-3px) scale(0.85); opacity: 0.45; }
+  80%  { transform: translateX(2px)  scale(0.7);  opacity: 0.2;  }
+  100% { transform: translateX(0)    scale(0.5);  opacity: 0;   }
+}
+
+/* Reduced-motion respect: замінюємо політ і трясіння на швидке зникнення. */
+@media (prefers-reduced-motion: reduce) {
+  .dragon-swoop img {
+    animation: dragon-fly-reduced 0.4s ease-out forwards;
+  }
+  @keyframes dragon-fly-reduced {
+    0%   { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0);     }
+  }
+  .block-being-eaten {
+    animation: shake-fade-reduced 0.4s ease-out forwards;
+  }
+  @keyframes shake-fade-reduced {
+    0%   { opacity: 1; transform: scale(1);   }
+    100% { opacity: 0; transform: scale(0.7); }
+  }
+}
+
