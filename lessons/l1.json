@@ -99,6 +99,17 @@
       }
     },
     {
+      "id": "outro-video",
+      "type": "video-overlay",
+      "src": "public/videos/l1/l1-outro-olexii.mp4",
+      "shape": "circle",
+      "fallback_text": "🎬 Скоро тут буде відео від Олексія — про твої успіхи і що чекає далі.",
+      "advance": {
+        "type": "click-next",
+        "label": "Далі →"
+      }
+    },
+    {
       "id": "final",
       "type": "final-modal",
       "title": "Урок 1 пройдено! 🎉",
