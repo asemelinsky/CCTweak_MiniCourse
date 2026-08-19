@@ -3,6 +3,17 @@
   "title": "Мо у безодні: Wither та безкінечні шахти",
   "beats": [
     {
+      "id": "intro-video",
+      "type": "video-overlay",
+      "src": "public/videos/l6/l6-intro-olexii.mp4?v=1",
+      "shape": "circle",
+      "fallback_text": "🎬 Відео від Олексія — натисни «Далі» щоб продовжити.",
+      "advance": {
+        "type": "click-next",
+        "label": "Далі"
+      }
+    },
+    {
       "id": "intro-1",
       "type": "speech-bubble",
       "character": "mo",
@@ -128,6 +139,17 @@
       "advance": {
         "type": "click-next",
         "label": "Так!"
+      }
+    },
+    {
+      "id": "outro-video",
+      "type": "video-overlay",
+      "src": "public/videos/l6/l6-outro-olexii.mp4?v=1",
+      "shape": "circle",
+      "fallback_text": "🎬 Відео від Олексія — натисни «Далі».",
+      "advance": {
+        "type": "click-next",
+        "label": "Далі →"
       }
     },
     {

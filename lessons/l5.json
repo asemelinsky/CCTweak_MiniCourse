@@ -4,6 +4,17 @@
   "initial_workspace_xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"turtle_down\" x=\"20\" y=\"20\"><next><block type=\"turtle_down\"><next><block type=\"turtle_down\"><next><block type=\"turtle_forward\"><next><block type=\"turtle_down\"><next><block type=\"turtle_forward\"><next><block type=\"turtle_down\"><next><block type=\"turtle_down\"/></next></block></next></block></next></block></next></block></next></block></next></block></next></block></xml>",
   "beats": [
     {
+      "id": "intro-video",
+      "type": "video-overlay",
+      "src": "public/videos/l5/l5-intro-olexii.mp4?v=1",
+      "shape": "circle",
+      "fallback_text": "🎬 Відео від Олексія — натисни «Далі» щоб продовжити.",
+      "advance": {
+        "type": "click-next",
+        "label": "Далі"
+      }
+    },
+    {
       "id": "intro-1",
       "type": "speech-bubble",
       "character": "mo",
@@ -74,6 +85,17 @@
       "advance": {
         "type": "click-next",
         "label": "Далі"
+      }
+    },
+    {
+      "id": "outro-video",
+      "type": "video-overlay",
+      "src": "public/videos/l5/l5-outro-olexii.mp4?v=1",
+      "shape": "circle",
+      "fallback_text": "🎬 Відео від Олексія — натисни «Далі».",
+      "advance": {
+        "type": "click-next",
+        "label": "Далі →"
       }
     },
     {

@@ -3,6 +3,17 @@
   "title": "Мо стомилась",
   "beats": [
     {
+      "id": "intro-video",
+      "type": "video-overlay",
+      "src": "public/videos/l3/l3-intro-olexii.mp4?v=1",
+      "shape": "circle",
+      "fallback_text": "🎬 Відео від Олексія — натисни «Далі» щоб продовжити.",
+      "advance": {
+        "type": "click-next",
+        "label": "Далі"
+      }
+    },
+    {
       "id": "intro-1",
       "type": "speech-bubble",
       "character": "mo",
@@ -121,6 +132,17 @@
       "advance": {
         "type": "click-next",
         "label": "Клас!"
+      }
+    },
+    {
+      "id": "outro-video",
+      "type": "video-overlay",
+      "src": "public/videos/l3/l3-outro-olexii.mp4?v=1",
+      "shape": "circle",
+      "fallback_text": "🎬 Відео від Олексія — натисни «Далі».",
+      "advance": {
+        "type": "click-next",
+        "label": "Далі →"
       }
     },
     {

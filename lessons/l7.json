@@ -3,6 +3,17 @@
   "title": "Фінальна битва: Ender Dragon повернувся",
   "beats": [
     {
+      "id": "intro-video",
+      "type": "video-overlay",
+      "src": "public/videos/l7/l7-intro-olexii.mp4?v=1",
+      "shape": "circle",
+      "fallback_text": "🎬 Відео від Олексія — натисни «Далі» щоб продовжити.",
+      "advance": {
+        "type": "click-next",
+        "label": "Далі"
+      }
+    },
+    {
       "id": "intro-1",
       "type": "speech-bubble",
       "character": "mo",
@@ -76,6 +87,17 @@
       "advance": {
         "type": "click-next",
         "label": "Дякую, Мо!"
+      }
+    },
+    {
+      "id": "outro-video",
+      "type": "video-overlay",
+      "src": "public/videos/l7/l7-outro-olexii.mp4?v=1",
+      "shape": "circle",
+      "fallback_text": "🎬 Відео від Олексія — натисни «Далі».",
+      "advance": {
+        "type": "click-next",
+        "label": "Далі →"
       }
     },
     {
