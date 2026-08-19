@@ -1,24 +1,40 @@
-// GET /api/cron/[job] — consolidated cron dispatcher.
-// Vercel routes /api/cron/daily-drip, /api/cron/reactivation, /api/cron/upsell-followup
-// to this single function via the [job] dynamic segment.
+// GET /api/cron/[job] — consolidated cron dispatcher (v2 schema).
+// Vercel cron paths /api/cron/{daily-drip,reactivation,upsell-followup} all route here.
 //
-// vercel.json cron schedules unchanged — each path resolves here with req.query.job set.
-// Handlers use identical NocoDB filter DSL as before; behavior byte-compatible.
+// v2: scan `enrollments` (with per-enrollment activity fields), fetch matching
+// `learners` in bulk, return the same JSON the bot v1 already consumes.
 
 const {
-  handleOptions,
-  ok,
-  fail,
-  fetchRecords,
+  handleOptions, ok, fail,
+  nocodb, fetchRecords, getLearnerById,
   requireBearer,
+  TABLE_ENROLLMENTS, TABLE_LEARNERS,
 } = require('../_lib');
 
 // NocoDB v2 datetime comparison: `YYYY-MM-DD HH:MM:SS` with sub_op `exactDate`.
-function fmt(d) {
-  return d.toISOString().slice(0, 19).replace('T', ' ');
+function fmt(d) { return d.toISOString().slice(0, 19).replace('T', ' '); }
+
+// Attach learner info (bulk fetch) for the response payload.
+async function attachLearners(enrollments) {
+  if (!enrollments.length) return [];
+  const ids = [...new Set(enrollments.map(e => e.learner_id).filter(Boolean))];
+  // Fetch each learner (small batches). NocoDB `in` operator: `(Id,in,1,2,3)`
+  const learners = {};
+  // Chunk to keep URL short.
+  const chunk = 50;
+  for (let i = 0; i < ids.length; i += chunk) {
+    const slice = ids.slice(i, i + chunk);
+    const where = `(Id,in,${slice.join(',')})`;
+    const d = await fetchRecords(TABLE_LEARNERS, where, { limit: chunk });
+    for (const l of (d.list || [])) learners[l.Id] = l;
+  }
+  // Skip enrollments whose learner is unsubscribed.
+  return enrollments
+    .map(e => ({ enrollment: e, learner: learners[e.learner_id] || null }))
+    .filter(({ learner }) => learner && !learner.unsubscribed_at);
 }
 
-// -------- daily-drip: inactive 20-48h, not finished/unsub, not on 'done' --------
+// -------- daily-drip: enrollment inactive 20-48h, not finished, not on 'done' --------
 async function dailyDrip() {
   const now = new Date();
   const t20 = fmt(new Date(now.getTime() - 20 * 3600 * 1000));
@@ -27,38 +43,31 @@ async function dailyDrip() {
   const where =
     `(last_activity_at,lt,exactDate,${t20})` +
     `~and(last_activity_at,gt,exactDate,${t48})` +
-    `~and(finished_course_at,is,null)` +
-    `~and(unsubscribed_at,is,null)` +
+    `~and(finished_at,is,null)` +
     `~and(current_lesson,neq,done)`;
 
+  const enrollments = await fetchAll(TABLE_ENROLLMENTS, where);
+  const pairs = await attachLearners(enrollments);
+
   const results = [];
-  let offset = 0;
-  for (;;) {
-    const data = await fetchRecords(where, { limit: 100, offset });
-    const list = (data && data.list) || [];
-    for (const r of list) {
-      if (r.daily_reminder_sent_at) {
-        const sent = new Date(r.daily_reminder_sent_at);
-        if (sent > new Date(now.getTime() - 20 * 3600 * 1000)) continue;
-      }
-      results.push({
-        uuid: r.uuid,
-        telegram_id: r.telegram_id,
-        telegram_first_name: r.telegram_first_name,
-        child_name: r.child_name,
-        current_lesson: r.current_lesson,
-        last_activity_at: r.last_activity_at,
-      });
+  for (const { enrollment: e, learner: l } of pairs) {
+    if (e.daily_reminder_sent_at) {
+      const sent = new Date(e.daily_reminder_sent_at);
+      if (sent > new Date(now.getTime() - 20 * 3600 * 1000)) continue;
     }
-    const info = data && data.pageInfo;
-    if (!info || info.isLastPage || list.length === 0) break;
-    offset += list.length;
-    if (offset > 5000) break;
+    results.push({
+      uuid: e.uuid,
+      telegram_id: l.telegram_id,
+      telegram_first_name: l.telegram_first_name,
+      child_name: l.child_name,
+      current_lesson: e.current_lesson,
+      last_activity_at: e.last_activity_at,
+    });
   }
   return { count: results.length, learners: results };
 }
 
-// -------- reactivation: inactive 5-30 days, «Мо сумує!» --------
+// -------- reactivation: inactive 5-30d, «Мо сумує!» --------
 async function reactivation() {
   const now = new Date();
   const t5 = fmt(new Date(now.getTime() - 5 * 24 * 3600 * 1000));
@@ -67,36 +76,27 @@ async function reactivation() {
   const where =
     `(last_activity_at,lt,exactDate,${t5})` +
     `~and(last_activity_at,gt,exactDate,${t30})` +
-    `~and(finished_course_at,is,null)` +
-    `~and(unsubscribed_at,is,null)` +
+    `~and(finished_at,is,null)` +
     `~and(current_lesson,neq,done)`;
 
+  const enrollments = await fetchAll(TABLE_ENROLLMENTS, where);
+  const pairs = await attachLearners(enrollments);
+
   const results = [];
-  let offset = 0;
-  for (;;) {
-    const data = await fetchRecords(where, { limit: 100, offset });
-    const list = (data && data.list) || [];
-    for (const r of list) {
-      if (r.reactivation_sent_at) {
-        const sent = new Date(r.reactivation_sent_at);
-        if (sent > new Date(now.getTime() - 5 * 24 * 3600 * 1000)) continue;
-      }
-      results.push({
-        uuid: r.uuid,
-        telegram_id: r.telegram_id,
-        telegram_first_name: r.telegram_first_name,
-        child_name: r.child_name,
-        current_lesson: r.current_lesson,
-        last_activity_at: r.last_activity_at,
-        days_inactive: Math.floor(
-          (now - new Date(r.last_activity_at)) / (24 * 3600 * 1000)
-        ),
-      });
+  for (const { enrollment: e, learner: l } of pairs) {
+    if (e.reactivation_sent_at) {
+      const sent = new Date(e.reactivation_sent_at);
+      if (sent > new Date(now.getTime() - 5 * 24 * 3600 * 1000)) continue;
     }
-    const info = data && data.pageInfo;
-    if (!info || info.isLastPage || list.length === 0) break;
-    offset += list.length;
-    if (offset > 5000) break;
+    results.push({
+      uuid: e.uuid,
+      telegram_id: l.telegram_id,
+      telegram_first_name: l.telegram_first_name,
+      child_name: l.child_name,
+      current_lesson: e.current_lesson,
+      last_activity_at: e.last_activity_at,
+      days_inactive: Math.floor((now - new Date(e.last_activity_at)) / (24 * 3600 * 1000)),
+    });
   }
   return { count: results.length, learners: results };
 }
@@ -108,34 +108,37 @@ async function upsellFollowup() {
   const t72h = fmt(new Date(now.getTime() - 72 * 3600 * 1000));
 
   const where =
-    `(finished_course_at,lt,exactDate,${t24h})` +
-    `~and(finished_course_at,gt,exactDate,${t72h})` +
-    `~and(upsell_clicked,eq,false)` +
-    `~and(unsubscribed_at,is,null)`;
+    `(finished_at,lt,exactDate,${t24h})` +
+    `~and(finished_at,gt,exactDate,${t72h})` +
+    `~and(upsell_clicked,eq,false)`;
 
-  const results = [];
+  const enrollments = await fetchAll(TABLE_ENROLLMENTS, where);
+  const pairs = await attachLearners(enrollments);
+
+  const results = pairs.map(({ enrollment: e, learner: l }) => ({
+    uuid: e.uuid,
+    telegram_id: l.telegram_id,
+    telegram_first_name: l.telegram_first_name,
+    child_name: l.child_name,
+    finished_course_at: e.finished_at,
+    hours_since_finish: Math.floor((now - new Date(e.finished_at)) / (3600 * 1000)),
+  }));
+  return { count: results.length, learners: results };
+}
+
+async function fetchAll(tableId, where) {
+  const out = [];
   let offset = 0;
   for (;;) {
-    const data = await fetchRecords(where, { limit: 100, offset });
-    const list = (data && data.list) || [];
-    for (const r of list) {
-      results.push({
-        uuid: r.uuid,
-        telegram_id: r.telegram_id,
-        telegram_first_name: r.telegram_first_name,
-        child_name: r.child_name,
-        finished_course_at: r.finished_course_at,
-        hours_since_finish: Math.floor(
-          (now - new Date(r.finished_course_at)) / (3600 * 1000)
-        ),
-      });
-    }
-    const info = data && data.pageInfo;
+    const d = await fetchRecords(tableId, where, { limit: 100, offset });
+    const list = d.list || [];
+    out.push(...list);
+    const info = d.pageInfo;
     if (!info || info.isLastPage || list.length === 0) break;
     offset += list.length;
     if (offset > 5000) break;
   }
-  return { count: results.length, learners: results };
+  return out;
 }
 
 const JOBS = {

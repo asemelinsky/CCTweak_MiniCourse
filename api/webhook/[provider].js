@@ -1,19 +1,19 @@
-// POST /api/webhook/[provider] — consolidated webhook dispatcher.
+// POST /api/webhook/[provider] — consolidated webhook dispatcher (v2 schema).
 // Routes /api/webhook/monobank and /api/webhook/wayforpay through one function.
 //
-// Behavior:
-//   monobank  — server-to-server re-verify via /merchant/invoice/status
-//   wayforpay — HMAC-MD5 signature verify + ACK response with signature
+// Writes to `payments` table + upserts `learners` + `enrollments` via
+// recordSuccessfulPayment. Idempotent by invoice_id.
 
-const { handleOptions, ok, fail, setCors, readBody, markLearnerPaid } = require('../_lib');
+const { handleOptions, ok, fail, setCors, readBody, recordSuccessfulPayment } = require('../_lib');
 const monobank = require('../payment/_monobank');
 const wayforpay = require('../payment/_wayforpay');
 
+// order_reference format: cctweak-<telegram_id>-<uuid>
 function parseReference(ref) {
   if (!ref || typeof ref !== 'string') return null;
   const m = /^cctweak-(\d+)-(.+)$/.exec(ref);
   if (!m) return null;
-  return { telegram_id: +m[1], uuid: m[2], reference: ref };
+  return { telegram_id: +m[1], uuid: m[2], reference: ref, course_slug: 'cctweak' };
 }
 
 // ============================================================================
@@ -33,11 +33,10 @@ async function handleMonobank(req, res, payload) {
     return ok(res, { ignored: true, status: norm.status });
   }
 
-  // Server-to-server verification against Monobank.
+  // Server-to-server verify — invoice really exists at Monobank with status=success.
   let verified;
-  try {
-    verified = await monobank.checkStatus(norm.transaction_id);
-  } catch (e) {
+  try { verified = await monobank.checkStatus(norm.transaction_id); }
+  catch (e) {
     console.error('[webhook/monobank] checkStatus failed:', e);
     return fail(res, 502, 'upstream verify failed', String(e.message || e));
   }
@@ -47,22 +46,26 @@ async function handleMonobank(req, res, payload) {
   }
 
   try {
-    const result = await markLearnerPaid({
+    const result = await recordSuccessfulPayment({
       telegram_id: parsed.telegram_id,
-      telegram_first_name: `TG:${parsed.telegram_id}`,
-      payment_amount_uah: norm.amount_uah,
-      payment_provider: monobank.NOCODB_PROVIDER_VALUE,
-      transaction_id: norm.transaction_id,
-      reference: norm.reference,
+      telegram_first_name: `TG:${parsed.telegram_id}`, // bot fills real name via /bot/create-learner
+      course_slug: parsed.course_slug,
+      provider: 'monobank',
+      invoice_id: norm.transaction_id,
+      order_reference: norm.reference,
+      amount_uah: norm.amount_uah,
+      webhook_payload: payload,
     });
     return ok(res, {
       accepted: true,
+      alreadyRecorded: result.alreadyRecorded,
       created: result.created,
-      alreadyPaid: result.alreadyPaid,
-      uuid: result.learner?.uuid || null,
+      learner_uuid: result.learner?.uuid || null,
+      enrollment_uuid: result.enrollment?.uuid || null,
+      payment_id: result.payment?.Id || null,
     });
   } catch (e) {
-    console.error('[webhook/monobank] markLearnerPaid error:', e);
+    console.error('[webhook/monobank] recordSuccessfulPayment error:', e);
     return fail(res, 500, 'nocodb error', String(e.message || e));
   }
 }
@@ -98,34 +101,32 @@ async function handleWayforpay(req, res, payload) {
   }
 
   try {
-    const result = await markLearnerPaid({
+    const result = await recordSuccessfulPayment({
       telegram_id: parsed.telegram_id,
       telegram_first_name: `TG:${parsed.telegram_id}`,
-      payment_amount_uah: norm.amount_uah,
-      payment_provider: wayforpay.NOCODB_PROVIDER_VALUE,
-      transaction_id: norm.transaction_id,
-      reference: norm.reference,
+      course_slug: parsed.course_slug,
+      provider: 'wayforpay',
+      invoice_id: norm.transaction_id,
+      order_reference: norm.reference,
+      amount_uah: norm.amount_uah,
+      webhook_payload: payload,
     });
     return sendWfpAck(res, norm.reference, {
       accepted: true,
+      alreadyRecorded: result.alreadyRecorded,
       created: result.created,
-      alreadyPaid: result.alreadyPaid,
-      uuid: result.learner?.uuid || null,
+      learner_uuid: result.learner?.uuid || null,
+      enrollment_uuid: result.enrollment?.uuid || null,
+      payment_id: result.payment?.Id || null,
     });
   } catch (e) {
-    console.error('[webhook/wayforpay] markLearnerPaid error:', e);
-    // Don't ACK — let WFP retry so we get another chance if NocoDB is transiently down.
+    console.error('[webhook/wayforpay] recordSuccessfulPayment error:', e);
+    // Don't ACK — let WFP retry so we can catch transient NocoDB failures.
     return fail(res, 500, 'nocodb error', String(e.message || e));
   }
 }
 
-// ============================================================================
-// Dispatcher
-// ============================================================================
-const HANDLERS = {
-  monobank: handleMonobank,
-  wayforpay: handleWayforpay,
-};
+const HANDLERS = { monobank: handleMonobank, wayforpay: handleWayforpay };
 
 module.exports = async (req, res) => {
   if (handleOptions(req, res)) return;
@@ -133,9 +134,7 @@ module.exports = async (req, res) => {
 
   const provider = (req.query && req.query.provider || '').toLowerCase();
   const handler = HANDLERS[provider];
-  if (!handler) {
-    return fail(res, 404, `unknown payment provider '${provider}' (valid: ${Object.keys(HANDLERS).join(', ')})`);
-  }
+  if (!handler) return fail(res, 404, `unknown payment provider '${provider}' (valid: ${Object.keys(HANDLERS).join(', ')})`);
 
   let payload;
   try { payload = await readBody(req); } catch { return fail(res, 400, 'invalid JSON body'); }

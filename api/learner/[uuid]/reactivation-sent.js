@@ -1,14 +1,9 @@
 // POST /api/learner/:uuid/reactivation-sent
-// Дублікат `reminder-sent?kind=reactivation` для явного bot use.
-// Bot викликає після успішного надсилання reactivation-повідомлення.
+// Bot alias for reminder-sent?kind=reactivation. Kept for backward-compat
+// with a bot version that already calls this path.
 const {
-  handleOptions,
-  ok,
-  fail,
-  getLearnerByUuid,
-  updateLearner,
-  nowIso,
-  requireBearer,
+  handleOptions, ok, fail,
+  getEnrollmentByUuid, updateEnrollment, nowIso, requireBearer,
 } = require('../../_lib');
 
 module.exports = async (req, res) => {
@@ -20,11 +15,11 @@ module.exports = async (req, res) => {
   if (!uuid) return fail(res, 400, 'missing uuid');
 
   try {
-    const rec = await getLearnerByUuid(uuid);
-    if (!rec) return fail(res, 404, 'learner not found');
+    const enrollment = await getEnrollmentByUuid(uuid);
+    if (!enrollment) return fail(res, 404, 'learner not found');
     const now = nowIso();
-    await updateLearner(rec.Id, { reactivation_sent_at: now });
-    return ok(res, { uuid: rec.uuid, reactivation_sent_at: now });
+    await updateEnrollment(enrollment.Id, { reactivation_sent_at: now });
+    return ok(res, { uuid: enrollment.uuid, reactivation_sent_at: now });
   } catch (e) {
     console.error('POST /api/learner/:uuid/reactivation-sent error:', e);
     return fail(res, 500, 'upstream error', String(e.message || e));
