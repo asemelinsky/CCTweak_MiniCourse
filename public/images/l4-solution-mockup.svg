@@ -21,7 +21,7 @@
 
   <!-- ============================================== -->
   <!-- OUTER: 🔁 повторити N разів                    -->
-  <!-- Категорія «Цикли» hue=290 → пурпуровий         -->
+  <!-- controls_repeat_ext hue=120 (BKY_LOOPS_HUE) → зелений (той самий що motion turtle_*)         -->
   <!-- ============================================== -->
   <g filter="url(#dropShadow)">
     <path d="
@@ -34,17 +34,17 @@
       L 480,420
       L 94,420 L 88,414 L 68,414 L 62,420 L 40,420
       Z
-    " fill="#8B5BA5" stroke="#5B3A6E" stroke-width="1.5" stroke-linejoin="round"/>
+    " fill="#5BA55B" stroke="#3D7A3D" stroke-width="1.5" stroke-linejoin="round"/>
 
     <!-- header text -->
     <text x="120" y="103" font-size="16" font-weight="600" fill="white">🔁  повторити</text>
     <!-- number input -->
-    <rect x="252" y="86" width="46" height="26" rx="4" fill="white" stroke="#5B3A6E"/>
+    <rect x="252" y="86" width="46" height="26" rx="4" fill="white" stroke="#3D7A3D"/>
     <text x="275" y="104" text-anchor="middle" font-size="15" font-weight="600" fill="#2b3238">5</text>
     <text x="315" y="103" font-size="16" font-weight="600" fill="white">разів</text>
 
     <!-- footer text (nice touch) -->
-    <text x="120" y="405" font-size="12" fill="#EAD7F0" font-style="italic">↑ Мо робить цей блок 5 разів підряд</text>
+    <text x="120" y="405" font-size="12" fill="#DDF0DD" font-style="italic">↑ Мо робить цей блок 5 разів підряд</text>
   </g>
 
   <!-- ============================================== -->
@@ -116,7 +116,7 @@
 
   <!-- Bottom legend -->
   <g transform="translate(40, 430)">
-    <rect x="0" y="0" width="10" height="10" fill="#8B5BA5"/>
+    <rect x="0" y="0" width="10" height="10" fill="#5BA55B"/>
     <text x="16" y="9" font-size="10" fill="#5a6472">цикл</text>
     <rect x="60" y="0" width="10" height="10" fill="#4A6CB3"/>
     <text x="76" y="9" font-size="10" fill="#5a6472">якщо/то/інакше</text>

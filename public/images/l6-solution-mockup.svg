@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 260" font-family="'Trebuchet MS', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <pattern id="dots-l6" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#d8dde0"/>
+    </pattern>
+    <filter id="dropShadow-l6" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.2" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <rect width="480" height="260" fill="#f6f7f8"/>
+  <rect width="480" height="260" fill="url(#dots-l6)"/>
+
+  <!-- Title -->
+  <text x="240" y="28" text-anchor="middle" font-size="15" font-weight="700" fill="#2b3238">
+    Ось як має виглядати твоя програма 👇
+  </text>
+  <text x="240" y="48" text-anchor="middle" font-size="12" fill="#5a6472">
+    Усього 2 блоки: один «поки» + один «вниз» всередині
+  </text>
+
+  <!-- ============================================== -->
+  <!-- OUTER: 🔁 поки я ще не на алмазі, роби:        -->
+  <!-- Custom block loop_while_not_diamond, hue 290    -->
+  <!-- (пурпуровий — на відміну від native repeat)     -->
+  <!-- ============================================== -->
+  <g filter="url(#dropShadow-l6)">
+    <path d="
+      M 60,90
+      L 60,82 L 82,82 L 88,88 L 108,88 L 114,82 L 420,82
+      L 420,134
+      L 120,134
+      L 120,180
+      L 420,180
+      L 420,222
+      L 114,222 L 108,216 L 88,216 L 82,222 L 60,222
+      Z
+    " fill="#8B5BA5" stroke="#5B3A6E" stroke-width="1.5" stroke-linejoin="round"/>
+
+    <!-- header text — довший ніж у інших циклах -->
+    <text x="140" y="113" font-size="15" font-weight="600" fill="white">🔁  поки я ще не на алмазі, роби:</text>
+  </g>
+
+  <!-- ============================================== -->
+  <!-- Inner: ⬇️ вниз                                  -->
+  <!-- ============================================== -->
+  <g filter="url(#dropShadow-l6)">
+    <path d="
+      M 120,150
+      L 120,142 L 142,142 L 148,148 L 168,148 L 174,142 L 340,142
+      L 340,175
+      L 174,175 L 168,181 L 148,181 L 142,175 L 120,175
+      Z
+    " fill="#4AA05C" stroke="#2E6837" stroke-width="1.5" stroke-linejoin="round"/>
+    <text x="200" y="164" font-size="16" font-weight="600" fill="white">⬇️  вниз</text>
+  </g>
+
+  <!-- Bottom legend -->
+  <g transform="translate(60, 240)">
+    <rect x="0" y="0" width="10" height="10" fill="#8B5BA5"/>
+    <text x="16" y="9" font-size="11" fill="#5a6472">поки-цикл (новий блок L6)</text>
+    <rect x="180" y="0" width="10" height="10" fill="#4AA05C"/>
+    <text x="196" y="9" font-size="11" fill="#5a6472">рух</text>
+  </g>
+</svg>

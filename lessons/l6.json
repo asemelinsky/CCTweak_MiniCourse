@@ -103,12 +103,13 @@
       "id": "guided-build",
       "type": "speech-bubble",
       "character": "mo",
-      "text": "Твоя черга! Сотри всі блоки. Постав:\n\n🔁 поки я ще не на алмазі, роби:\n  ↳ ⬇️ вниз\n\nВсього 2 блоки! Один \"поки\" + один \"вниз\" всередині.",
+      "text": "Твоя черга! Сотри всі блоки і збери таку програму 👇\n\nУсього 2 блоки: «поки я ще не на алмазі» + «вниз» всередині.",
       "animation": "jump",
       "advance": {
         "type": "click-next",
         "label": "Роблю"
-      }
+      },
+      "reference_image": "public/images/l6-solution-mockup.svg"
     },
     {
       "id": "task-run",

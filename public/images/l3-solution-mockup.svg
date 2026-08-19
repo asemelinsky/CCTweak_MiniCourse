@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" font-family="'Trebuchet MS', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <pattern id="dots-l3" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#d8dde0"/>
+    </pattern>
+    <filter id="dropShadow-l3" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.2" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <rect width="480" height="300" fill="#f6f7f8"/>
+  <rect width="480" height="300" fill="url(#dots-l3)"/>
+
+  <!-- Title / caption -->
+  <text x="240" y="28" text-anchor="middle" font-size="15" font-weight="700" fill="#2b3238">
+    Ось як виглядає ОДИН цикл 👇
+  </text>
+  <text x="240" y="48" text-anchor="middle" font-size="12" fill="#5a6472">
+    Тобі треба скласти 3 таких — з різними числами і напрямками
+  </text>
+
+  <!-- ============================================== -->
+  <!-- OUTER: 🔁 повторити 3 разів (loops green hue 120) -->
+  <!-- Simple C-shape wrapping one motion block         -->
+  <!-- ============================================== -->
+  <g filter="url(#dropShadow-l3)">
+    <path d="
+      M 100,90
+      L 100,82 L 122,82 L 128,88 L 148,88 L 154,82 L 400,82
+      L 400,134
+      L 160,134
+      L 160,180
+      L 400,180
+      L 400,222
+      L 154,222 L 148,216 L 128,216 L 122,222 L 100,222
+      Z
+    " fill="#5BA55B" stroke="#3D7A3D" stroke-width="1.5" stroke-linejoin="round"/>
+
+    <!-- header text -->
+    <text x="180" y="113" font-size="16" font-weight="600" fill="white">🔁  повторити</text>
+    <!-- number input -->
+    <rect x="312" y="96" width="42" height="26" rx="4" fill="white" stroke="#2E6837"/>
+    <text x="333" y="114" text-anchor="middle" font-size="15" font-weight="600" fill="#2b3238">3</text>
+    <text x="360" y="113" font-size="16" font-weight="600" fill="white">разів</text>
+  </g>
+
+  <!-- ============================================== -->
+  <!-- Inner: ⬇️ вниз                                  -->
+  <!-- ============================================== -->
+  <g filter="url(#dropShadow-l3)">
+    <path d="
+      M 160,150
+      L 160,142 L 182,142 L 188,148 L 208,148 L 214,142 L 340,142
+      L 340,175
+      L 214,175 L 208,181 L 188,181 L 182,175 L 160,175
+      Z
+    " fill="#4AA05C" stroke="#2E6837" stroke-width="1.5" stroke-linejoin="round"/>
+    <text x="240" y="164" font-size="16" font-weight="600" fill="white">⬇️  вниз</text>
+  </g>
+
+  <!-- ============================================== -->
+  <!-- «Ще цикл» hint — 2 outlined placeholder boxes below -->
+  <!-- ============================================== -->
+  <g transform="translate(100, 240)">
+    <!-- Ghost cycle 1 -->
+    <rect x="0" y="0" width="130" height="26" rx="4"
+          fill="#f0f0f0" stroke="#a0a0a0" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <text x="65" y="18" text-anchor="middle" font-size="12" fill="#7a7a7a" font-style="italic">
+      ще цикл
+    </text>
+
+    <!-- + arrow -->
+    <text x="145" y="20" font-size="14" fill="#7a7a7a">+</text>
+
+    <!-- Ghost cycle 2 -->
+    <rect x="160" y="0" width="130" height="26" rx="4"
+          fill="#f0f0f0" stroke="#a0a0a0" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <text x="225" y="18" text-anchor="middle" font-size="12" fill="#7a7a7a" font-style="italic">
+      ще цикл
+    </text>
+  </g>
+
+  <!-- Bottom hint text -->
+  <text x="240" y="285" text-anchor="middle" font-size="11" fill="#5a6472" font-style="italic">
+    Числа і напрямки — див. інструкцію вище
+  </text>
+</svg>
