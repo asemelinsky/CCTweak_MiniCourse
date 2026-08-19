@@ -5,7 +5,7 @@
     {
       "id": "intro-video",
       "type": "video-overlay",
-      "src": "public/videos/l4/l4-intro-olexii.mp4",
+      "src": "public/videos/l4/l4-intro-olexii.mp4?v=1",
       "shape": "circle",
       "fallback_text": "🎬 Скоро тут буде відео від Олексія — про Ender Dragon-а що зачарував тунель. Поки що просто натисни «Далі».",
       "advance": {
@@ -134,7 +134,7 @@
     {
       "id": "outro-video",
       "type": "video-overlay",
-      "src": "public/videos/l4/l4-outro-olexii.mp4",
+      "src": "public/videos/l4/l4-outro-olexii.mp4?v=1",
       "shape": "circle",
       "fallback_text": "🎬 Скоро тут буде відео від Олексія — про перемогу над Ender Dragon і тизер L5.",
       "advance": {

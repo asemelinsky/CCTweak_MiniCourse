@@ -5,7 +5,7 @@
     {
       "id": "intro-video",
       "type": "video-overlay",
-      "src": "public/videos/l1/l1-intro-olexii.mp4",
+      "src": "public/videos/l1/l1-intro-olexii.mp4?v=1",
       "shape": "circle",
       "fallback_text": "🎬 Скоро тут буде відео від Олексія — про знайомство з Мо. Поки що просто натисни «Далі».",
       "advance": {
@@ -101,7 +101,7 @@
     {
       "id": "outro-video",
       "type": "video-overlay",
-      "src": "public/videos/l1/l1-outro-olexii.mp4",
+      "src": "public/videos/l1/l1-outro-olexii.mp4?v=1",
       "shape": "circle",
       "fallback_text": "🎬 Скоро тут буде відео від Олексія — про твої успіхи і що чекає далі.",
       "advance": {
