@@ -3,6 +3,17 @@
   "title": "Знайомство з Мо",
   "beats": [
     {
+      "id": "intro-video",
+      "type": "video-overlay",
+      "src": "public/videos/l1/l1-intro-olexii.mp4",
+      "shape": "circle",
+      "fallback_text": "🎬 Скоро тут буде відео від Олексія — про знайомство з Мо. Поки що просто натисни «Далі».",
+      "advance": {
+        "type": "click-next",
+        "label": "Знайомство з Мо →"
+      }
+    },
+    {
       "id": "intro-1",
       "type": "speech-bubble",
       "character": "mo",
