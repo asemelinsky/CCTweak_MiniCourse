@@ -48,6 +48,18 @@ const SpeechBubble = (function() {
     content.appendChild(text);
     el.appendChild(content);
 
+    // LB-001: reference image під текстом (для beat'ів де візуальний приклад
+    // важливіший ніж описом-текстом — напр. L4 guided-build «збери таку програму»).
+    // Optional field beat.reference_image = path до SVG/PNG у public/images/.
+    // Bubble автоматично росте у висоту, image стискається max-width відповідно.
+    if (beat.reference_image) {
+      const img = document.createElement('img');
+      img.className = 'lesson-speech-bubble__reference';
+      img.src = beat.reference_image;
+      img.alt = 'Приклад — так має виглядати результат';
+      el.appendChild(img);
+    }
+
     // Кнопка «Далі», якщо advance = click-next
     if (beat.advance && beat.advance.type === 'click-next') {
       const btn = document.createElement('button');

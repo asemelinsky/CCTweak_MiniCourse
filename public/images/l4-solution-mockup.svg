@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 460" font-family="'Trebuchet MS', 'Helvetica Neue', Arial, sans-serif">
+  <!-- Workspace background — light Blockly grid feel -->
+  <defs>
+    <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#d8dde0"/>
+    </pattern>
+    <filter id="dropShadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.2" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <rect width="560" height="460" fill="#f6f7f8"/>
+  <rect width="560" height="460" fill="url(#dots)"/>
+
+  <!-- Title / caption -->
+  <text x="280" y="30" text-anchor="middle" font-size="16" font-weight="700" fill="#2b3238">
+    Ось як має виглядати твоя програма
+  </text>
+  <text x="280" y="50" text-anchor="middle" font-size="12" fill="#5a6472">
+    Скопіюй цю структуру — Мо буде йти сама, куди треба
+  </text>
+
+  <!-- ============================================== -->
+  <!-- OUTER: 🔁 повторити N разів                    -->
+  <!-- Категорія «Цикли» hue=290 → пурпуровий         -->
+  <!-- ============================================== -->
+  <g filter="url(#dropShadow)">
+    <path d="
+      M 40,80
+      L 40,72 L 62,72 L 68,78 L 88,78 L 94,72 L 480,72
+      L 480,124
+      L 100,124
+      L 100,378
+      L 480,378
+      L 480,420
+      L 94,420 L 88,414 L 68,414 L 62,420 L 40,420
+      Z
+    " fill="#8B5BA5" stroke="#5B3A6E" stroke-width="1.5" stroke-linejoin="round"/>
+
+    <!-- header text -->
+    <text x="120" y="103" font-size="16" font-weight="600" fill="white">🔁  повторити</text>
+    <!-- number input -->
+    <rect x="252" y="86" width="46" height="26" rx="4" fill="white" stroke="#5B3A6E"/>
+    <text x="275" y="104" text-anchor="middle" font-size="15" font-weight="600" fill="#2b3238">5</text>
+    <text x="315" y="103" font-size="16" font-weight="600" fill="white">разів</text>
+
+    <!-- footer text (nice touch) -->
+    <text x="120" y="405" font-size="12" fill="#EAD7F0" font-style="italic">↑ Мо робить цей блок 5 разів підряд</text>
+  </g>
+
+  <!-- ============================================== -->
+  <!-- INNER: condition_if_else (logic, blue)        -->
+  <!-- Two C-slots inside (THEN / ELSE)              -->
+  <!-- ============================================== -->
+  <g filter="url(#dropShadow)">
+    <path d="
+      M 120,150
+      L 120,142 L 142,142 L 148,148 L 168,148 L 174,142 L 460,142
+      L 460,180
+      L 180,180
+      L 180,232
+      L 460,232
+      L 460,268
+      L 180,268
+      L 180,320
+      L 460,320
+      L 460,358
+      L 174,358 L 168,352 L 148,352 L 142,358 L 120,358
+      Z
+    " fill="#4A6CB3" stroke="#2E4778" stroke-width="1.5" stroke-linejoin="round"/>
+
+    <!-- "якщо" -->
+    <text x="200" y="171" font-size="15" font-weight="600" fill="white">якщо</text>
+
+    <!-- Sensor hexagon plugged into COND slot -->
+    <g filter="url(#dropShadow)">
+      <path d="M 250,154 L 260,148 L 400,148 L 410,154 L 410,168 L 400,174 L 260,174 L 250,168 Z"
+            fill="#4AA6B3" stroke="#2E777E" stroke-width="1.5"/>
+      <text x="330" y="167" text-anchor="middle" font-size="14" font-weight="600" fill="white">🔍  стіна попереду?</text>
+    </g>
+
+    <text x="420" y="171" font-size="15" font-weight="600" fill="white">то</text>
+
+    <!-- "інакше" label between the two statement slots -->
+    <text x="200" y="292" font-size="15" font-weight="600" fill="white">інакше</text>
+  </g>
+
+  <!-- ============================================== -->
+  <!-- THEN slot: ⬇️ вниз                             -->
+  <!-- ============================================== -->
+  <g filter="url(#dropShadow)">
+    <path d="
+      M 180,195
+      L 180,188 L 202,188 L 208,194 L 228,194 L 234,188 L 380,188
+      L 380,225
+      L 234,225 L 228,231 L 208,231 L 202,225 L 180,225
+      Z
+    " fill="#4AA05C" stroke="#2E6837" stroke-width="1.5" stroke-linejoin="round"/>
+    <text x="260" y="212" font-size="16" font-weight="600" fill="white">⬇️  вниз</text>
+    <text x="395" y="212" font-size="11" fill="#3d5c47" font-style="italic">← коли стіна попереду</text>
+  </g>
+
+  <!-- ============================================== -->
+  <!-- ELSE slot: ➡️ вперед                            -->
+  <!-- ============================================== -->
+  <g filter="url(#dropShadow)">
+    <path d="
+      M 180,283
+      L 180,276 L 202,276 L 208,282 L 228,282 L 234,276 L 380,276
+      L 380,313
+      L 234,313 L 228,319 L 208,319 L 202,313 L 180,313
+      Z
+    " fill="#4AA05C" stroke="#2E6837" stroke-width="1.5" stroke-linejoin="round"/>
+    <text x="260" y="300" font-size="16" font-weight="600" fill="white">➡️  вперед</text>
+    <text x="395" y="300" font-size="11" fill="#3d5c47" font-style="italic">← коли стіни немає</text>
+  </g>
+
+  <!-- Bottom legend -->
+  <g transform="translate(40, 430)">
+    <rect x="0" y="0" width="10" height="10" fill="#8B5BA5"/>
+    <text x="16" y="9" font-size="10" fill="#5a6472">цикл</text>
+    <rect x="60" y="0" width="10" height="10" fill="#4A6CB3"/>
+    <text x="76" y="9" font-size="10" fill="#5a6472">якщо/то/інакше</text>
+    <rect x="180" y="0" width="10" height="10" fill="#4AA6B3"/>
+    <text x="196" y="9" font-size="10" fill="#5a6472">сенсор</text>
+    <rect x="248" y="0" width="10" height="10" fill="#4AA05C"/>
+    <text x="264" y="9" font-size="10" fill="#5a6472">рух</text>
+  </g>
+</svg>

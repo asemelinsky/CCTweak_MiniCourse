@@ -122,6 +122,21 @@
   transform: scale(0.97);
 }
 
+/* LB-001: reference image під текстом (напр. L4 canonical solution mockup).
+   Bubble сам розширюється у висоту, image — responsive.
+   На mobile ще звужується у style-mobile.css. */
+.lesson-speech-bubble__reference {
+  display: block;
+  margin: 12px auto 4px;
+  max-width: 400px;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #d8dde0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  background: #f6f7f8;
+}
+
 /* Анімації персонажа */
 
 .lesson-anim-wiggle {

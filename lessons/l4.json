@@ -93,12 +93,13 @@
       "id": "guided-build",
       "type": "speech-bubble",
       "character": "mo",
-      "text": "Твоя черга! Сотри всі блоки. Постав:\n\n🔁 повторити 8 разів\n  ↳ якщо 🔍 стіна_попереду то\n     ↳ ⬇️ вниз\n  ↳ інакше\n     ↳ ➡️ вперед\n\nSensor вставляй у ПЕРШИЙ роз'єм «якщо» — там де умова.",
+      "text": "Твоя черга! Сотри всі блоки і збери таку програму 👇\n\nSensor 🔍 вставляй у ПЕРШИЙ роз'єм «якщо» — там де умова.",
       "animation": "wiggle",
       "advance": {
         "type": "click-next",
         "label": "Роблю"
-      }
+      },
+      "reference_image": "public/images/l4-solution-mockup.svg"
     },
     {
       "id": "task-run",
