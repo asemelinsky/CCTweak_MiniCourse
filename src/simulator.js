@@ -788,13 +788,15 @@ function showFinalResult() {
     [Result.TIMEOUT]: 'TIMEOUT',
   }[lastResult] || 'UNKNOWN';
 
+  // endX/endY — позиція turtle де вона зупинилась (crash location для FAILURE/CRASH,
+  // diamond для SUCCESS). Потрібно для `sim-forward-progress` у lesson-engine.
   if (lastResult === Result.SUCCESS) {
     document.dispatchEvent(new CustomEvent('lesson-task-solved', {
-      detail: { result: resultName }
+      detail: { result: resultName, endX: turtleX, endY: turtleY }
     }));
   } else {
     document.dispatchEvent(new CustomEvent('lesson-task-failed', {
-      detail: { result: resultName }
+      detail: { result: resultName, endX: turtleX, endY: turtleY }
     }));
   }
 

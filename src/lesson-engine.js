@@ -11,10 +11,19 @@
  *  - final-modal    → показує modal після проходження уроку
  *
  * Підтримувані advance-типи:
- *  - click-next     → чекає натискання «Далі» / label кнопки з beat.advance.label
- *  - block-added    → чекає що у workspace з'явиться блок типу block_type
- *  - run-clicked    → чекає що натиснуто ▶ Запустити
- *  - task-solved    → чекає що lastResult === SUCCESS у simulator
+ *  - click-next          → чекає натискання «Далі» / label кнопки з beat.advance.label
+ *  - block-added         → чекає що у workspace з'явиться блок типу block_type
+ *  - block-count-reached → чекає N+ блоків типу X (frustration hook, L3)
+ *  - run-clicked         → чекає що натиснуто ▶ Запустити (БЕЗ валідації результату)
+ *  - task-solved         → чекає що lastResult === SUCCESS у simulator
+ *  - sim-forward-progress → advance якщо end position симуляції ДАЛІ ніж у попередньому
+ *                           запуску (LB-003 fix — для L5 debug-flow і майбутніх
+ *                           debug-задач з catalog §11.6). Metric: manhattan distance
+ *                           від startPos. Перший ever run у beat → зберігаємо як реф,
+ *                           не advance'ним; другий run далі — advance.
+ *  - sim-progress-past-x → advance якщо endX >= beat.advance.threshold (варіант з
+ *                           явним target'ом для випадків «дитина має дійти хоча б
+ *                           до col N щоб я вважав це прогресом»).
  *
  * Використання:
  *   LessonEngine.load('lessons/l1.json').then(engine => engine.start());
@@ -27,6 +36,13 @@ const LessonEngine = (function() {
   let currentLesson = null;
   let currentBeatIdx = 0;
   let listeners = [];  // активні event listeners для поточного beat
+
+  // LB-003: state для sim-forward-progress advance type.
+  // Тримає manhattan distance від startPos для попереднього завершеного
+  // запуску симуляції (у поточному beat). null = ще не було референсу.
+  // Скидається при вхід у кожен beat що використовує sim-forward-progress
+  // (див. setupAdvanceListener).
+  let lastRunProgressDist = null;
 
   //////////////////////////////////////////////////////////////////////
   // Публічне API
@@ -46,6 +62,7 @@ const LessonEngine = (function() {
     console.log(`[LessonEngine] Старт уроку: ${lesson.id} — «${lesson.title}»`);
     currentLesson = lesson;
     currentBeatIdx = 0;
+    lastRunProgressDist = null;  // LB-003: скидаємо cross-beat progress state
 
     // Preload workspace якщо lesson має initial_workspace_xml (для L5 debug —
     // learn бачить broken code на старті і мусить його виправити).
@@ -153,6 +170,70 @@ const LessonEngine = (function() {
 
       case 'task-solved':
         addListener(document, 'lesson-task-solved', () => advance());
+        break;
+
+      case 'sim-forward-progress':
+        // LB-003: advance ТІЛЬКИ якщо end position симуляції має більший manhattan
+        // distance від startPos, ніж останній run який був у lesson.
+        // Skipping same-position или regressed runs (без цього — на клік ▶ без
+        // жодних змін advance спрацював би, що і є bug LB-003).
+        //
+        // State cross-beat: `lastRunProgressDist` не скидається при вхід у beat.
+        // Якщо null (перший sim-forward-progress ever у lesson) → перший run встановлює
+        // референс, не advance. Reset відбувається тільки у start(lesson).
+        //
+        // Cross-beat flow (L5): beat 4 (run-clicked) → sim завершилась, beat 5 вже
+        // active з нашим listener'ом → отримує event, встановлює референс.
+        // User виправляє bug → run → dist > ref → advance + update ref.
+        // beat 6 setup → user run → dist > ref → advance + update ref. І так далі.
+        const onProgress = (event) => {
+          const { endX, endY } = event.detail || {};
+          const start = window.startPos;
+          if (start == null || endX == null || endY == null) {
+            console.warn('[LessonEngine] sim-forward-progress: no startPos or end coords, fallback advance');
+            advance();
+            return;
+          }
+          const dist = Math.abs(endX - start.x) + Math.abs(endY - start.y);
+          if (lastRunProgressDist === null) {
+            // Перший run — це референс. Дитина ще нічого не виправила, просто побачила initial state.
+            console.log(`[LessonEngine] sim-forward-progress: reference set at dist=${dist}, waiting for progress`);
+            lastRunProgressDist = dist;
+            return;
+          }
+          if (dist > lastRunProgressDist) {
+            console.log(`[LessonEngine] sim-forward-progress: progress! ${lastRunProgressDist} → ${dist}, advance`);
+            lastRunProgressDist = dist;  // оновити реф для наступного beat
+            advance();
+          } else {
+            console.log(`[LessonEngine] sim-forward-progress: no progress (${dist} <= ${lastRunProgressDist}), waiting`);
+          }
+        };
+        addListener(document, 'lesson-task-solved', onProgress);
+        addListener(document, 'lesson-task-failed', onProgress);
+        break;
+
+      case 'sim-progress-past-x':
+        // Варіант з явним target'ом. Advance якщо end position endX >= threshold.
+        // Простіший ніж forward-progress коли треба конкретний checkpoint.
+        const threshold = adv.threshold;
+        if (typeof threshold !== 'number') {
+          console.warn('[LessonEngine] sim-progress-past-x: missing numeric threshold, fallback advance');
+          addListener(document, 'lesson-task-solved', () => advance());
+          addListener(document, 'lesson-task-failed', () => advance());
+          break;
+        }
+        const onPastX = (event) => {
+          const { endX } = event.detail || {};
+          if (typeof endX === 'number' && endX >= threshold) {
+            console.log(`[LessonEngine] sim-progress-past-x: endX=${endX} >= ${threshold}, advance`);
+            advance();
+          } else {
+            console.log(`[LessonEngine] sim-progress-past-x: endX=${endX} < ${threshold}, waiting`);
+          }
+        };
+        addListener(document, 'lesson-task-solved', onPastX);
+        addListener(document, 'lesson-task-failed', onPastX);
         break;
 
       default:
