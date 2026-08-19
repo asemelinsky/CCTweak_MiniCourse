@@ -107,6 +107,90 @@ async function updateLearner(id, patch) {
   });
 }
 
+// -------- Payment helper --------
+
+// Idempotent mark-paid: creates a learner row if none exists for the given
+// telegram_id, otherwise no-ops if already paid, otherwise fills payment
+// fields on the existing row. Returns { learner, created, alreadyPaid }.
+//
+// Used by /api/webhook/monobank + /api/webhook/wayforpay. Safe to call twice
+// with the same webhook payload — the second call detects paid_at and no-ops.
+async function markLearnerPaid({
+  telegram_id,
+  telegram_first_name = null,
+  telegram_username = null,
+  child_name = null,
+  child_age = null,
+  payment_amount_uah,
+  payment_provider,
+  transaction_id = null,
+  reference = null,
+}) {
+  if (!telegram_id || !Number.isFinite(+telegram_id)) {
+    throw new Error('telegram_id required (number)');
+  }
+  if (!payment_amount_uah || !Number.isFinite(+payment_amount_uah)) {
+    throw new Error('payment_amount_uah required (number)');
+  }
+  if (!payment_provider) throw new Error('payment_provider required');
+
+  const now = nowIso();
+  const auditLine = `[${now}] paid via ${payment_provider}` +
+    (transaction_id ? ` txn=${transaction_id}` : '') +
+    (reference ? ` ref=${reference}` : '');
+
+  const existing = await getLearnerByTelegramId(+telegram_id);
+  if (existing) {
+    // Idempotency check: same transaction_id in notes → skip
+    if (transaction_id && String(existing.notes || '').includes(`txn=${transaction_id}`)) {
+      return { learner: existing, created: false, alreadyPaid: true };
+    }
+    if (existing.paid_at) {
+      // Learner already marked paid earlier; append audit line but skip other fields
+      const patch = {
+        notes: [existing.notes || '', auditLine].filter(Boolean).join('\n'),
+      };
+      await updateLearner(existing.Id, patch);
+      return { learner: existing, created: false, alreadyPaid: true };
+    }
+    // Existing lead (e.g. bot /start) — fill payment fields now.
+    const patch = {
+      paid_at: now,
+      payment_amount_uah: +payment_amount_uah,
+      payment_provider,
+      last_activity_at: now,
+      notes: [existing.notes || '', auditLine].filter(Boolean).join('\n'),
+    };
+    await updateLearner(existing.Id, patch);
+    return { learner: { ...existing, ...patch }, created: false, alreadyPaid: false };
+  }
+
+  // Fresh learner: create with course-start defaults.
+  const uuid = generateUuid();
+  const row = {
+    uuid,
+    telegram_id: +telegram_id,
+    telegram_username,
+    telegram_first_name: telegram_first_name || 'Unknown',
+    child_name,
+    child_age: child_age === null ? null : +child_age || null,
+    paid_at: now,
+    payment_amount_uah: +payment_amount_uah,
+    payment_provider,
+    current_lesson: 'l2',
+    current_beat_index: 0,
+    completed_lessons: JSON.stringify(['l1']),
+    attempts_per_lesson: '{}',
+    time_spent_min: '{}',
+    last_activity_at: now,
+    upsell_clicked: false,
+    created_at: now,
+    notes: auditLine,
+  };
+  const inserted = await insertLearner(row);
+  return { learner: { ...row, ...inserted }, created: true, alreadyPaid: false };
+}
+
 // -------- Utilities --------
 
 // Generate uuid in format `abcd-1234-efgh` (12 alphanum chars in 3 groups).
@@ -200,6 +284,7 @@ module.exports = {
   getLearnerByTelegramId,
   insertLearner,
   updateLearner,
+  markLearnerPaid,
   generateUuid,
   parseJson,
   nowIso,
