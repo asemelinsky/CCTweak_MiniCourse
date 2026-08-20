@@ -588,6 +588,122 @@ const LessonEngine = (function() {
   let lastHintText = null;
   let lastHintTime = 0;
 
+  //////////////////////////////////////////////////////////////////////
+  // LB-018: adaptive hint dispatcher
+  //////////////////////////////////////////////////////////////////////
+
+  /**
+   * Обирає який hint показати після невдалого run.
+   *
+   * Пріоритет:
+   *   1) beat.hints[] — масив умовних hints (нове API). Перебираємо по порядку,
+   *      перший `when` match виграє. `fallback:true` записи пропускаємо у першому
+   *      проході, беремо як default якщо жодна умова не match.
+   *   2) Backward compat — старі beat.hint_on_crash / hint_on_failure / hint_on_timeout.
+   *   3) Hard-coded TIMEOUT fallback (щоб не було мовчання коли учень зациклився).
+   *
+   * @param {object} beat  — поточний lesson beat
+   * @param {Blockly.Workspace} workspace — window.workspace (може бути undefined)
+   * @param {object} eventDetail — {result, endX, endY, crash_type, bounces_count}
+   * @returns {string|null} текст hint або null (нічого не показувати)
+   */
+  function resolveHint(beat, workspace, eventDetail) {
+    // 1) Adaptive hints array
+    if (Array.isArray(beat.hints) && beat.hints.length > 0) {
+      for (const hint of beat.hints) {
+        if (hint.fallback === true) continue;
+        if (evaluateHintCondition(hint.when, workspace, eventDetail)) {
+          return hint.text;
+        }
+      }
+      const fallback = beat.hints.find(h => h.fallback === true);
+      if (fallback) return fallback.text;
+    }
+
+    // 2) Backward compat — старі hint_on_* fields
+    const result = eventDetail && eventDetail.result;
+    if (result === 'CRASH' && beat.hint_on_crash) return beat.hint_on_crash;
+    if (result === 'FAILURE' && beat.hint_on_failure) return beat.hint_on_failure;
+    if (result === 'TIMEOUT' && beat.hint_on_timeout) return beat.hint_on_timeout;
+
+    // 3) Legacy TIMEOUT fallback — щоб при zaциклюванні учень все одно щось побачив
+    if (result === 'TIMEOUT') return 'Ой, програма надто довго виконується. Може, зациклилась?';
+
+    return null;
+  }
+
+  /**
+   * Перевіряє AND-склад умов `when`. Порожнє / null when → false (не match).
+   * Supported keys:
+   *   - workspace_contains: '<type>'          — блок цього типу є у workspace
+   *   - workspace_lacks:    '<type>'          — блока цього типу немає
+   *   - workspace_contains_all: ['<t1>', ...] — всі перелічені є
+   *   - workspace_contains_any: ['<t1>', ...] — хоча б один є
+   *   - crash_type: 'horizontal'|'vertical'   — тип crash з симулятора
+   *   - bounces_count: N | {min:N, max?:M}    — кількість bounces у run
+   *   - result: 'CRASH'|'FAILURE'|'TIMEOUT'|'SUCCESS' — outcome симуляції
+   */
+  function evaluateHintCondition(when, workspace, eventDetail) {
+    if (!when || typeof when !== 'object') return false;
+    const keys = Object.keys(when);
+    if (keys.length === 0) return false;
+
+    for (const key of keys) {
+      const val = when[key];
+      let ok = false;
+
+      if (key === 'workspace_contains') {
+        ok = workspaceContains(workspace, val);
+      } else if (key === 'workspace_lacks') {
+        ok = !workspaceContains(workspace, val);
+      } else if (key === 'workspace_contains_all') {
+        if (!Array.isArray(val)) {
+          console.warn('[LessonEngine] workspace_contains_all must be array');
+          return false;
+        }
+        ok = val.every(t => workspaceContains(workspace, t));
+      } else if (key === 'workspace_contains_any') {
+        if (!Array.isArray(val)) {
+          console.warn('[LessonEngine] workspace_contains_any must be array');
+          return false;
+        }
+        ok = val.some(t => workspaceContains(workspace, t));
+      } else if (key === 'crash_type') {
+        ok = !!(eventDetail && eventDetail.crash_type === val);
+      } else if (key === 'result') {
+        ok = !!(eventDetail && eventDetail.result === val);
+      } else if (key === 'bounces_count') {
+        const n = (eventDetail && eventDetail.bounces_count) || 0;
+        if (typeof val === 'number') {
+          ok = (n === val);
+        } else if (val && typeof val === 'object') {
+          const minOk = (val.min === undefined) || (n >= val.min);
+          const maxOk = (val.max === undefined) || (n <= val.max);
+          ok = minOk && maxOk;
+        } else {
+          console.warn('[LessonEngine] bounces_count value must be number or {min,max}');
+          return false;
+        }
+      } else {
+        console.warn('[LessonEngine] Unknown hint condition key:', key);
+        return false;
+      }
+
+      if (!ok) return false;   // AND — один false → cond false
+    }
+    return true;
+  }
+
+  /**
+   * True якщо у workspace є хоча б один блок заданого type.
+   * Safe при workspace=null/undefined (return false).
+   */
+  function workspaceContains(workspace, blockType) {
+    if (!workspace) return false;
+    const all = workspace.getAllBlocks(false);
+    return all.some(b => b.type === blockType);
+  }
+
   function setupTask(beat) {
     // Якщо задача вимагає скинути workspace — очищаємо
     if (beat.reset_workspace && window.workspace) {
@@ -607,12 +723,16 @@ const LessonEngine = (function() {
     //      - дитина клікнула ▶ (нова спроба)
     //      - дитина торкнулась Blockly workspace (почала редагувати)
     const failListener = (e) => {
-      const { result } = e.detail;
-      let hint = null;
+      const detail = e.detail || {};
+      const { result } = detail;
+
+      // LB-018 — adaptive hint dispatcher (масив умовних hints з пріоритетом).
+      // Backward compat: якщо beat.hints[] немає — fallback на старі hint_on_* fields.
+      let hint = resolveHint(beat, window.workspace, detail);
       let hintId = null;
-      if (result === 'CRASH')    { hint = beat.hint_on_crash;    hintId = 'hint-crash'; }
-      else if (result === 'FAILURE') { hint = beat.hint_on_failure; hintId = 'hint-failure'; }
-      else if (result === 'TIMEOUT') { hint = 'Ой, програма надто довго виконується. Може, зациклилась?'; hintId = 'hint-timeout'; }
+      if (result === 'CRASH')        hintId = 'hint-crash';
+      else if (result === 'FAILURE') hintId = 'hint-failure';
+      else if (result === 'TIMEOUT') hintId = 'hint-timeout';
 
       if (!hint) return;
 

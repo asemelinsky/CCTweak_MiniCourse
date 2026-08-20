@@ -354,6 +354,14 @@ let wallBehavior = 'crash';                    // 'crash' | 'bounce_vertical'
 let successCondition = 'diamond_reached';      // 'diamond_reached' | 'end_at_diamond'
 let firstBounceInSession = true;               // reset у reset(); use у dispatch
 
+// LB-018 (2026-08-20) — adaptive hint engine інпути:
+//   lastCrashType — 'horizontal' | 'vertical' | null; виставляється у tryMove
+//     перед throw false. Читається у showFinalResult → додається у dispatch detail.
+//   bouncesCount — лічильник bounce у ПОТОЧНОМУ run (reset у reset()).
+//     Тільки для L6 wall_behavior='bounce_vertical'; для інших уроків завжди 0.
+let lastCrashType = null;
+let bouncesCount = 0;
+
 /**
  * Публічне API для lesson-engine — виставити per-lesson поведінку.
  * Викликається з lesson-engine.start(lesson) перед першим Run.
@@ -618,6 +626,7 @@ function tryMove(dx, dy, id, actionName) {
   // Bounds check — навіть у bounce-режимі OOB — це crash (карта скінченна).
   if (nx < 0 || nx >= COLS || ny < 0 || ny >= ROWS) {
     log.push(['crash_' + actionName, id]);
+    lastCrashType = isVertical ? 'vertical' : 'horizontal';   // LB-018
     throw false;
   }
 
@@ -645,6 +654,7 @@ function tryMove(dx, dy, id, actionName) {
       turtleX = bx;
       turtleY = by;
       log.push(['bounce_' + actionName, id]);
+      bouncesCount++;   // LB-018 — per-run лічильник; читається у dispatch detail
 
       // Dispatch bounce event для lesson-engine (Track B слухає, показує bubble
       // при першому bounce у сесії уроку). event.detail.isFirst — прапорець.
@@ -664,6 +674,7 @@ function tryMove(dx, dy, id, actionName) {
     }
     // Horizontal wall або wallBehavior === 'crash' → existing crash logic
     log.push(['crash_' + actionName, id]);
+    lastCrashType = isVertical ? 'vertical' : 'horizontal';   // LB-018
     throw false;
   }
 
@@ -754,6 +765,10 @@ function executeUserCode() {
 
   const code = Blockly.JavaScript.workspaceToCode(workspace);
   log = [];
+
+  // LB-018 — reset per-run adaptive hint інпутів перед новим виконанням.
+  lastCrashType = null;
+  bouncesCount = 0;
 
   const interp = new Interpreter(code, initInterpreter);
   lastResult = Result.UNSET;
@@ -895,13 +910,28 @@ function showFinalResult() {
 
   // endX/endY — позиція turtle де вона зупинилась (crash location для FAILURE/CRASH,
   // diamond для SUCCESS). Потрібно для `sim-forward-progress` у lesson-engine.
+  //
+  // LB-018 — додатково передаємо crash_type ('horizontal'|'vertical'|null) та
+  // bounces_count (кількість bounce у цьому run) для adaptive hint engine.
   if (lastResult === Result.SUCCESS) {
     document.dispatchEvent(new CustomEvent('lesson-task-solved', {
-      detail: { result: resultName, endX: turtleX, endY: turtleY }
+      detail: {
+        result: resultName,
+        endX: turtleX,
+        endY: turtleY,
+        crash_type: lastCrashType,
+        bounces_count: bouncesCount,
+      }
     }));
   } else {
     document.dispatchEvent(new CustomEvent('lesson-task-failed', {
-      detail: { result: resultName, endX: turtleX, endY: turtleY }
+      detail: {
+        result: resultName,
+        endX: turtleX,
+        endY: turtleY,
+        crash_type: lastCrashType,
+        bounces_count: bouncesCount,
+      }
     }));
   }
 
