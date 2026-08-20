@@ -75,28 +75,64 @@ function initApp() {
   // Показуємо ТІЛЬКИ у continuous flow (без ?u= param).
   // Paid flow (з ?u=xxx) — selector повністю прихований, щоб дитина
   // не могла перескакувати уроки минаючи послідовність.
+  // LB-017: Level selector — 3 режими:
+  //   1. Continuous (без ?u=): всі уроки активні, learner переключає як хоче (тестовий)
+  //   2. Paid (?u=<uuid>): fetch learner state → тільки unlocked_lessons активні,
+  //      майбутні — приглушені (disabled). Не hidden — селектор видно, щоб learner
+  //      бачив прогрес.
+  //   3. Admin escape (?u=<uuid>&admin=1): показати всі активні як у continuous —
+  //      для тестування Оlexii'єм як учень але з можливістю переключатись.
   const lessonSelector = document.getElementById('lesson-selector');
   if (lessonSelector) {
-    const isPaidFlow = urlParams.has('u');
-    if (isPaidFlow) {
-      lessonSelector.style.display = 'none';
-      console.log('[main] Lesson selector hidden (paid flow, ?u= detected)');
-    } else {
-      lessonSelector.style.display = '';   // показуємо (скидаємо inline display:none з HTML)
-      lessonSelector.value = lessonId;     // виставляємо поточний як selected
+    const uuid = urlParams.get('u');
+    const isAdmin = urlParams.get('admin') === '1';
+    const isPaidFlow = uuid && !isAdmin;
+
+    // Handler для change — універсальний (використовується у всіх режимах)
+    const setupChangeHandler = () => {
       lessonSelector.addEventListener('change', (e) => {
         const target = e.target.value;
-        // Формуємо new URL: зберігаємо всі поточні URL params, крім ?u= (тільки на всяк випадок).
-        // Оновлюємо або додаємо ?lesson=<N>. N — номер (1..7), не lessonId ('l1'..'l7').
         const newParams = new URLSearchParams(window.location.search);
-        newParams.delete('u');
-        // target = 'l1'..'l7' → number 1..7
+        // Зберігаємо ?u= і ?admin= щоб режим не «загубився» при переході між уроками
         const lessonNumber = target.replace('l', '');
         newParams.set('lesson', lessonNumber);
-        // Full page reload — простіше і consistent з existing pattern.
         window.location.search = '?' + newParams.toString();
       });
-      console.log(`[main] Lesson selector shown (continuous flow), current: ${lessonId}`);
+    };
+
+    if (isPaidFlow) {
+      // Paid flow — fetch learner state, disable не-пройдені
+      lessonSelector.style.display = '';
+      lessonSelector.value = lessonId;
+      // Disable ВСЕ спочатку (safe default доки fetch не завершився)
+      Array.from(lessonSelector.options).forEach(opt => { opt.disabled = true; });
+      // Current option завжди enabled (learner тут)
+      const currentOpt = lessonSelector.querySelector(`option[value="${lessonId}"]`);
+      if (currentOpt) currentOpt.disabled = false;
+      setupChangeHandler();
+
+      // Fetch learner state async
+      fetch(`/api/learner/${encodeURIComponent(uuid)}`)
+        .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
+        .then(data => {
+          const unlocked = new Set(data.unlocked_lessons || [data.current_lesson || 'l1']);
+          Array.from(lessonSelector.options).forEach(opt => {
+            opt.disabled = !unlocked.has(opt.value);
+          });
+          console.log(`[main] Level selector paid mode: current=${data.current_lesson}, unlocked=${Array.from(unlocked).join(',')}`);
+        })
+        .catch(err => {
+          // Fallback — learner не знайдений або network error. Залишаємо тільки current enabled.
+          console.warn('[main] Level selector fetch failed, keeping only current lesson enabled:', err.message);
+        });
+    } else {
+      // Continuous (без ?u=) АБО admin escape (?u=xxx&admin=1) → всі активні
+      lessonSelector.style.display = '';
+      lessonSelector.value = lessonId;
+      Array.from(lessonSelector.options).forEach(opt => { opt.disabled = false; });
+      setupChangeHandler();
+      const mode = isAdmin ? 'admin escape (?admin=1)' : 'continuous flow';
+      console.log(`[main] Level selector ${mode}, current: ${lessonId}`);
     }
   }
 
