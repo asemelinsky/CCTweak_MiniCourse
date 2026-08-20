@@ -886,6 +886,41 @@ const LessonEngine = (function() {
   // Final modal
   //////////////////////////////////////////////////////////////////////
 
+  /**
+   * LB-017 fix: merge cta_url з current URL params — щоб не губити ?u=<uuid>
+   * і ?admin=1 при переході між уроками через final-modal кнопку.
+   *
+   * Кейси:
+   *  - '?lesson=2' — query-only: merge з current, зберегти path
+   *  - '/public/sales-placeholder.html' — new path: перенести ?u=/?admin= (не lesson)
+   *  - '/public/x.html?ref=abc' — new path + query: merge query, зберегти ?u=/?admin=
+   *  - 'https://t.me/xxx' — external: як є (Telegram deep-link, ...)
+   */
+  function mergeCtaUrl(ctaUrl) {
+    if (!ctaUrl) return ctaUrl;
+    // External absolute URL (t.me, https://...) → залишаємо як є
+    if (/^https?:\/\//i.test(ctaUrl)) return ctaUrl;
+    const current = new URLSearchParams(window.location.search);
+    // Query-only ('?lesson=2'): merge overrides, зберегти path
+    if (ctaUrl.startsWith('?')) {
+      const overrides = new URLSearchParams(ctaUrl.slice(1));
+      for (const [k, v] of overrides) current.set(k, v);
+      return window.location.pathname + '?' + current.toString();
+    }
+    // Path (можливо з query): '/public/sales-placeholder.html' або '/x.html?ref=abc'
+    const [path, query] = ctaUrl.split('?');
+    // Для new path — переносимо тільки session params (?u=, ?admin=), не ?lesson=
+    const merged = new URLSearchParams();
+    if (current.has('u')) merged.set('u', current.get('u'));
+    if (current.has('admin')) merged.set('admin', current.get('admin'));
+    if (query) {
+      const overrides = new URLSearchParams(query);
+      for (const [k, v] of overrides) merged.set(k, v);
+    }
+    const finalQuery = merged.toString();
+    return path + (finalQuery ? '?' + finalQuery : '');
+  }
+
   function showFinalModal(beat) {
     const overlay = document.getElementById('modal-overlay');
     const title   = document.getElementById('modal-title');
@@ -945,7 +980,10 @@ const LessonEngine = (function() {
         if (window.ProgressTracker) {
           window.ProgressTracker.markPaymentIntent(currentLesson.id);
         }
-        window.location.href = beat.cta_url;
+        // LB-017 fix: merge cta_url з current URL params — щоб не губити ?u= і ?admin=
+        // при переході між уроками через «Далі до Уроку N →» кнопку у final-modal.
+        // (Історично cta_url був '?lesson=N' — overwrite всього query string).
+        window.location.href = mergeCtaUrl(beat.cta_url);
       } else {
         closeModal();
       }
