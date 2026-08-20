@@ -199,6 +199,16 @@ const ConstraintEngine = (function() {
 
     workspace.addChangeListener(listener);
 
+    // LB-011 hotfix (2026-08-20): перевіряємо existing workspace state
+    // одразу після attach. Раніше constraint спрацьовував ТІЛЬКИ на нові
+    // BLOCK_CREATE — не detect'ив блоки що вже лежали у workspace на
+    // момент attach (edge cases: learner прийшов з попереднього уроку
+    // з залишками у workspace, поставив блоки до advance у task-with-
+    // constraints beat, тощо). Викликаємо scheduleCheck() з empty
+    // pendingCreatedIds — runCreateCheck обчислить current count, і якщо
+    // існуючий вже > max_count → onExceed з pickNewest fallback.
+    scheduleCheck();
+
     return function teardown() {
       if (debounceTimer) {
         clearTimeout(debounceTimer);
