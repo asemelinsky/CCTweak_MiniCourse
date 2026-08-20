@@ -307,6 +307,75 @@
 
 
 /* -----------------------------------------------------
+   LB-016: Bounce info bubble
+   ----------------------------------------------------- */
+/* Інформаційне повідомлення при першому bounce у сесії уроку (L6).
+   Відрізняється від звичайного Мо-баблу візуально — це системне
+   попередження (жовтий/amber), не діалог з Мо. Не блокує gameplay:
+   learner може продовжувати натискати ▶ / редагувати блоки паралельно. */
+
+.lesson-bounce-bubble {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  background: #fff8e1;  /* світло-жовтий, warning-like */
+  border: 2px solid #ffc107;  /* amber */
+  border-radius: 16px;
+  padding: 20px 24px;
+  max-width: 480px;
+  min-width: 280px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  z-index: 10500;  /* між speech-bubble (relative) та video-overlay (10005) */
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.lesson-bounce-bubble--visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+.lesson-bounce-bubble__icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  animation: bounce-icon-shake 0.5s ease-in-out 2;
+}
+@keyframes bounce-icon-shake {
+  0%, 100% { transform: rotate(0); }
+  25%      { transform: rotate(-15deg); }
+  75%      { transform: rotate(15deg); }
+}
+.lesson-bounce-bubble__text {
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: #5d4037;
+  margin-bottom: 16px;
+}
+.lesson-bounce-bubble__ok {
+  background: #ffc107;
+  color: #5d4037;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.lesson-bounce-bubble__ok:hover {
+  background: #ffb300;
+}
+.lesson-bounce-bubble__ok:active {
+  transform: scale(0.97);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lesson-bounce-bubble__icon { animation: none; }
+  .lesson-bounce-bubble { transition: opacity 0.15s ease; }
+}
+
+
+/* -----------------------------------------------------
    Video Overlay
    ----------------------------------------------------- */
 

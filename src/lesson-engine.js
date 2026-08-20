@@ -39,6 +39,19 @@
  *        beat.id. Використовується для reactive beats (dragon-ate-*) щоб повернути
  *        учня назад у task-main після click-next.
  *
+ * Lesson-level optional fields (LB-016, L6 bounce mechanic):
+ *  - wall_behavior: 'bounce_vertical'
+ *      → передається simulator через setLessonConfig(). Simulator замість crash
+ *        при вертикальному русі у стіну — «відбиває» назад. Тільки для L6.
+ *  - success_condition: 'end_at_diamond'
+ *      → передається simulator. Прибирає early-exit при досягненні алмаза;
+ *        SUCCESS тільки якщо end position === позиції алмаза. Тільки для L6.
+ *  - on_first_bounce: { text: '<фраза>', voice_url?: '<url>' }
+ *      → text показується inline bubble (жовтий, warning-style) при першому
+ *        `lesson-bounce` event від simulator у сесії уроку. Bubble має кнопку
+ *        «Зрозуміло, спробую ще раз» — learner підтверджує усвідомлено. Voice
+ *        грає якщо voice_url є і AudioPlayer доступний. Не блокує gameplay.
+ *
  * Public navigation API (LB-015):
  *  - jumpToVisitedBeat(direction)  — direction ∈ {-1, +1}. Стрибок на попередній
  *    (⏮) або наступний (⏭) navigable beat (speech-bubble / coach-mark).
@@ -86,6 +99,11 @@ const LessonEngine = (function() {
   // (див. setupAdvanceListener).
   let lastRunProgressDist = null;
 
+  // LB-016: bounce-bubble одноразовість — показуємо inline bubble ТІЛЬКИ при
+  // першому `lesson-bounce` event у сесії уроку. Далі — silent (щоб не спамити).
+  // Скидається у start(lesson).
+  let bounceBubbleShown = false;
+
   //////////////////////////////////////////////////////////////////////
   // Публічне API
   //////////////////////////////////////////////////////////////////////
@@ -107,6 +125,23 @@ const LessonEngine = (function() {
     lastRunProgressDist = null;  // LB-003: скидаємо cross-beat progress state
     visitedBeats.clear();        // LB-011: скидаємо історію відвіданих beat'ів
     maxVisitedBeatIdx = -1;      // LB-015: скидаємо max visited для nav-forward gating
+    bounceBubbleShown = false;   // LB-016: bounce-bubble показуємо тільки перший раз у сесії
+
+    // LB-016: expose lesson-level config to simulator (wall_behavior,
+    // success_condition). Track A додав API `window.Simulator.setLessonConfig()`
+    // — викликаємо тільки якщо існує (backwards compat: якщо Track A ще не
+    // deployed, engine продовжує працювати без bounce mechanics).
+    if (window.Simulator && typeof window.Simulator.setLessonConfig === 'function') {
+      window.Simulator.setLessonConfig(lesson);
+    }
+
+    // LB-016: global listener на `lesson-bounce` event від simulator. removeEventListener
+    // перед add — щоб при повторному start(lesson) (перезапуск уроку, зміна level'а)
+    // не назбирувались дублікати handler'ів. Listener живе поза beat-scope
+    // (не через addListener/clearListeners), бо bounce може статись у будь-який
+    // момент run-time симуляції — не привʼязано до конкретного beat.
+    document.removeEventListener('lesson-bounce', handleBounce);
+    document.addEventListener('lesson-bounce', handleBounce);
 
     // Preload workspace якщо lesson має initial_workspace_xml (для L5 debug —
     // learn бачить broken code на старті і мусить його виправити).
@@ -800,6 +835,76 @@ const LessonEngine = (function() {
     if (secondaryBtn) {
       secondaryBtn.addEventListener('click', closeModal);
     }
+  }
+
+  //////////////////////////////////////////////////////////////////////
+  // LB-016: bounce-bubble — reaction на `lesson-bounce` event від simulator
+  //////////////////////////////////////////////////////////////////////
+
+  /**
+   * Handler для `lesson-bounce` event. Показуємо inline warning-bubble ТІЛЬКИ
+   * при першому bounce у сесії уроку (bounceBubbleShown gate). No-op якщо
+   * lesson не має `on_first_bounce` config (backwards compat: bounce може
+   * статись у майбутніх уроках без методичного feedback'а).
+   *
+   * Event detail (Track A contract): { isFirst, positionX, positionY, actionName }
+   * — не читаємо тут, бо ми gate'уємо на власному per-session прапорі, не на
+   * simulator's isFirst (simulator не знає про lesson-restart / etc).
+   */
+  function handleBounce(_event) {
+    if (bounceBubbleShown) return;
+    if (!currentLesson || !currentLesson.on_first_bounce) return;
+    bounceBubbleShown = true;
+    showBounceBubble(currentLesson.on_first_bounce);
+  }
+
+  /**
+   * Створює centered warning-bubble з text + voice + кнопкою «Зрозуміло».
+   * НЕ використовує SpeechBubble.show бо той працює з advance-механікою,
+   * а тут потрібна standalone bubble без hooks у lesson-engine flow.
+   *
+   * Bubble не блокує gameplay — learner може продовжувати натискати ▶ /
+   * редагувати блоки паралельно. Це навмисно: bubble — «до відома»,
+   * не modal-блокатор.
+   */
+  function showBounceBubble(cfg) {
+    const el = document.createElement('div');
+    el.className = 'lesson-bounce-bubble';
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    el.innerHTML = `
+      <div class="lesson-bounce-bubble__icon" aria-hidden="true">💥</div>
+      <div class="lesson-bounce-bubble__text">${escapeHtml(cfg.text || '')}</div>
+      <button class="lesson-bounce-bubble__ok" type="button">Зрозуміло, спробую ще раз</button>
+    `;
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('lesson-bounce-bubble--visible'));
+
+    const okBtn = el.querySelector('.lesson-bounce-bubble__ok');
+    okBtn.addEventListener('click', () => {
+      el.classList.remove('lesson-bounce-bubble--visible');
+      // stop voice якщо ще грає — learner підтвердив, більше не потрібно
+      if (window.AudioPlayer && typeof AudioPlayer.stopVoice === 'function') {
+        try { AudioPlayer.stopVoice(); } catch (_) {}
+      }
+      setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
+    });
+
+    // Voice грає якщо є URL і AudioPlayer доступний (fallback: text-only)
+    if (cfg.voice_url && window.AudioPlayer && typeof AudioPlayer.playVoice === 'function') {
+      try { AudioPlayer.playVoice(cfg.voice_url); } catch (err) {
+        console.warn('[LessonEngine] bounce-bubble voice play failed:', err);
+      }
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   //////////////////////////////////////////////////////////////////////

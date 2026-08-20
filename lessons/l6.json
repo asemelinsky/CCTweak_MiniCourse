@@ -1,6 +1,12 @@
 {
   "id": "l6",
   "title": "Мо у безодні: Wither та безкінечні шахти",
+  "wall_behavior": "bounce_vertical",
+  "success_condition": "end_at_diamond",
+  "on_first_bounce": {
+    "text": "Ой-ой! Я вдарилась об стіну і відскочила назад. Здається, ти попросив мене пройти більше ніж треба. Спробуй трохи менше!",
+    "voice_url": "public/audio/l6/on-first-bounce.mp3"
+  },
   "beats": [
     {
       "id": "intro-video",

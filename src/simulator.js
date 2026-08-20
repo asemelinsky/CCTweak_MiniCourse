@@ -330,6 +330,47 @@ let turtleY;
 let log;              // array of [action, block_id] tuples (для animate)
 const pidList = [];   // pending setTimeout IDs (для reset)
 
+//////////////////////////////////////////////////////////////////////
+// Per-lesson behavior config (LB-016 — bounce + no-early-exit для L6)
+//////////////////////////////////////////////////////////////////////
+//
+// Дефолти забезпечують backward-compat для L1-L5, L7:
+//   - crash при стіні (як зараз)
+//   - early-exit коли turtle крокує на діамант (LB-002 fix для L4)
+//
+// Урок-специфічні flags (з lesson JSON) через Simulator.setLessonConfig():
+//   - wall_behavior: 'bounce_vertical' — вертикальні ходи відбиваються від стіни
+//     (horizontal ходи → все одно crash). Причина: L6 «Мо у безодні» вчить
+//     цикл `while not diamond`. Якщо learn пише `repeat N [вниз]` з N > глибина,
+//     наївний crash дає false-fail. Bounce дає narrative feedback («вдарилась,
+//     відскочила») і чіткий signal «спробуй менше кроків».
+//
+//   - success_condition: 'end_at_diamond' — SUCCESS ТІЛЬКИ якщо end position
+//     збігається з діамантом. Прибирає early-exit при проходженні через діамант.
+//     Причина: `repeat 3 [вниз]` на глибині 2 інакше дає false success бо turtle
+//     торкнулась діаманта транзитно. З `end_at_diamond` після діаманта може
+//     bounce/crash — і кінцеве положення ≠ діамант → FAILURE (як має бути).
+let wallBehavior = 'crash';                    // 'crash' | 'bounce_vertical'
+let successCondition = 'diamond_reached';      // 'diamond_reached' | 'end_at_diamond'
+let firstBounceInSession = true;               // reset у reset(); use у dispatch
+
+/**
+ * Публічне API для lesson-engine — виставити per-lesson поведінку.
+ * Викликається з lesson-engine.start(lesson) перед першим Run.
+ * Безпечно передати null / undefined / порожній об'єкт — вертається у дефолти.
+ */
+function setLessonConfig(cfg) {
+  cfg = cfg || {};
+  wallBehavior = (cfg.wall_behavior === 'bounce_vertical') ? 'bounce_vertical' : 'crash';
+  successCondition = (cfg.success_condition === 'end_at_diamond') ? 'end_at_diamond' : 'diamond_reached';
+  firstBounceInSession = true;
+}
+
+if (typeof window !== 'undefined') {
+  window.Simulator = window.Simulator || {};
+  window.Simulator.setLessonConfig = setLessonConfig;
+}
+
 function _exposeState() {
   if (typeof window === 'undefined') return;
   window.map = map;
@@ -556,12 +597,25 @@ function displayTurtle(x, y) {
 /**
  * Загальна функція руху. dx/dy — крок у клітинках.
  * @throws {false} якщо клітинка стіна або поза межами
+ *
+ * LB-016 (2026-08-20) — per-lesson bounce mechanic:
+ *   Якщо wallBehavior === 'bounce_vertical' і рух вертикальний і попереду стіна
+ *   (але НЕ OOB) — turtle відскакує назад на 1 клітинку у зворотному напрямку.
+ *   Якщо позаду теж стіна (затиснута) — залишається на місці, ходу немає.
+ *   Horizontal ходи в bounce-режимі → ті ж самі crash як завжди.
+ *
+ * LB-016 — no-early-exit:
+ *   Якщо successCondition === 'end_at_diamond' — крок на діамант НЕ кидає
+ *   'diamond_reached'; виконання йде далі до природного завершення програми.
+ *   Використовується для L6 щоб уникнути false-success при `repeat N`
+ *   що транзитно потрапляє на діамант.
  */
 function tryMove(dx, dy, id, actionName) {
   const nx = turtleX + dx;
   const ny = turtleY + dy;
+  const isVertical = (dx === 0);
 
-  // Bounds check
+  // Bounds check — навіть у bounce-режимі OOB — це crash (карта скінченна).
   if (nx < 0 || nx >= COLS || ny < 0 || ny >= ROWS) {
     log.push(['crash_' + actionName, id]);
     throw false;
@@ -569,7 +623,46 @@ function tryMove(dx, dy, id, actionName) {
 
   // Wall check (все що не AIR і не DIAMOND — стіна)
   const t = map[ny][nx];
-  if (t !== TILE.AIR && t !== TILE.DIAMOND) {
+  const isWall = (t !== TILE.AIR && t !== TILE.DIAMOND);
+
+  if (isWall) {
+    if (isVertical && wallBehavior === 'bounce_vertical') {
+      // BOUNCE — інвертуємо напрямок і робимо крок назад
+      const bx = turtleX - dx;
+      const by = turtleY - dy;
+      let bIsWall;
+      if (by < 0 || by >= ROWS || bx < 0 || bx >= COLS) {
+        bIsWall = true;
+      } else {
+        const bt = map[by][bx];
+        bIsWall = (bt !== TILE.AIR && bt !== TILE.DIAMOND);
+      }
+      if (bIsWall) {
+        // Затиснута (стіна і попереду, і позаду) — no move, no bounce log
+        return;
+      }
+      // Виконуємо reversed move
+      turtleX = bx;
+      turtleY = by;
+      log.push(['bounce_' + actionName, id]);
+
+      // Dispatch bounce event для lesson-engine (Track B слухає, показує bubble
+      // при першому bounce у сесії уроку). event.detail.isFirst — прапорець.
+      if (typeof document !== 'undefined' && typeof CustomEvent !== 'undefined') {
+        const wasFirst = firstBounceInSession;
+        firstBounceInSession = false;
+        document.dispatchEvent(new CustomEvent('lesson-bounce', {
+          detail: {
+            positionX: bx,
+            positionY: by,
+            actionName: actionName,
+            isFirst: wasFirst,
+          }
+        }));
+      }
+      return;
+    }
+    // Horizontal wall або wallBehavior === 'crash' → existing crash logic
     log.push(['crash_' + actionName, id]);
     throw false;
   }
@@ -584,7 +677,10 @@ function tryMove(dx, dy, id, actionName) {
   // iteration — типовий випадок для L4). Без early-exit наступні команди
   // виконуються, Мо крокує далі, врізається у bedrock → CRASH переписує SUCCESS.
   // Post-pilot fix Olexii L4 2026-08-18.
-  if (t === TILE.DIAMOND) {
+  //
+  // LB-016: для уроків з successCondition === 'end_at_diamond' (L6) — гейт
+  // early-exit ВИМКНЕНО, щоб транзитне торкання діаманта не давало SUCCESS.
+  if (t === TILE.DIAMOND && successCondition === 'diamond_reached') {
     throw 'diamond_reached';
   }
 }
@@ -739,6 +835,12 @@ function animateStep() {
     case 'crash_back':    dx = -1; isCrash = true; break;
     case 'crash_up':      dy = -1; isCrash = true; break;
     case 'crash_down':    dy = +1; isCrash = true; break;
+    // LB-016: bounce — turtle кроконула у зворотному напрямку до наміру.
+    // Показуємо як нормальний move, але зі стрілкою руху проти команди.
+    case 'bounce_forward': dx = -1; break;
+    case 'bounce_back':    dx = +1; break;
+    case 'bounce_up':      dy = +1; break;
+    case 'bounce_down':    dy = -1; break;
     default:
       // невідома команда — пропускаємо
       pidList.push(setTimeout(animateStep, stepSpeed));
