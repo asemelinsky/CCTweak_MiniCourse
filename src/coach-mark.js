@@ -134,6 +134,9 @@ const CoachMark = (function() {
     const callout = document.createElement('div');
     callout.className = 'lesson-coach-callout';
 
+    // LB-015: nav bar у top-right callout — так само як у speech-bubble.
+    appendNavActions(callout);
+
     const text = document.createElement('div');
     text.className = 'lesson-coach-callout__text';
     text.textContent = beat.text;
@@ -159,6 +162,65 @@ const CoachMark = (function() {
 
     positionCallout(callout, targetEl, beat.position || 'right');
     return callout;
+  }
+
+  //////////////////////////////////////////////////////////////////////
+  // LB-015: nav bar (⏮ ⏭) для callout
+  //////////////////////////////////////////////////////////////////////
+
+  /**
+   * Додати actions bar (⏮ ⏭) у top-right corner callout'а. Стиль паралельний
+   * до speech-bubble, але скейлений під більш скромний callout UI. Reads
+   * LessonEngine.getNavigationState() для disabled state.
+   */
+  function appendNavActions(callout) {
+    const actions = document.createElement('div');
+    actions.className = 'lesson-coach-callout__actions';
+
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'lesson-coach-callout__nav-prev lesson-nav-btn';
+    prevBtn.type = 'button';
+    prevBtn.textContent = '⏮';
+    prevBtn.setAttribute('aria-label', 'Попереднє повідомлення');
+    prevBtn.setAttribute('title', 'Попереднє повідомлення');
+    prevBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (window.LessonEngine && typeof window.LessonEngine.jumpToVisitedBeat === 'function') {
+        window.LessonEngine.jumpToVisitedBeat(-1);
+      }
+    });
+    actions.appendChild(prevBtn);
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'lesson-coach-callout__nav-next lesson-nav-btn';
+    nextBtn.type = 'button';
+    nextBtn.textContent = '⏭';
+    nextBtn.setAttribute('aria-label', 'Наступне повідомлення');
+    nextBtn.setAttribute('title', 'Наступне повідомлення');
+    nextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (window.LessonEngine && typeof window.LessonEngine.jumpToVisitedBeat === 'function') {
+        window.LessonEngine.jumpToVisitedBeat(+1);
+      }
+    });
+    actions.appendChild(nextBtn);
+
+    if (window.LessonEngine && typeof window.LessonEngine.getNavigationState === 'function') {
+      const navState = window.LessonEngine.getNavigationState();
+      if (!navState.canGoBack) {
+        prevBtn.disabled = true;
+        prevBtn.setAttribute('aria-disabled', 'true');
+      }
+      if (!navState.canGoForward) {
+        nextBtn.disabled = true;
+        nextBtn.setAttribute('aria-disabled', 'true');
+      }
+    } else {
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+    }
+
+    callout.appendChild(actions);
   }
 
   function positionCallout(callout, targetEl, position) {
@@ -227,6 +289,8 @@ const CoachMark = (function() {
       });
       callout.appendChild(btn);
     }
+    // LB-015: nav bar теж у fallback варіанті
+    appendNavActions(callout);
     document.body.appendChild(callout);
     currentCallout = callout;
     requestAnimationFrame(() => callout.classList.add('lesson-coach-callout--visible'));

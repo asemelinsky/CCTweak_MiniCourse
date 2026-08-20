@@ -492,3 +492,91 @@
   }
 }
 
+
+/* -----------------------------------------------------
+   LB-015: Bidirectional beat navigation (⏮ ⏭)
+   ⏮ (prev) — replay 🔁 (якщо є voice) — ⏭ (next), у top-right corner
+   як speech-bubble так і coach-mark callout. Спільний базовий стиль
+   .lesson-nav-btn — 32×32 round semi-transparent green (як existing replay).
+   ----------------------------------------------------- */
+
+/* Actions bar у speech-bubble — перекриває положення для того, щоб містити
+   3 кнопки поруч. Existing .lesson-speech-bubble__replay має власне
+   absolute-positioning яке ми знімаємо коли він всередині цього bar. */
+.lesson-speech-bubble__actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  z-index: 2;
+}
+.lesson-speech-bubble__actions .lesson-speech-bubble__replay {
+  position: static;
+  top: auto;
+  right: auto;
+}
+
+/* Спільний базовий стиль navigation-кнопок (⏮ ⏭) у обох контекстах.
+   Розмір, форма, transitions збігаються з existing 🔁 replay-кнопкою,
+   але fon-size трохи менший (14px vs 18px) — стрілки візуально важчі. */
+.lesson-nav-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: rgba(76, 175, 80, 0.15);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  transition: background 0.15s, transform 0.1s, opacity 0.15s;
+}
+.lesson-nav-btn:hover:not(:disabled) {
+  background: rgba(76, 175, 80, 0.35);
+  transform: scale(1.1);
+}
+.lesson-nav-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+.lesson-nav-btn:disabled,
+.lesson-nav-btn[aria-disabled="true"] {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background: rgba(76, 175, 80, 0.08);
+}
+
+/* Callout coach-mark потребує position: relative щоб absolute-actions
+   позиціонувались усередині нього. Callout з inline-style position:fixed
+   (з positionCallout) — його own containing block, тому і без relative
+   fine, але для gracefully-degraded showCalloutOnly теж працює. */
+.lesson-coach-callout {
+  position: relative;
+}
+.lesson-coach-callout__actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+  z-index: 2;
+}
+/* Callout nav-buttons трохи менші (28×28) — callout сам менший ніж bubble,
+   і actions не мають конкурувати з текстом за увагу. */
+.lesson-coach-callout__actions .lesson-nav-btn {
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+  background: rgba(33, 150, 243, 0.12);
+}
+.lesson-coach-callout__actions .lesson-nav-btn:hover:not(:disabled) {
+  background: rgba(33, 150, 243, 0.3);
+}
+.lesson-coach-callout__actions .lesson-nav-btn:disabled,
+.lesson-coach-callout__actions .lesson-nav-btn[aria-disabled="true"] {
+  background: rgba(33, 150, 243, 0.06);
+}
+/* Text callout має відступ праворуч, щоб не залазити під nav-кнопки. */
+.lesson-coach-callout__text {
+  padding-right: 64px;
+}

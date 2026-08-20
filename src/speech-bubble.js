@@ -90,12 +90,32 @@ const SpeechBubble = (function() {
       AudioPlayer.playVoice(voiceUrl);
     }
 
-    // Replay-button: показуємо тільки якщо є voice-URL (нема сенсу replay без voice).
-    // Post-pilot Olexii's feedback: діти забувають пояснення, треба «ще раз»
-    // послухати. Bubble не змінюється, тільки програє voice знов.
+    // Actions bar у top-right corner: ⏮ 🔁 ⏭
+    //  - ⏮/⏭ (LB-015) — навігація по visited beats (див. LessonEngine.jumpToVisitedBeat)
+    //  - 🔁 (post-pilot) — програти voice поточного beat знову; тільки якщо voiceUrl є
+    // Порядок: prev у краю зліва, replay посередині, next у краю справа —
+    // logically «попередній / програти цей знову / наступний».
+    const actions = document.createElement('div');
+    actions.className = 'lesson-speech-bubble__actions';
+
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'lesson-speech-bubble__nav-prev lesson-nav-btn';
+    prevBtn.type = 'button';
+    prevBtn.textContent = '⏮';
+    prevBtn.setAttribute('aria-label', 'Попереднє повідомлення');
+    prevBtn.setAttribute('title', 'Попереднє повідомлення');
+    prevBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (window.LessonEngine && typeof window.LessonEngine.jumpToVisitedBeat === 'function') {
+        window.LessonEngine.jumpToVisitedBeat(-1);
+      }
+    });
+    actions.appendChild(prevBtn);
+
     if (voiceUrl) {
       const replayBtn = document.createElement('button');
       replayBtn.className = 'lesson-speech-bubble__replay';
+      replayBtn.type = 'button';
       replayBtn.textContent = '🔁';
       replayBtn.setAttribute('aria-label', 'Повторити пояснення');
       replayBtn.setAttribute('title', 'Повторити пояснення');
@@ -103,8 +123,41 @@ const SpeechBubble = (function() {
         e.stopPropagation();
         if (window.AudioPlayer) AudioPlayer.playVoice(voiceUrl);
       });
-      el.appendChild(replayBtn);
+      actions.appendChild(replayBtn);
     }
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'lesson-speech-bubble__nav-next lesson-nav-btn';
+    nextBtn.type = 'button';
+    nextBtn.textContent = '⏭';
+    nextBtn.setAttribute('aria-label', 'Наступне повідомлення');
+    nextBtn.setAttribute('title', 'Наступне повідомлення');
+    nextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (window.LessonEngine && typeof window.LessonEngine.jumpToVisitedBeat === 'function') {
+        window.LessonEngine.jumpToVisitedBeat(+1);
+      }
+    });
+    actions.appendChild(nextBtn);
+
+    // Disabled стан за станом LessonEngine (може бути false-y якщо engine ще не активний)
+    if (window.LessonEngine && typeof window.LessonEngine.getNavigationState === 'function') {
+      const navState = window.LessonEngine.getNavigationState();
+      if (!navState.canGoBack) {
+        prevBtn.disabled = true;
+        prevBtn.setAttribute('aria-disabled', 'true');
+      }
+      if (!navState.canGoForward) {
+        nextBtn.disabled = true;
+        nextBtn.setAttribute('aria-disabled', 'true');
+      }
+    } else {
+      // Немає engine — не мaйe сенсу навігувати, disable обидва
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+    }
+
+    el.appendChild(actions);
   }
 
   function positionBubble(el) {

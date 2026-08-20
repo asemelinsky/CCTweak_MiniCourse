@@ -39,6 +39,14 @@
  *        beat.id. Використовується для reactive beats (dragon-ate-*) щоб повернути
  *        учня назад у task-main після click-next.
  *
+ * Public navigation API (LB-015):
+ *  - jumpToVisitedBeat(direction)  — direction ∈ {-1, +1}. Стрибок на попередній
+ *    (⏮) або наступний (⏭) navigable beat (speech-bubble / coach-mark).
+ *    Forward gated на maxVisitedBeatIdx (не skip у майбутнє). Voice того beat
+ *    програється автоматично. No-op якщо цільового beat немає.
+ *  - getNavigationState() → {canGoBack, canGoForward} — для рендеру disabled
+ *    стану ⏮/⏭ кнопок у UI.
+ *
  * Використання:
  *   LessonEngine.load('lessons/l1.json').then(engine => engine.start());
  */
@@ -56,6 +64,20 @@ const LessonEngine = (function() {
   // тому beat_visited: 'this-beat-id' у поточному beat завжди true (self-visit
   // одразу гартує проти повторних заходів через route_to_beat).
   let visitedBeats = new Set();
+
+  // LB-015: max idx beat що learner уже досягнув (не тільки visited by id, а
+  // sequence position). Використовується для «⏭ наступний» — button активний
+  // тільки якщо currentBeatIdx < maxVisitedBeatIdx (тобто learner повернувся
+  // назад і може піти вперед до вже баченого; skip у майбутнє заборонено).
+  // Скидається у start(lesson). Оновлюється у runCurrentBeat() через
+  // Math.max(current, currentBeatIdx) — навіть при jumpToVisitedBeat(-1)
+  // не зменшується.
+  let maxVisitedBeatIdx = -1;
+
+  // LB-015: типи beat, до яких можна навігувати back/forward. Task'и і
+  // final-modal мають власну advance-механіку, яку не можна переривати
+  // ретрактом — тому вони skip'аються при пошуку navigable target.
+  const NAVIGABLE_BEAT_TYPES = new Set(['speech-bubble', 'coach-mark']);
 
   // LB-003: state для sim-forward-progress advance type.
   // Тримає manhattan distance від startPos для попереднього завершеного
@@ -84,6 +106,7 @@ const LessonEngine = (function() {
     currentBeatIdx = 0;
     lastRunProgressDist = null;  // LB-003: скидаємо cross-beat progress state
     visitedBeats.clear();        // LB-011: скидаємо історію відвіданих beat'ів
+    maxVisitedBeatIdx = -1;      // LB-015: скидаємо max visited для nav-forward gating
 
     // Preload workspace якщо lesson має initial_workspace_xml (для L5 debug —
     // learn бачить broken code на старті і мусить його виправити).
@@ -121,6 +144,10 @@ const LessonEngine = (function() {
     // LB-011: track visited ПЕРЕД skip_if check — щоб beat_visited: '<self>' спрацював
     // як cycle guard (якщо цей же beat був route_to цілю, наступний захід буде skip).
     visitedBeats.add(beat.id);
+
+    // LB-015: розширюємо max-visited для navigation-forward gating (тільки росте,
+    // ніколи не зменшується — навіть на jumpToVisitedBeat(-1) тримаємо historic max).
+    maxVisitedBeatIdx = Math.max(maxVisitedBeatIdx, currentBeatIdx);
 
     // LB-011: skip_if — якщо умова true, пропускаємо beat.
     if (beat.skip_if && evaluateSkipCondition(beat.skip_if, window.workspace)) {
@@ -236,6 +263,90 @@ const LessonEngine = (function() {
 
     currentBeatIdx = idx;
     runCurrentBeat();
+  }
+
+  //////////////////////////////////////////////////////////////////////
+  // LB-015: bidirectional beat-navigation (⏮ / ⏭)
+  //////////////////////////////////////////////////////////////////////
+
+  /**
+   * Знайти idx першого navigable beat у заданому напрямку від currentBeatIdx,
+   * з урахуванням gating maxVisitedBeatIdx для forward.
+   *
+   * @param {-1|+1} direction — -1 = попередній, +1 = наступний
+   * @returns {number} idx target beat або -1 якщо немає доступного.
+   *
+   * Правила:
+   *  - direction -1: шукаємо максимальний idx < currentBeatIdx серед
+   *    NAVIGABLE_BEAT_TYPES. Ніякого maxVisited-gating — все, що позаду,
+   *    точно вже баченe.
+   *  - direction +1: шукаємо мінімальний idx > currentBeatIdx AND
+   *    idx <= maxVisitedBeatIdx серед NAVIGABLE_BEAT_TYPES.
+   *    Skip у майбутнє (unseen) заборонено.
+   */
+  function findNavigableBeatIdx(direction) {
+    if (!currentLesson || !Array.isArray(currentLesson.beats)) return -1;
+    const beats = currentLesson.beats;
+
+    if (direction < 0) {
+      for (let i = currentBeatIdx - 1; i >= 0; i--) {
+        if (NAVIGABLE_BEAT_TYPES.has(beats[i]?.type)) return i;
+      }
+      return -1;
+    } else {
+      const upperBound = Math.min(beats.length - 1, maxVisitedBeatIdx);
+      for (let i = currentBeatIdx + 1; i <= upperBound; i++) {
+        if (NAVIGABLE_BEAT_TYPES.has(beats[i]?.type)) return i;
+      }
+      return -1;
+    }
+  }
+
+  /**
+   * Стрибок на попередній (⏮) або наступний (⏭) navigable beat.
+   * Використовується UI кнопками у speech-bubble і coach-mark.
+   *
+   * Якщо цільового beat нема — no-op (silent), UI має рендерити disabled.
+   * Voice того beat програється автоматично (через runCurrentBeat → show()).
+   *
+   * @param {-1|+1} direction
+   */
+  function jumpToVisitedBeat(direction) {
+    if (direction !== -1 && direction !== 1) {
+      console.warn(`[LessonEngine] jumpToVisitedBeat: direction must be -1 or +1, got ${direction}`);
+      return;
+    }
+    const targetIdx = findNavigableBeatIdx(direction);
+    if (targetIdx < 0) {
+      console.log(`[LessonEngine] jumpToVisitedBeat(${direction}): no target — no-op`);
+      return;
+    }
+    console.log(`[LessonEngine] jumpToVisitedBeat(${direction}): ${currentBeatIdx} → ${targetIdx}`);
+
+    // Cleanup поточного UI (той самий pattern, що routeToBeat)
+    const currentBeat = currentLesson.beats[currentBeatIdx];
+    if (currentBeat) {
+      if (currentBeat.type === 'speech-bubble') SpeechBubble.hide();
+      if (currentBeat.type === 'coach-mark') CoachMark.hide();
+      if (currentBeat.type === 'video-overlay') VideoOverlay.hide();
+    }
+    clearListeners();
+
+    currentBeatIdx = targetIdx;
+    runCurrentBeat();
+  }
+
+  /**
+   * Стан навігації для UI. UI читає при render щоб виставити disabled на
+   * ⏮/⏭ кнопках. Дешевий — просто перевірка наявності navigable target.
+   *
+   * @returns {{canGoBack: boolean, canGoForward: boolean}}
+   */
+  function getNavigationState() {
+    return {
+      canGoBack:    findNavigableBeatIdx(-1) >= 0,
+      canGoForward: findNavigableBeatIdx(+1) >= 0,
+    };
   }
 
   function advance() {
@@ -706,6 +817,9 @@ const LessonEngine = (function() {
       beat: currentBeatIdx,
       total: currentLesson?.beats.length,
     }),
+    // LB-015: bidirectional navigation API (використовується UI бабблів)
+    jumpToVisitedBeat,
+    getNavigationState,
   };
 })();
 
