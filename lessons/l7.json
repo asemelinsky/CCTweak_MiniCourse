@@ -53,11 +53,23 @@
         {
           "block_type": "turtle_down",
           "max_count": 1,
-          "scope": "top-level",
+          "scope": "any",
           "on_exceed": {
             "animation": "dragon-swoop",
             "sound": "crunch",
             "delete_newest": true,
+            "route_to_beat": "dragon-ate-down-1",
+            "escalation_beats": [
+              "dragon-ate-down-2",
+              "dragon-ate-down-3"
+            ]
+          }
+        },
+        {
+          "block_type": "turtle_forward",
+          "max_count": 1,
+          "scope": "any",
+          "on_exceed": {
             "route_to_beat": "dragon-ate-down-1",
             "escalation_beats": [
               "dragon-ate-down-2",
