@@ -63,7 +63,9 @@ const SpeechBubble = (function() {
     // Кнопка «Далі», якщо advance = click-next
     if (beat.advance && beat.advance.type === 'click-next') {
       const btn = document.createElement('button');
-      btn.className = 'lesson-speech-bubble__next';
+      // LB-005: attention-pulse — scale+glow «дихання» на Next-кнопку як візуальний
+      // афіш «сюди клік». Універсально для всіх bubbles з click-next advance.
+      btn.className = 'lesson-speech-bubble__next attention-pulse';
       btn.textContent = beat.advance.label || 'Далі';
       btn.addEventListener('click', () => {
         document.dispatchEvent(new CustomEvent('lesson-next-click'));

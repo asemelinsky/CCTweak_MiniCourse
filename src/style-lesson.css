@@ -122,6 +122,43 @@
   transform: scale(0.97);
 }
 
+/* LB-005: Attention pulse — м'яке «дихання» кнопки + світіння як запрошення
+   натиснути. Застосовується автоматично до Next-кнопок (speech-bubble + coach-
+   mark) коли advance.type === 'click-next'. Універсальна, не lesson-specific.
+   Approved params (Olexii, 2026-08-19): scale 1→1.05 + glow, 1.2s ease-in-out.
+   Колір світіння за замовчуванням — під зелену кнопку speech-bubble; blue
+   варіант для coach-mark через override --pulse-glow нижче. */
+.attention-pulse {
+  --pulse-glow: rgba(76, 175, 80, 0.55);
+  animation: attention-pulse-scale 1.2s ease-in-out infinite;
+}
+@keyframes attention-pulse-scale {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 var(--pulse-glow),
+                0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 16px 6px var(--pulse-glow),
+                0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+}
+/* Coach-mark кнопка синя (#2196F3) — glow має бути під колір, щоб не читалось
+   як діссонанс на blue-tinted callout background. */
+.lesson-coach-callout__next.attention-pulse {
+  --pulse-glow: rgba(33, 150, 243, 0.6);
+}
+@media (prefers-reduced-motion: reduce) {
+  .attention-pulse {
+    animation: none;
+    /* Залишаємо статичне м'яке світіння як still-запрошення, щоб принцип
+       affordance зберігся навіть без руху. */
+    box-shadow: 0 0 8px 3px var(--pulse-glow),
+                0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+}
+
 /* LB-001: reference image під текстом (напр. L4 canonical solution mockup).
    Bubble сам розширюється у висоту, image — responsive.
    На mobile ще звужується у style-mobile.css. */

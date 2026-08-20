@@ -141,7 +141,9 @@ const CoachMark = (function() {
 
     if (beat.advance && beat.advance.type === 'click-next') {
       const btn = document.createElement('button');
-      btn.className = 'lesson-coach-callout__next';
+      // LB-005: attention-pulse — universal invitation-glow (blue variant для
+       // coach-mark, override у style-lesson.css).
+      btn.className = 'lesson-coach-callout__next attention-pulse';
       btn.textContent = beat.advance.label || 'Далі';
       btn.addEventListener('click', () => {
         document.dispatchEvent(new CustomEvent('lesson-next-click'));
@@ -216,7 +218,9 @@ const CoachMark = (function() {
     `;
     if (beat.advance && beat.advance.type === 'click-next') {
       const btn = document.createElement('button');
-      btn.className = 'lesson-coach-callout__next';
+      // LB-005: attention-pulse — universal invitation-glow (blue variant для
+       // coach-mark, override у style-lesson.css).
+      btn.className = 'lesson-coach-callout__next attention-pulse';
       btn.textContent = beat.advance.label || 'Далі';
       btn.addEventListener('click', () => {
         document.dispatchEvent(new CustomEvent('lesson-next-click'));

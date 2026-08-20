@@ -71,6 +71,35 @@ function initApp() {
     document.getElementById('modal-overlay').style.display = 'none';
   });
 
+  // Level selector (Track 4) — quick navigation між уроками.
+  // Показуємо ТІЛЬКИ у continuous flow (без ?u= param).
+  // Paid flow (з ?u=xxx) — selector повністю прихований, щоб дитина
+  // не могла перескакувати уроки минаючи послідовність.
+  const lessonSelector = document.getElementById('lesson-selector');
+  if (lessonSelector) {
+    const isPaidFlow = urlParams.has('u');
+    if (isPaidFlow) {
+      lessonSelector.style.display = 'none';
+      console.log('[main] Lesson selector hidden (paid flow, ?u= detected)');
+    } else {
+      lessonSelector.style.display = '';   // показуємо (скидаємо inline display:none з HTML)
+      lessonSelector.value = lessonId;     // виставляємо поточний як selected
+      lessonSelector.addEventListener('change', (e) => {
+        const target = e.target.value;
+        // Формуємо new URL: зберігаємо всі поточні URL params, крім ?u= (тільки на всяк випадок).
+        // Оновлюємо або додаємо ?lesson=<N>. N — номер (1..7), не lessonId ('l1'..'l7').
+        const newParams = new URLSearchParams(window.location.search);
+        newParams.delete('u');
+        // target = 'l1'..'l7' → number 1..7
+        const lessonNumber = target.replace('l', '');
+        newParams.set('lesson', lessonNumber);
+        // Full page reload — простіше і consistent з existing pattern.
+        window.location.search = '?' + newParams.toString();
+      });
+      console.log(`[main] Lesson selector shown (continuous flow), current: ${lessonId}`);
+    }
+  }
+
   // Resize handling
   const onResize = () => Blockly.svgResize(window.workspace);
   window.addEventListener('resize', onResize);

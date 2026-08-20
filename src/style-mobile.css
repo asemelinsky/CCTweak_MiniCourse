@@ -150,6 +150,19 @@
     padding: 10px 24px;
     font-size: 15px;   /* явно виставляю щоб гарантувати переоприділення */
   }
+
+  /* Lesson selector — на mobile компактніше.
+     Текст опції длинний ("🎒 Урок 1: Знайомство з Мо") — не влазить у 40vw
+     разом з іншими кнопками. Обрізаємо width, native select дозволяє
+     побачити повний текст у dropdown при відкритті. */
+  .lesson-selector {
+    padding: 6px 8px;
+    font-size: 12px;
+    min-height: 40px;   /* touch-friendly */
+    max-width: 42vw;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
 }
 
 
