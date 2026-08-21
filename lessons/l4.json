@@ -60,7 +60,7 @@
       "id": "demo-sensor-alone",
       "type": "speech-bubble",
       "character": "mo",
-      "text": "Ось сенсор «стіна попереду?» 🔍\n\nЦе ПРОСТО питання. Він каже: ✅ ТАК стіна, або ❌ НІ немає.\n\nВін ще НЕ робить дію — тільки повідомляє.",
+      "text": "Ось сенсор «стіна попереду?» 🔍\n\nЦе ПРОСТО питання. Він каже: ✅ ТАК стіна, або ❌ НІ немає.\n\nВін поки нічого не робить — тільки повідомляє.",
       "animation": "wiggle",
       "advance": {
         "type": "click-next",
@@ -93,7 +93,7 @@
       "id": "guided-build",
       "type": "speech-bubble",
       "character": "mo",
-      "text": "Твоя черга! Сотри всі блоки і збери таку програму 👇\n\nСенсор 🔍 вставляй у ПЕРШИЙ роз'єм «якщо» — там де умова.",
+      "text": "Твоя черга! Стери всі блоки і збери таку програму 👇\n\nСенсор 🔍 вставляй у ПЕРШИЙ роз'єм «якщо» — там де умова.",
       "animation": "wiggle",
       "advance": {
         "type": "click-next",
@@ -106,27 +106,52 @@
       "type": "task",
       "hints": [
         {
-          "when": {"workspace_lacks": "condition_if_else"},
+          "when": {
+            "workspace_lacks": "condition_if_else"
+          },
           "text": "Тунель кожен раз інший — тобі потрібен блок «якщо/то/інакше», щоб Мо САМА обирала куди йти."
         },
         {
-          "when": {"workspace_contains": "condition_if_else", "workspace_lacks": "sensor_wall_ahead"},
+          "when": {
+            "workspace_contains": "condition_if_else",
+            "workspace_lacks": "sensor_wall_ahead"
+          },
           "text": "У «якщо» треба поставити сенсор — «стіна попереду?». Без нього блок не знає що перевіряти."
         },
         {
-          "when": {"workspace_contains_all": ["condition_if_else", "sensor_wall_ahead"], "workspace_lacks": "controls_repeat_ext"},
+          "when": {
+            "workspace_contains_all": [
+              "condition_if_else",
+              "sensor_wall_ahead"
+            ],
+            "workspace_lacks": "controls_repeat_ext"
+          },
           "text": "Одна перевірка — один крок. А тобі треба пройти весь тунель. Загорни «якщо/то/інакше» у блок «повторити N разів»."
         },
         {
-          "when": {"workspace_contains_all": ["condition_if_else", "sensor_wall_ahead"], "crash_type": "vertical"},
+          "when": {
+            "workspace_contains_all": [
+              "condition_if_else",
+              "sensor_wall_ahead"
+            ],
+            "crash_type": "vertical"
+          },
           "text": "Ой, вилетіла вгору або вниз. Перевір «то» — там має бути «вниз» (коли стіна попереду — треба спуститись)."
         },
         {
-          "when": {"workspace_contains_all": ["condition_if_else", "sensor_wall_ahead"], "crash_type": "horizontal"},
+          "when": {
+            "workspace_contains_all": [
+              "condition_if_else",
+              "sensor_wall_ahead"
+            ],
+            "crash_type": "horizontal"
+          },
           "text": "Ой, врізалась у стіну попереду. Ти переплутав слоти — сенсор має стояти у «якщо», а «вперед» — у «інакше»."
         },
         {
-          "when": {"result": "TIMEOUT"},
+          "when": {
+            "result": "TIMEOUT"
+          },
           "text": "Здається, ми зациклились. Перевір — може у «то» і «інакше» стоять однакові дії? Тоді Мо ходить по колу."
         },
         {

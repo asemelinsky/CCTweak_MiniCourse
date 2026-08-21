@@ -94,27 +94,48 @@
       ],
       "hints": [
         {
-          "when": {"workspace_lacks": "loop_while_not_diamond"},
+          "when": {
+            "workspace_lacks": "loop_while_not_diamond"
+          },
           "text": "У тебе програма зробила прохід і зупинилась. Треба щоб Мо йшла ДО алмаза — знайди блок «поки не на алмазі» і заверни всю логіку у нього."
         },
         {
-          "when": {"workspace_lacks": "condition_if_else"},
+          "when": {
+            "workspace_lacks": "condition_if_else"
+          },
           "text": "Мо йде тільки в один бік. А що коли попереду стіна? Спробуй додати блок «якщо/то/інакше» — щоб Мо сама вирішувала що робити коли шлях перекритий."
         },
         {
-          "when": {"workspace_contains": "condition_if_else", "workspace_lacks": "sensor_wall_ahead"},
+          "when": {
+            "workspace_contains": "condition_if_else",
+            "workspace_lacks": "sensor_wall_ahead"
+          },
           "text": "У «якщо» треба поставити сенсор — «стіна попереду?». Без нього блок не знає ЩО перевіряти."
         },
         {
-          "when": {"workspace_contains_all": ["condition_if_else", "sensor_wall_ahead"], "crash_type": "horizontal"},
+          "when": {
+            "workspace_contains_all": [
+              "condition_if_else",
+              "sensor_wall_ahead"
+            ],
+            "crash_type": "horizontal"
+          },
           "text": "Ой, врізалась у стіну попереду. Мабуть у «інакше» треба «вперед» — інакше Мо не знає куди йти коли шлях відкритий."
         },
         {
-          "when": {"workspace_contains_all": ["condition_if_else", "sensor_wall_ahead"], "crash_type": "vertical"},
+          "when": {
+            "workspace_contains_all": [
+              "condition_if_else",
+              "sensor_wall_ahead"
+            ],
+            "crash_type": "vertical"
+          },
           "text": "Ой, застрягла внизу. Перевір «то» — там має бути «вниз», щоб Мо ступала у діру коли попереду стіна."
         },
         {
-          "when": {"result": "TIMEOUT"},
+          "when": {
+            "result": "TIMEOUT"
+          },
           "text": "Здається, я зациклилась. Може у циклі немає блока який рухає мене вперед або вниз?"
         },
         {
@@ -191,7 +212,7 @@
       "id": "reflection-1",
       "type": "speech-bubble",
       "character": "mo",
-      "text": "🎉 Ти переміг Ender Dragon-а!\n\nА тепер важливе питання. Подумай:\n\nЩо ти зараз УМІЄШ, чого не міг(-ла) на початку курсу?",
+      "text": "🎉 Ender Dragon переможений!\n\nА тепер важливе питання. Подумай:\n\nЩо ти зараз УМІЄШ, чого не вмів(-ла) робити на початку курсу?",
       "animation": "jump",
       "advance": {
         "type": "click-next",
@@ -213,7 +234,7 @@
       "id": "celebration-course",
       "type": "speech-bubble",
       "character": "mo",
-      "text": "🏆 Ти пройшов увесь курс!\n\nЗа 7 уроків ти навчився ОСНОВ програмування — тих самих речей що використовують дорослі програмісти щодня.\n\nЯ пишаюся тобою 🐢💚",
+      "text": "🏆 Увесь курс пройдено!\n\nЗа 7 уроків ти опанував(-ла) ОСНОВИ програмування — те що використовують дорослі програмісти щодня.\n\nЯ пишаюся тобою 🐢💚",
       "animation": "jump",
       "advance": {
         "type": "click-next",

@@ -76,7 +76,7 @@
       "id": "metaphor-shop",
       "type": "speech-bubble",
       "character": "mo",
-      "text": "Уяви що ти йдеш до магазину 🏪\n\nТи ж не рахуєш «зроблю 87 кроків». Ти просто йдеш ДОКИ не побачиш магазин. Так само і код!",
+      "text": "Уяви, що ти йдеш до магазину 🏪\n\nТи ж не рахуєш «зроблю 87 кроків». Ти просто йдеш ДОКИ не побачиш магазин. Так само і код!",
       "animation": "jump",
       "advance": {
         "type": "click-next",
@@ -98,7 +98,7 @@
       "id": "demo-while",
       "type": "speech-bubble",
       "character": "mo",
-      "text": "Ось блок 🔁 «поки я ще не на алмазі, роби:»\n\nЦе універсальний цикл — він працює ДОКИ Мо не досягне алмаза. Не важливо скільки кроків.",
+      "text": "Ось блок 🔁 «поки я ще не на алмазі, роби:»\n\nЦе універсальний цикл — він працює ДОКИ Мо не досягне алмаза. Неважливо, скільки кроків.",
       "animation": "wiggle",
       "advance": {
         "type": "click-next",
@@ -109,7 +109,7 @@
       "id": "guided-build",
       "type": "speech-bubble",
       "character": "mo",
-      "text": "Твоя черга! Сотри всі блоки і збери таку програму 👇\n\nУсього 2 блоки: «поки я ще не на алмазі» + «вниз» всередині.",
+      "text": "Твоя черга! Стери всі блоки і збери таку програму 👇\n\nУсього 2 блоки: «поки я ще не на алмазі» + «вниз» всередині.",
       "animation": "jump",
       "advance": {
         "type": "click-next",
@@ -122,27 +122,45 @@
       "type": "task",
       "hints": [
         {
-          "when": {"bounces_count": {"min": 1}, "workspace_lacks": "loop_while_not_diamond"},
+          "when": {
+            "bounces_count": {
+              "min": 1
+            },
+            "workspace_lacks": "loop_while_not_diamond"
+          },
           "text": "Ой, ти дав мені більше кроків ніж треба — я відскочила від дна. Глибина кожен раз інша, число «повторити» не пасує. Спробуй універсальний блок «поки не на алмазі»."
         },
         {
-          "when": {"workspace_contains": "controls_repeat_ext", "workspace_lacks": "loop_while_not_diamond"},
+          "when": {
+            "workspace_contains": "controls_repeat_ext",
+            "workspace_lacks": "loop_while_not_diamond"
+          },
           "text": "У тебе «повторити N разів» — але Wither міняє глибину, N не вгадаєш. Візьми блок «поки не на алмазі» — він працює для будь-якої глибини."
         },
         {
-          "when": {"workspace_lacks": "loop_while_not_diamond"},
+          "when": {
+            "workspace_lacks": "loop_while_not_diamond"
+          },
           "text": "Тобі потрібен цикл, який САМ знає коли зупинитись — «поки не на алмазі». Крокуй вниз, поки не станеш на діамант."
         },
         {
-          "when": {"workspace_contains": "loop_while_not_diamond", "workspace_lacks": "turtle_down"},
+          "when": {
+            "workspace_contains": "loop_while_not_diamond",
+            "workspace_lacks": "turtle_down"
+          },
           "text": "У циклі «поки не на алмазі» має бути дія — блок «вниз». Інакше Мо стоїть на місці і цикл ніколи не завершиться."
         },
         {
-          "when": {"workspace_contains": "loop_while_not_diamond", "crash_type": "horizontal"},
+          "when": {
+            "workspace_contains": "loop_while_not_diamond",
+            "crash_type": "horizontal"
+          },
           "text": "У циклі «поки не на алмазі» має бути «вниз», не «вперед». Алмаз під тобою, не збоку."
         },
         {
-          "when": {"result": "TIMEOUT"},
+          "when": {
+            "result": "TIMEOUT"
+          },
           "text": "Здається я ходжу нескінченно — блок всередині циклу може порожній? Або напрямок не туди, де алмаз."
         },
         {
@@ -168,7 +186,7 @@
       "id": "celebration",
       "type": "speech-bubble",
       "character": "mo",
-      "text": "🎉 ОДИН КОД — УСІ ГЛИБИНИ!\n\nWither програв. Твій код УНІВЕРСАЛЬНИЙ — він не рахує кроки, а реагує на ситуацію.\n\nЦе один з найпотужніших інструментів програміста — цикл з умовою. Ти щойно освоїв його!",
+      "text": "🎉 ОДИН КОД — УСІ ГЛИБИНИ!\n\nWither програв. Твій код УНІВЕРСАЛЬНИЙ — він не рахує кроки, а реагує на ситуацію.\n\nЦе один з найпотужніших інструментів програміста — цикл з умовою. Тепер він і у твоєму наборі!",
       "animation": "jump",
       "advance": {
         "type": "click-next",
