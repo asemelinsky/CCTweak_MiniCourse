@@ -88,6 +88,18 @@ function initApp() {
     const isAdmin = urlParams.get('admin') === '1';
     const isPaidFlow = uuid && !isAdmin;
 
+    // VPS secret-slug mode (mo.skillbridge.pp.ua/<slug>/) — у теці лежить тільки
+    // один lesson JSON, тому level-selector не має сенсу: спроба перескочити на
+    // інший урок веде на «Помилка завантаження» (l1.json відсутній у теці l5).
+    // Selector повністю прихований — learner працює тільки з поточним уроком.
+    const isVpsSecretMode = location.hostname === 'mo.skillbridge.pp.ua';
+    if (isVpsSecretMode) {
+      lessonSelector.style.display = 'none';
+      console.log('[main] Level selector hidden (VPS secret-slug mode)');
+      // Не робимо setupChangeHandler — блок закінчується тут для VPS
+      // Продовжуємо resize handling нижче.
+    } else {
+
     // Handler для change — універсальний (використовується у всіх режимах)
     const setupChangeHandler = () => {
       lessonSelector.addEventListener('change', (e) => {
@@ -134,6 +146,7 @@ function initApp() {
       const mode = isAdmin ? 'admin escape (?admin=1)' : 'continuous flow';
       console.log(`[main] Level selector ${mode}, current: ${lessonId}`);
     }
+    } // end else (non-VPS modes)
   }
 
   // Resize handling
