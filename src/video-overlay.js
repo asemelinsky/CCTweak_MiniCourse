@@ -29,6 +29,11 @@ const VideoOverlay = (function() {
 
   let currentBackdrop = null;
 
+  function _emit(name, detail) {
+    try { document.dispatchEvent(new CustomEvent('video-' + name, { detail: detail || {} })); }
+    catch (e) {}
+  }
+
   function show(beat) {
     hide();
 
@@ -48,6 +53,13 @@ const VideoOverlay = (function() {
     video.autoplay = true;
     video.muted = false;
     video.preload = 'auto';
+
+    // Telemetry — track loading + playback lifecycle
+    const requestTs = Date.now();
+    _emit('request', { url: beat.src });
+    video.addEventListener('playing', () => _emit('start', { url: beat.src, ms_since_request: Date.now() - requestTs }), { once: true });
+    video.addEventListener('stalled', () => _emit('stall', { url: beat.src, ms_since_request: Date.now() - requestTs }));
+    video.addEventListener('ended',   () => _emit('end',   { url: beat.src, duration_ms: Math.round(video.duration * 1000) || null }));
 
     container.appendChild(video);
     backdrop.appendChild(container);
@@ -84,6 +96,7 @@ const VideoOverlay = (function() {
     // Post-pilot design: beats з video-overlay готові до життя ДО того як
     // reальний файл існує (щоб не блокувати testing lesson JSON).
     video.addEventListener('error', () => {
+      _emit('error', { url: beat.src, code: video.error && video.error.code, message: video.error && video.error.message });
       container.innerHTML = '';
       const fallback = document.createElement('div');
       fallback.className = 'lesson-video-fallback';
@@ -95,8 +108,9 @@ const VideoOverlay = (function() {
     });
 
     // Спробувати autoplay
-    video.play().catch(() => {
+    video.play().catch((err) => {
       // Autoplay заблоковано — показуємо Play-кнопку
+      _emit('blocked', { url: beat.src, error: err.message });
       playBtn.style.display = 'flex';
     });
 

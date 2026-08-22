@@ -157,12 +157,48 @@ const LessonEngine = (function() {
   function start(lesson) {
     console.log(`[LessonEngine] Старт уроку: ${lesson.id} — «${lesson.title}»`);
     pilotInit();
+    // Network info: navigator.connection доступний у Chrome/Edge/Opera.
+    // Дає effectiveType (4g/3g/2g/slow-2g), downlink Mbps, RTT ms.
+    // В Safari/Firefox — null. Норм — просто не запишеться.
+    let netInfo = null;
+    try {
+      const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (c) netInfo = {
+        effective_type: c.effectiveType,
+        downlink_mbps:  c.downlink,
+        rtt_ms:         c.rtt,
+        save_data:      c.saveData,
+      };
+    } catch (e) {}
     pilotTrack('lesson_started', lesson.id, null, {
       title: lesson.title,
       total_beats: (lesson.beats || []).length,
       href: location.href,
       ua: navigator.userAgent.slice(0, 150),
+      network: netInfo,
+      viewport: { w: window.innerWidth, h: window.innerHeight },
     });
+
+    // Audio/video telemetry listeners — прив'язуємо lesson_id + beat_id (current)
+    // до events що приходять з AudioPlayer / VideoOverlay.
+    if (!window._pilotMediaListenersReg) {
+      window._pilotMediaListenersReg = true;
+      const mediaEvents = [
+        'audio-request', 'audio-start', 'audio-stall', 'audio-end', 'audio-error', 'audio-blocked', 'audio-unlocked',
+        'video-request', 'video-start', 'video-stall', 'video-end', 'video-error', 'video-blocked',
+      ];
+      mediaEvents.forEach(ev => {
+        document.addEventListener(ev, (e) => {
+          const beat = currentLesson && currentLesson.beats[currentBeatIdx];
+          pilotTrack(
+            ev.replace('-', '_'),
+            currentLesson ? currentLesson.id : null,
+            beat ? beat.id : null,
+            e.detail || {}
+          );
+        });
+      });
+    }
     currentLesson = lesson;
     currentBeatIdx = 0;
     lastRunProgressDist = null;  // LB-003: скидаємо cross-beat progress state

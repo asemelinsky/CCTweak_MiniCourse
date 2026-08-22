@@ -126,19 +126,34 @@ const AudioPlayer = (function() {
   let pendingVoiceAudio = null;
   let unlockListenerRegistered = false;
 
+  // Emit CustomEvent для pilot telemetry (engine слухає і робить pilotTrack).
+  // Це decoupled — audio-player не знає про pilot infra, engine прив'язує context.
+  function _emit(name, detail) {
+    try { document.dispatchEvent(new CustomEvent('audio-' + name, { detail: detail || {} })); }
+    catch (e) {}
+  }
+
   function playVoice(url) {
     if (!isEnabled()) return;
     if (!url) return;
     stopVoice();
+    const requestTs = Date.now();
+    _emit('request', { url });
     const audio = new Audio(url);
     audio.volume = 0.85;
-    audio.addEventListener('error', () => {
+    // Native events → telemetry
+    audio.addEventListener('playing', () => _emit('start', { url, ms_since_request: Date.now() - requestTs }), { once: true });
+    audio.addEventListener('stalled', () => _emit('stall', { url, ms_since_request: Date.now() - requestTs }));
+    audio.addEventListener('ended',   () => _emit('end',   { url, duration_ms: Math.round(audio.duration * 1000) || null }));
+    audio.addEventListener('error',   () => {
       console.warn(`[AudioPlayer] Voice не завантажився: ${url} (це ок)`);
+      _emit('error', { url, code: audio.error && audio.error.code, message: audio.error && audio.error.message });
     });
     currentVoice = audio;
     audio.play().catch((err) => {
       // Autoplay policy заблокував. Зберігаємо як pending, при першому кліку граємо.
       console.log(`[AudioPlayer] Voice заблокований autoplay — чекаємо першого кліку. ${err.message}`);
+      _emit('blocked', { url, error: err.message });
       pendingVoiceAudio = audio;
       registerAutoplayUnlock();
     });
@@ -147,12 +162,14 @@ const AudioPlayer = (function() {
   function registerAutoplayUnlock() {
     if (unlockListenerRegistered) return;
     unlockListenerRegistered = true;
+    const gestureStartTs = Date.now();
     // Слухаємо БУДЬ-ЯКИЙ клік у документі — one-shot
     const unlock = () => {
       document.removeEventListener('click', unlock, true);
       document.removeEventListener('keydown', unlock, true);
       document.removeEventListener('touchstart', unlock, true);
       unlockListenerRegistered = false;
+      _emit('unlocked', { ms_waiting: Date.now() - gestureStartTs });
       if (pendingVoiceAudio && currentVoice === pendingVoiceAudio) {
         console.log('[AudioPlayer] User gesture отримано → граю pending voice');
         pendingVoiceAudio.play().catch(e => console.warn('[AudioPlayer] retry не пройшов:', e));
