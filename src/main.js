@@ -54,8 +54,41 @@ function initApp() {
 
   // Стартуємо мінікурс — тут це завжди lesson mode
   window._lessonMode = true;
+
+  // Start-overlay: гарантований user-gesture перед lesson.start() → audio unlock.
+  // Без цього перші mp3 (голос Мо) блокуються autoplay policy браузерів і
+  // грають невчасно (у background поки видно вже інший beat), або не грають взагалі.
+  function showStartOverlay(onStart) {
+    const overlay = document.createElement('div');
+    overlay.className = 'lesson-start-overlay';
+    overlay.innerHTML = `
+      <div class="lesson-start-overlay__card">
+        <div class="lesson-start-overlay__avatar">🐢</div>
+        <div class="lesson-start-overlay__title">Готовий(-а) почати урок?</div>
+        <div class="lesson-start-overlay__hint">Клацни, щоб Мо привіталася голосом</div>
+        <button class="lesson-start-overlay__btn" type="button">▶ Почати урок</button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add('lesson-start-overlay--visible'));
+
+    overlay.querySelector('.lesson-start-overlay__btn').addEventListener('click', () => {
+      // Audio unlock через silent play — гарантія user gesture пропаде через engine
+      try {
+        const silent = new Audio();
+        silent.volume = 0;
+        silent.play().catch(() => {});
+      } catch (e) {}
+      overlay.classList.remove('lesson-start-overlay--visible');
+      setTimeout(() => { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 300);
+      onStart();
+    }, { once: true });
+  }
+
   LessonEngine.load(`lessons/${lessonId}.json`)
-    .then(engineResult => engineResult.start())
+    .then(engineResult => {
+      showStartOverlay(() => engineResult.start());
+    })
     .catch(err => {
       console.error('[main] Не вдалося завантажити урок:', err);
       alert('Помилка завантаження уроку. Спробуй перезавантажити сторінку.');
