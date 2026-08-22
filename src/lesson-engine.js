@@ -180,18 +180,26 @@ const LessonEngine = (function() {
     });
 
     // Audio/video telemetry listeners — прив'язуємо lesson_id + beat_id (current)
-    // до events що приходять з AudioPlayer / VideoOverlay.
+    // до events що приходять з AudioPlayer / VideoOverlay + global pilot signals
+    // (js_error / idle / visibility) з main.js.
     if (!window._pilotMediaListenersReg) {
       window._pilotMediaListenersReg = true;
-      const mediaEvents = [
+      const trackedEvents = [
+        // media lifecycle (audio-player.js, video-overlay.js)
         'audio-request', 'audio-start', 'audio-stall', 'audio-end', 'audio-error', 'audio-blocked', 'audio-unlocked',
         'video-request', 'video-start', 'video-stall', 'video-end', 'video-error', 'video-blocked',
+        // global signals (main.js): errors, idle, visibility
+        'pilot-js_error', 'pilot-js_promise_rejection',
+        'pilot-idle_start', 'pilot-idle_end',
+        'pilot-visibility_hidden', 'pilot-visibility_visible',
       ];
-      mediaEvents.forEach(ev => {
+      trackedEvents.forEach(ev => {
         document.addEventListener(ev, (e) => {
           const beat = currentLesson && currentLesson.beats[currentBeatIdx];
+          // Normalize event name: 'audio-start' → 'audio_start', 'pilot-js_error' → 'js_error'
+          const type = ev.startsWith('pilot-') ? ev.slice(6) : ev.replace('-', '_');
           pilotTrack(
-            ev.replace('-', '_'),
+            type,
             currentLesson ? currentLesson.id : null,
             beat ? beat.id : null,
             e.detail || {}

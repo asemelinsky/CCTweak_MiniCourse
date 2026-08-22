@@ -4,6 +4,80 @@
 
 'use strict';
 
+// ─────────────────────────────────────────────────────────────
+// Pilot telemetry — глобальні signals (не beat-scoped).
+// Все летить через document.dispatchEvent('pilot-*') → engine
+// слухає і робить pilotTrack (додає lesson_id + beat_id context).
+//
+// Fired unconditionally на будь-якій сторінці. Engine filter'ить
+// по наявності ?u=<uuid> у URL — без uuid нічого не шле у backend.
+// ─────────────────────────────────────────────────────────────
+(function setupGlobalPilotSignals() {
+  const dispatch = (name, detail) => {
+    try { document.dispatchEvent(new CustomEvent('pilot-' + name, { detail: detail || {} })); }
+    catch (e) {}
+  };
+
+  // A. JS ERRORS — safety net. Ситуації типу Лізиної: якщо у Chrome
+  // stalьнеться JS error який silently ламає engine — знатимемо факт.
+  window.addEventListener('error', (e) => {
+    dispatch('js_error', {
+      message: (e.message || '').slice(0, 500),
+      source:  (e.filename || '').slice(0, 200),
+      lineno:  e.lineno,
+      colno:   e.colno,
+      stack:   e.error && e.error.stack ? String(e.error.stack).slice(0, 800) : null,
+    });
+  });
+  window.addEventListener('unhandledrejection', (e) => {
+    dispatch('js_promise_rejection', {
+      reason: String(e.reason || '').slice(0, 500),
+    });
+  });
+
+  // B. IDLE DETECTION — >5 сек без input → idle_start; при русі → idle_end
+  // з тривалістю. Розкриє довгі паузи як факт («144 сек idle» замість
+  // просто «144 сек на beat»).
+  const IDLE_MS = 5000;
+  let idleTimer = null;
+  let idleStartTs = null;
+  function onActivity() {
+    if (idleStartTs) {
+      dispatch('idle_end', { duration_ms: Date.now() - idleStartTs });
+      idleStartTs = null;
+    }
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+      idleStartTs = Date.now();
+      dispatch('idle_start', {});
+    }, IDLE_MS);
+  }
+  ['mousedown', 'keydown', 'touchstart', 'wheel'].forEach(ev =>
+    document.addEventListener(ev, onActivity, { passive: true, capture: true }));
+  // mousemove throttled — інакше при перших рухах спам events (переміщення миші)
+  let lastMouseMoveTs = 0;
+  document.addEventListener('mousemove', () => {
+    const now = Date.now();
+    if (now - lastMouseMoveTs > 1000) { lastMouseMoveTs = now; onActivity(); }
+  }, { passive: true, capture: true });
+  onActivity(); // старт timer одразу
+
+  // F. VISIBILITY CHANGE — перемикання табу / мінімізація вікна.
+  // Точний proxy для «дитина відвернулась / зайшла у інший додаток».
+  let hiddenAtTs = null;
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      hiddenAtTs = Date.now();
+      dispatch('visibility_hidden', {});
+    } else {
+      dispatch('visibility_visible', {
+        away_ms: hiddenAtTs ? Date.now() - hiddenAtTs : null,
+      });
+      hiddenAtTs = null;
+    }
+  });
+})();
+
 function initApp() {
   // URL param ?lesson=N → визначає який урок стартує.
   // Читаємо ДО Blockly.inject бо toolbox залежить від уроку (прогресивне розкриття).
