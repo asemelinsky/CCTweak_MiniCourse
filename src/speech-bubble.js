@@ -20,9 +20,26 @@
 const SpeechBubble = (function() {
 
   let currentEl = null;
+  let currentBackdrop = null;
+  let nextBtnEnableTimer = null;
+
+  // Modal behavior: під час показу bubble
+  //  - півпрозорий backdrop покриває весь екран (перехоплює кліки → workspace,
+  //    ▶ Run, ↺ Reset заблоковані)
+  //  - bubble центрований на екрані (не floating внизу як раніше)
+  //  - кнопка «Далі» disabled перші 3 сек — дитина мусить побачити текст
+  //    і почути перші секунди голосу Мо. Через 3 сек кнопка активна + pulse.
 
   function show(beat) {
     hide();  // якщо був попередній — прибираємо
+
+    // Backdrop під bubble — блокує все UI поки modal відкритий
+    const backdrop = document.createElement('div');
+    backdrop.className = 'lesson-speech-backdrop';
+    document.body.appendChild(backdrop);
+    // Плавна поява backdrop'а
+    requestAnimationFrame(() => backdrop.classList.add('lesson-speech-backdrop--visible'));
+    currentBackdrop = backdrop;
 
     // Створюємо DOM-елемент bubble
     const el = document.createElement('div');
@@ -63,13 +80,22 @@ const SpeechBubble = (function() {
     // Кнопка «Далі», якщо advance = click-next
     if (beat.advance && beat.advance.type === 'click-next') {
       const btn = document.createElement('button');
-      // LB-005: attention-pulse — scale+glow «дихання» на Next-кнопку як візуальний
-      // афіш «сюди клік». Універсально для всіх bubbles з click-next advance.
-      btn.className = 'lesson-speech-bubble__next attention-pulse';
+      // Modal behavior: спочатку кнопка disabled (3 сек) — дитина мусить
+      // побачити modal і послухати перші секунди Мо. Через 3 сек — enabled + pulse.
+      btn.className = 'lesson-speech-bubble__next lesson-speech-bubble__next--waiting';
+      btn.disabled = true;
       btn.textContent = beat.advance.label || 'Далі';
       btn.addEventListener('click', () => {
         document.dispatchEvent(new CustomEvent('lesson-next-click'));
       });
+      // Enable через 3000ms + pulse
+      if (nextBtnEnableTimer) clearTimeout(nextBtnEnableTimer);
+      nextBtnEnableTimer = setTimeout(() => {
+        btn.disabled = false;
+        btn.classList.remove('lesson-speech-bubble__next--waiting');
+        btn.classList.add('attention-pulse');
+        nextBtnEnableTimer = null;
+      }, 3000);
       el.appendChild(btn);
     }
 
@@ -161,17 +187,24 @@ const SpeechBubble = (function() {
   }
 
   function positionBubble(el) {
-    // За замовчуванням — прикріплюємо до нижнього центру #simulator-panel
-    // (не позиціонуємо точно біля черепашки, бо вона рухається — bubble мандрував би)
+    // Modal-style: центрувати посередині екрана (замість floating внизу).
+    // Backdrop блокує все під ним, bubble на верхньому z-index.
     el.style.position = 'fixed';
-    el.style.bottom   = '20px';
-    el.style.left     = '50%';
-    el.style.transform = 'translateX(-50%)';
-    el.style.zIndex   = '10000';
+    el.style.top       = '50%';
+    el.style.left      = '50%';
+    el.style.transform = 'translate(-50%, -50%)';
+    el.style.zIndex   = '10001';  // above backdrop (10000)
   }
 
   function hide() {
     if (window.AudioPlayer) AudioPlayer.stopVoice();
+    if (nextBtnEnableTimer) { clearTimeout(nextBtnEnableTimer); nextBtnEnableTimer = null; }
+    if (currentBackdrop) {
+      const bd = currentBackdrop;
+      currentBackdrop = null;
+      bd.classList.remove('lesson-speech-backdrop--visible');
+      setTimeout(() => { if (bd.parentNode) bd.parentNode.removeChild(bd); }, 300);
+    }
     if (!currentEl) return;
     const el = currentEl;
     currentEl = null;
