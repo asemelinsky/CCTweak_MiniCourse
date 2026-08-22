@@ -975,6 +975,15 @@ const LessonEngine = (function() {
    *  - '/public/x.html?ref=abc' — new path + query: merge query, зберегти ?u=/?admin=
    *  - 'https://t.me/xxx' — external: як є (Telegram deep-link, ...)
    */
+  // VPS pilot slug mapping — для CTA '?lesson=N' на mo.skillbridge.pp.ua
+  // треба redirect на правильний slug (кожен урок у власній теці).
+  // На Vercel continuous flow ці slugs ігноруються — там працює same-path.
+  // Slugs НЕ секретні щодо engine (deploy'їться разом), але secret щодо публіки.
+  const VPS_PILOT_SLUGS = {
+    '1': '722689', '2': '104649', '3': 'b3c07e', '4': '760ab8',
+    '5': '85e30a', '6': 'c98ea4', '7': '1712f1',
+  };
+
   function mergeCtaUrl(ctaUrl) {
     if (!ctaUrl) return ctaUrl;
     // External absolute URL (t.me, https://...) → залишаємо як є
@@ -984,6 +993,11 @@ const LessonEngine = (function() {
     if (ctaUrl.startsWith('?')) {
       const overrides = new URLSearchParams(ctaUrl.slice(1));
       for (const [k, v] of overrides) current.set(k, v);
+      // VPS pilot: замінити slug у path якщо hostname = mo.skillbridge.pp.ua
+      const targetLesson = overrides.get('lesson');
+      if (targetLesson && location.hostname === 'mo.skillbridge.pp.ua' && VPS_PILOT_SLUGS[targetLesson]) {
+        return `/${VPS_PILOT_SLUGS[targetLesson]}/?${current.toString()}`;
+      }
       return window.location.pathname + '?' + current.toString();
     }
     // Path (можливо з query): '/public/sales-placeholder.html' або '/x.html?ref=abc'
