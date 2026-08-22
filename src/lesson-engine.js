@@ -112,10 +112,69 @@ const LessonEngine = (function() {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Не вдалося завантажити урок: ${url}`);
     const lesson = await res.json();
+    // Aggressive preload УСІХ mp3 уроку — щоб дитина на слабому інтернеті
+    // (як Ліза 2026-08-22) не читала німі bubble бо audio не встиг завантажитись.
+    // Preload паралельно поки грає intro-video Олексія (~15с) — цього досить
+    // навіть для 3G. 404-і preload'ів silently ігноруються браузером.
+    preloadLessonAudio(lesson);
     return {
       start: () => start(lesson),
       lesson,
     };
+  }
+
+  /**
+   * Збирає всі можливі URL mp3 для уроку і робить <link rel="preload">.
+   *
+   * Правила:
+   *   1) Явний beat.voice_url (якщо є) — але у поточних lessons не використовується
+   *   2) Auto-URL public/audio/{lesson_id}/{beat.id}.mp3 для голосових beat-типів
+   *      (speech-bubble, coach-mark, hint, task-*) — це головне джерело
+   *   3) Standard hint URLs: hint-crash/failure/timeout (з lesson-engine ensureFailListener)
+   *   4) Стандартний celebration.mp3 (LB-final-praise)
+   *
+   * Overshoot ок — 404 у preload не помилка, браузер ігнорує. Головне — покрити.
+   */
+  function preloadLessonAudio(lesson) {
+    if (!lesson || !lesson.id) return;
+    const lid = lesson.id;
+    const urls = new Set();
+
+    function walk(node) {
+      if (!node) return;
+      if (Array.isArray(node)) { node.forEach(walk); return; }
+      if (typeof node !== 'object') return;
+      if (typeof node.voice_url === 'string' && node.voice_url.endsWith('.mp3')) {
+        urls.add(node.voice_url);
+      }
+      // Всі об'єкти з id → auto-URL. Overshoot безпечний.
+      if (typeof node.id === 'string' && node.id.length > 0) {
+        urls.add(`public/audio/${lid}/${node.id}.mp3`);
+      }
+      Object.values(node).forEach(walk);
+    }
+    walk(lesson);
+
+    // Стандартні hint файли + celebration — на випадок якщо конкретних id немає у JSON
+    ['hint-crash', 'hint-failure', 'hint-timeout', 'celebration'].forEach(id => {
+      urls.add(`public/audio/${lid}/${id}.mp3`);
+    });
+
+    const head = document.head;
+    let added = 0;
+    urls.forEach(url => {
+      if (document.querySelector(`link[rel="preload"][href="${url}"]`)) return;
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'audio';
+      link.href = url;
+      link.type = 'audio/mpeg';
+      // fetchpriority=low щоб не конкурувати з intro-video mp4
+      link.setAttribute('fetchpriority', 'low');
+      head.appendChild(link);
+      added++;
+    });
+    console.log(`[LessonEngine] Preload черга: ${added} mp3 для ${lid}`);
   }
 
   // ─────────────────────────────────────────────────────────────

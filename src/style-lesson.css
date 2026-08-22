@@ -7,64 +7,30 @@
    Speech Bubble
    ----------------------------------------------------- */
 
-/* Start overlay — гарантований user gesture перед lesson.start() → audio unlock.
-   Без нього перші mp3 (голос Мо) блокуються autoplay policy браузерів. */
-.lesson-start-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  z-index: 10500;
+/* Audio loading spinner — показується у куті bubble якщо mp3 не почав грати
+   за 2с. Дитина розуміє «зараз заговорю, зачекай» замість читати мовчазний
+   текст (LT Ліза-пілот 2026-08-22 — на слабому інтернеті mp3 не встигав). */
+.lesson-speech-bubble__spinner {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: auto;
+  font-size: 1.1rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  z-index: 3;
+  animation: spin 1.4s linear infinite;
+  pointer-events: none;
 }
-.lesson-start-overlay--visible { opacity: 1; }
-.lesson-start-overlay__card {
-  background: #ffffff;
-  border: 3px solid #4CAF50;
-  border-radius: 20px;
-  padding: 40px 48px;
-  text-align: center;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  max-width: 480px;
-  width: min(92vw, 480px);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  transform: scale(0.9);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
-.lesson-start-overlay--visible .lesson-start-overlay__card { transform: scale(1); }
-.lesson-start-overlay__avatar {
-  font-size: 4.5rem;
-  margin-bottom: 12px;
-}
-.lesson-start-overlay__title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #212121;
-  margin-bottom: 8px;
-}
-.lesson-start-overlay__hint {
-  font-size: 1rem;
-  color: #666;
-  margin-bottom: 24px;
-}
-.lesson-start-overlay__btn {
-  background: #4CAF50;
-  color: #fff;
-  border: none;
-  border-radius: 14px;
-  padding: 16px 40px;
-  font-size: 1.2rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-  animation: attention-pulse 1.2s ease-in-out infinite;
-}
-.lesson-start-overlay__btn:hover { background: #43A047; }
-.lesson-start-overlay__btn:active { transform: scale(0.97); }
 
 /* Modal backdrop — блокує всі UI взаємодії поки Мо говорить */
 .lesson-speech-backdrop {

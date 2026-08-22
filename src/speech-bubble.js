@@ -135,6 +135,32 @@ const SpeechBubble = (function() {
       ? `public/audio/${beat.lesson_id}/${beat.id}.mp3`
       : null);
     if (window.AudioPlayer && voiceUrl) {
+      // Loading spinner: якщо audio не почав грати за 2с — показуємо 🔄 у куті bubble,
+      // щоб дитина знала «зачекай, зараз заговорю» замість читати мовчазний текст.
+      // Особливо важливо на слабому інтернеті (LT Ліза-пілот 2026-08-22).
+      const spinner = document.createElement('div');
+      spinner.className = 'lesson-speech-bubble__spinner';
+      spinner.setAttribute('aria-hidden', 'true');
+      spinner.textContent = '🔄';
+      spinner.style.display = 'none';
+      el.appendChild(spinner);
+
+      const stallTimer = setTimeout(() => { spinner.style.display = 'flex'; }, 2000);
+      const stopSpinner = (e) => {
+        if (e && e.detail && e.detail.url && e.detail.url !== voiceUrl) return;
+        clearTimeout(stallTimer);
+        spinner.style.display = 'none';
+        document.removeEventListener('audio-start', stopSpinner);
+        document.removeEventListener('audio-end',   stopSpinner);
+        document.removeEventListener('audio-error', stopSpinner);
+      };
+      document.addEventListener('audio-start', stopSpinner);
+      document.addEventListener('audio-end',   stopSpinner);
+      document.addEventListener('audio-error', stopSpinner);
+      // Прив'язуємо cleanup до element'а — hide() викличе його, щоб уникнути
+      // leaked listeners якщо bubble закривається до події audio.
+      el._spinnerCleanup = () => stopSpinner(null);
+
       AudioPlayer.playVoice(voiceUrl);
     }
 
@@ -230,6 +256,7 @@ const SpeechBubble = (function() {
     if (!currentEl) return;
     const el = currentEl;
     currentEl = null;
+    if (typeof el._spinnerCleanup === 'function') { try { el._spinnerCleanup(); } catch (e) {} }
     el.classList.remove('lesson-speech-bubble--visible');
     // прибираємо через 300 мс (плавне зникнення)
     setTimeout(() => {
