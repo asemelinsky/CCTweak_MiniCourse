@@ -130,6 +130,55 @@
   background: #B0BEC5;
 }
 
+/* Hint-режим: bubble це реактивне повідомлення (реакція на fail/crash), а не
+   основна теорія Мо. Тому:
+   - немає backdrop (workspace НЕ заблокований — learner мусить одразу
+     редагувати блоки після pointer'а на помилку)
+   - є X-кнопка у top-right для закриття
+   - трохи менший розмір ніж modal-speech, помаранчева рамка (візуальна
+     різниця від «Мо каже теорію»)
+   - тінь м'якша (не такий важкий accent як modal) */
+.lesson-speech-bubble--hint {
+  border-color: #FF9800;       /* помаранчевий = реакція/hint */
+  max-width: 480px;
+  min-width: 300px;
+  padding: 20px 24px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.30);
+}
+
+/* X-кнопка hint — top-right corner, поруч з actions але окремо */
+.lesson-speech-bubble__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: rgba(255, 152, 0, 0.15);
+  color: #E65100;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  transition: background 0.15s, transform 0.1s;
+  z-index: 3;
+}
+.lesson-speech-bubble__close:hover {
+  background: rgba(255, 152, 0, 0.35);
+  transform: scale(1.1);
+}
+.lesson-speech-bubble__close:active {
+  transform: scale(0.95);
+}
+
+/* Actions bar (⏮ 🔁 ⏭) у hint-режимі — трохи inset щоб не колідувати з X */
+.lesson-speech-bubble--hint .lesson-speech-bubble__actions {
+  top: 8px;
+  right: 48px;
+}
+
 /* LB-005: Attention pulse — м'яке «дихання» кнопки + світіння як запрошення
    натиснути. Застосовується автоматично до Next-кнопок (speech-bubble + coach-
    mark) коли advance.type === 'click-next'. Універсальна, не lesson-specific.

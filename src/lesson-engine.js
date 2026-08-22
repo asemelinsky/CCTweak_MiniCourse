@@ -808,15 +808,17 @@ const LessonEngine = (function() {
       lastHintText = hint;
       lastHintTime = now;
 
-      // Показуємо bubble з можливістю голосу тільки якщо це не repeat
+      // Показуємо bubble у hint-режимі — центрований але БЕЗ backdrop,
+      // з X-кнопкою, workspace НЕ заблокований (learner мусить мати можливість
+      // одразу редагувати блоки після pointer'а на помилку).
       SpeechBubble.show({
         id: isRepeat ? null : hintId,           // без id → не шукає voice-URL
         lesson_id: currentLesson.id,
         character: 'mo',
         text: hint,
         animation: 'shake',
-      });
-      // Bubble НЕ auto-hide. Скасовується сам при новому ▶ або редагуванні.
+      }, { hint: true });
+      // Bubble НЕ auto-hide. Закривається X-кнопкою, новим ▶ або редагуванням.
     };
     addListener(document, 'lesson-task-failed', failListener);
 
@@ -848,13 +850,14 @@ const LessonEngine = (function() {
       listeners.push({ type: 'blockly', listener: clearOnEdit });
     }
 
-    // Опційна інструкція
+    // Опційна інструкція — hint-режим (не блокує workspace, є X-кнопка).
+    // Instruction це підказка «збери таку програму», паралельна до drag/drop.
     if (beat.instruction) {
       SpeechBubble.show({
         character: 'mo',
         text: beat.instruction,
         animation: 'wiggle',
-      });
+      }, { hint: true });
     }
   }
 

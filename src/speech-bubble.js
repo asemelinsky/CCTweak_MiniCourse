@@ -30,20 +30,30 @@ const SpeechBubble = (function() {
   //  - кнопка «Далі» disabled перші 3 сек — дитина мусить побачити текст
   //    і почути перші секунди голосу Мо. Через 3 сек кнопка активна + pulse.
 
-  function show(beat) {
+  /**
+   * @param {object} beat — beat data
+   * @param {object} [opts]
+   * @param {boolean} [opts.hint] — true для hint-режиму (реакція на fail/crash):
+   *   немає backdrop, немає «Далі» кнопки, є X-кнопка для закриття,
+   *   workspace НЕ заблокований. Learner може одразу виправляти код.
+   */
+  function show(beat, opts) {
     hide();  // якщо був попередній — прибираємо
+    const isHint = !!(opts && opts.hint);
 
-    // Backdrop під bubble — блокує все UI поки modal відкритий
-    const backdrop = document.createElement('div');
-    backdrop.className = 'lesson-speech-backdrop';
-    document.body.appendChild(backdrop);
-    // Плавна поява backdrop'а
-    requestAnimationFrame(() => backdrop.classList.add('lesson-speech-backdrop--visible'));
-    currentBackdrop = backdrop;
+    // Backdrop під bubble — блокує UI ТІЛЬКИ у нормальному (не hint) режимі.
+    // Hint = реактивне повідомлення, learner мусить мати доступ до workspace.
+    if (!isHint) {
+      const backdrop = document.createElement('div');
+      backdrop.className = 'lesson-speech-backdrop';
+      document.body.appendChild(backdrop);
+      requestAnimationFrame(() => backdrop.classList.add('lesson-speech-backdrop--visible'));
+      currentBackdrop = backdrop;
+    }
 
     // Створюємо DOM-елемент bubble
     const el = document.createElement('div');
-    el.className = 'lesson-speech-bubble';
+    el.className = 'lesson-speech-bubble' + (isHint ? ' lesson-speech-bubble--hint' : '');
     el.setAttribute('data-character', beat.character || 'mo');
 
     // Внутрішня структура
@@ -77,8 +87,20 @@ const SpeechBubble = (function() {
       el.appendChild(img);
     }
 
-    // Кнопка «Далі», якщо advance = click-next
-    if (beat.advance && beat.advance.type === 'click-next') {
+    // Hint-режим: X-кнопка у верхньому куті замість «Далі»
+    if (isHint) {
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'lesson-speech-bubble__close';
+      closeBtn.type = 'button';
+      closeBtn.textContent = '✕';
+      closeBtn.setAttribute('aria-label', 'Закрити підказку');
+      closeBtn.setAttribute('title', 'Закрити');
+      closeBtn.addEventListener('click', (e) => { e.stopPropagation(); hide(); });
+      el.appendChild(closeBtn);
+    }
+
+    // Кнопка «Далі», якщо advance = click-next (тільки не у hint режимі)
+    if (!isHint && beat.advance && beat.advance.type === 'click-next') {
       const btn = document.createElement('button');
       // Modal behavior: спочатку кнопка disabled (3 сек) — дитина мусить
       // побачити modal і послухати перші секунди Мо. Через 3 сек — enabled + pulse.
