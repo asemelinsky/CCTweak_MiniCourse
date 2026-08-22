@@ -118,8 +118,51 @@ const LessonEngine = (function() {
     };
   }
 
+  // ─────────────────────────────────────────────────────────────
+  // PILOT TELEMETRY (fire-and-forget)
+  // Записує події у NocoDB через /api/pilot/event коли є ?u=<uuid> у URL.
+  // Nothing sent якщо uuid відсутній (continuous test mode).
+  // Cross-origin POST: engine на mo.skillbridge.pp.ua → Vercel API.
+  // ─────────────────────────────────────────────────────────────
+  const PILOT_API = (() => {
+    const h = (typeof location !== 'undefined' && location.hostname) || '';
+    return h === 'mo.skillbridge.pp.ua'
+      ? 'https://cctweak-minicourse.vercel.app/api/pilot/event'
+      : '/api/pilot/event';
+  })();
+  let pilotUuid = null;
+  // Per-task counters (reset on task-* beat entry)
+  let taskAttempts = 0;
+  let currentTaskBeatId = null;
+
+  function pilotInit() {
+    try {
+      const p = new URLSearchParams(location.search);
+      pilotUuid = p.get('u');
+    } catch { pilotUuid = null; }
+  }
+
+  function pilotTrack(event_type, lesson_id, beat_id, meta) {
+    if (!pilotUuid) return;
+    try {
+      fetch(PILOT_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uuid: pilotUuid, event_type, lesson_id, beat_id, meta: meta || null }),
+        keepalive: true,
+      }).catch(err => console.warn('[pilot]', event_type, err.message));
+    } catch (e) { console.warn('[pilot] sync err', e.message); }
+  }
+
   function start(lesson) {
     console.log(`[LessonEngine] Старт уроку: ${lesson.id} — «${lesson.title}»`);
+    pilotInit();
+    pilotTrack('lesson_started', lesson.id, null, {
+      title: lesson.title,
+      total_beats: (lesson.beats || []).length,
+      href: location.href,
+      ua: navigator.userAgent.slice(0, 150),
+    });
     currentLesson = lesson;
     currentBeatIdx = 0;
     lastRunProgressDist = null;  // LB-003: скидаємо cross-beat progress state
@@ -175,6 +218,21 @@ const LessonEngine = (function() {
 
     const beat = currentLesson.beats[currentBeatIdx];
     console.log(`[LessonEngine] Beat ${currentBeatIdx + 1}/${currentLesson.beats.length}: ${beat.id} (${beat.type})`);
+
+    // Pilot telemetry — beat_shown (з reset per-task counters коли беат-тип змінюється)
+    if (beat.type === 'task' || beat.type === 'task-with-constraints') {
+      if (currentTaskBeatId !== beat.id) { taskAttempts = 0; currentTaskBeatId = beat.id; }
+    } else {
+      currentTaskBeatId = null;
+    }
+    pilotTrack('beat_shown', currentLesson.id, beat.id, {
+      idx: currentBeatIdx + 1,
+      total: currentLesson.beats.length,
+      type: beat.type,
+    });
+    if (beat.type === 'final-modal') {
+      pilotTrack('lesson_completed', currentLesson.id, beat.id, { total_beats: currentLesson.beats.length });
+    }
 
     // LB-011: track visited ПЕРЕД skip_if check — щоб beat_visited: '<self>' спрацював
     // як cycle guard (якщо цей же beat був route_to цілю, наступний захід буде skip).
@@ -725,6 +783,15 @@ const LessonEngine = (function() {
     const failListener = (e) => {
       const detail = e.detail || {};
       const { result } = detail;
+      taskAttempts++;
+      pilotTrack('task_result', currentLesson.id, beat.id, {
+        result: result || 'unknown',   // CRASH / FAILURE / TIMEOUT
+        attempts: taskAttempts,
+        end_x: detail.endX,
+        end_y: detail.endY,
+        crash_type: detail.crash_type,
+        bounces_count: detail.bounces_count,
+      });
 
       // LB-018 — adaptive hint dispatcher (масив умовних hints з пріоритетом).
       // Backward compat: якщо beat.hints[] немає — fallback на старі hint_on_* fields.
@@ -752,6 +819,18 @@ const LessonEngine = (function() {
       // Bubble НЕ auto-hide. Скасовується сам при новому ▶ або редагуванні.
     };
     addListener(document, 'lesson-task-failed', failListener);
+
+    // Pilot telemetry — task_success (SUCCESS шлях, не через failListener)
+    addListener(document, 'lesson-task-solved', (e) => {
+      const detail = (e && e.detail) || {};
+      taskAttempts++;
+      pilotTrack('task_result', currentLesson.id, beat.id, {
+        result: 'SUCCESS',
+        attempts: taskAttempts,
+        end_x: detail.endX,
+        end_y: detail.endY,
+      });
+    });
 
     // Прибираємо hint bubble при новій спробі (▶) або редагуванні
     const clearOnRun = () => SpeechBubble.hide();
